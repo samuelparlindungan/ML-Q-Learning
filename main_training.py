@@ -1,0 +1,105 @@
+import numpy as np  # Import numpy for numerical operations and arrays
+import json  # Import json for saving policy data
+import os  # Import os for file system operations
+from env_ph_ec import PhEcEnv  # Import the custom PhEcEnv environment
+from qlearning_agent import QLearningAgent  # Import the QLearningAgent class
+
+# Buat folder output jika belum ada
+os.makedirs("output", exist_ok=True)  # Create output directory if it doesn't exist
+
+env = PhEcEnv()  # Initialize the PhEc environment
+agent = QLearningAgent(n_states=25, n_actions=9)  # Initialize the Q-learning agent
+
+episodes = 1500  # Number of training episodes
+max_steps = 40  # Maximum steps per episode
+
+reward_log = []  # List to log total rewards per episode
+step_log = []  # List to log steps per episode
+qmax_log = []  # List to log maximum Q-values per episode
+alpha_log = []  # List to log alpha values per episode
+state_visit = np.zeros(25)  # Array to count visits to each state
+action_count = np.zeros(9)  # Array to count actions taken
+trajectory = []  # List to store state trajectories
+
+print("Critical states:", env.critical_states)  # Print critical states
+print("Reward grid:\n", env.reward_table.reshape(5, 5))  # Print reward grid
+print(
+    f"Initial: Alpha={agent.alpha:.3f}, Epsilon={agent.epsilon:.3f}\n"
+)  # Print initial parameters
+
+for ep in range(episodes):  # Loop over episodes
+    state, _ = env.reset()  # Reset environment and get initial state
+    total_reward = 0  # Initialize total reward for episode
+    steps = 0  # Initialize step count
+
+    for _ in range(max_steps):  # Loop over maximum steps
+        action = agent.select_action(state)  # Select action using agent
+        next_state, reward, done, _, _ = env.step(action)  # Take step in environment
+        agent.update(state, action, reward, next_state)  # Update agent Q-table
+        state_visit[state] += 1  # Increment state visit count
+        action_count[action] += 1  # Increment action count
+        trajectory.append(state)  # Append state to trajectory
+        state = next_state  # Update current state
+        total_reward += reward  # Accumulate reward
+        steps += 1  # Increment step count
+        if done:  # If episode is done
+            state_visit[next_state] += 1  # Count visit to terminal state
+            trajectory.append(next_state)  # Append terminal state to trajectory
+            break  # Break the loop
+
+        state = next_state  # Update state for next iteration
+
+    agent.decay_epsilon()  # Decay epsilon
+    agent.decay_alpha()  # Decay learning rate juga
+
+    reward_log.append(total_reward)  # Append total reward to log
+    step_log.append(steps)  # Append steps to log
+    qmax_log.append(np.max(agent.Q))  # Append max Q to log
+    alpha_log.append(agent.alpha)  # Append alpha to log
+
+    if (ep + 1) % 150 == 0:  # Every 150 episodes
+        avg_r = np.mean(
+            reward_log[-150:]
+        )  # Calculate average reward of last 150 episodes
+        print(  # Print progress
+            f"Ep {ep+1} | AvgR:{avg_r:.1f} | Eps:{agent.epsilon:.3f} | Alpha:{agent.alpha:.4f}"
+        )
+
+# Save ke folder output/
+np.save("output/Q_table.npy", agent.Q)  # Save Q-table
+np.save("output/reward_log.npy", reward_log)  # Save reward log
+np.save("output/step_log.npy", step_log)  # Save step log
+np.save("output/qmax_log.npy", qmax_log)  # Save qmax log
+np.save("output/alpha_log.npy", alpha_log)  # Save alpha log
+np.save("output/state_visit.npy", state_visit)  # Save state visit counts
+np.save("output/action_count.npy", action_count)  # Save action counts
+np.save("output/trajectory.npy", trajectory)  # Save trajectory
+
+# Buat policy.json
+policy = {}  # Initialize policy dictionary
+for state in range(25):  # Loop over all states
+    ph_idx = state // 5  # Calculate pH index
+    ec_idx = state % 5  # Calculate EC index
+    best_action = int(np.argmax(agent.Q[state]))  # Get best action
+    q_values = agent.Q[state].tolist()  # Get Q-values as list
+    policy[f"state_{state+1}"] = {  # Add to policy dict
+        "pH_index": ph_idx,
+        "EC_index": ec_idx,
+        "best_action": best_action,
+        "q_values": q_values,
+        "max_q": float(np.max(agent.Q[state])),
+    }
+
+with open("output/policy.json", "w") as f:  # Open policy.json file
+    json.dump(policy, f, indent=2)  # Dump policy to JSON
+
+print("\n✅ TRAINING SELESAI!")  # Print completion message
+print(
+    f"Final: Alpha={agent.alpha:.4f}, Epsilon={agent.epsilon:.3f}"
+)  # Print final parameters
+print(
+    "File output: Q_table.npy, reward_log.npy, step_log.npy, qmax_log.npy,"
+)  # Print output files
+print(  # Continue printing output files
+    "             alpha_log.npy, state_visit.npy, action_count.npy, trajectory.npy, policy.json"
+)

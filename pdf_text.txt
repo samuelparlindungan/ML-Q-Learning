@@ -1,0 +1,1352 @@
+i 
+  
+ 
+TUGAS AKHIR  
+ 
+ 
+ 
+IMPLEMENTASI REINFORCEMENT  LEARNING  (Q-LEARNING)  UNTUK KONTROL 
+STABILITAS PH DAN EC PADA SISTEM HIDROPONIK  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PROGRAM STUD I SARJANA TEKNIK ELEKTRO  
+FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO  
+INSTITUT TEKNOLOGI DEL  
+2025 
+14S2203 6 SAMUEL P.  ii 
+  
+ 
+TUGAS AKHIR  
+ 
+ 
+ 
+ 
+ 
+IMPLEMENTASI REINFORCEMENT LEARNING (Q -LEARNING) UNTUK KONTROL 
+STABILITAS PH DAN EC PADA SISTEM HIDROPONIK  
+Diajukan sebagai salah satu syarat untuk memperoleh gelar  
+Sarjana Teknik (S.T)  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PROGRAM STUDI SARJANA TEKNIK ELEKTRO  
+FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO  
+INSTITUT TEKNOLOGI DEL  
+2025   
+14S2203 6 SAMUEL P.  iii 
+ HALAMAN PERNYATAAN ORISINALITAS  
+Tugas Akhir ini adalah karya saya sendiri dan semua sumber baik yang dikutip  
+maupun dirujuk telah saya nyatakan dengan benar.  
+Nama  : SAMUEL P.  
+NIM  : 14S2203 6 
+Tanda Tangan  : 
+  
+  
+Tanggal   
+ 
+  iv 
+ HALAMAN PENGESAHAN  
+Tugas Akhir ini diajukan oleh :  
+ 
+Telah berhasil dipertanggungjawabkan di hadapan Dewan penguji dan 
+diterima sebagai bagian persyaratan yang di perlukan untuk memperoleh 
+gelar Sarjana Teknik (S.T) pada program studi Sarjana Teknik Elektro, 
+Fakultas Informatika dan Teknik Elektro, Institut Teknologi Del.  
+DEWAN PENGUJI  
+Pembimbing 1  
+ : Albert Sagala, S.T, M.T  
+ (                      )  
+Penguji 1  : Good Fried Panggabean, S .T, MT, 
+Ph.D  (                      )  
+Penguji 2  : Andi Ray Hutauruk, S.T.,M.T.  (                      )  
+ 
+Ditetapkan  : Laguboti  
+Tanggal  :  
+ Nama  : SAMUEL P.  
+NIM  : 14S22036  
+Program 
+Studi  : Sarja Teknik Elektro  
+Judul 
+Tugas 
+Akhir  : IMPLEMENTASI  REINFORCEMENT LEARNING (Q -
+LEARNING) UNTUK KONTROL STABILITAS PH DAN EC 
+PADA SISTEM HIDROPONIK.  v 
+ HALAMAN PERNYATAAN PERSETUJUAN PUBLIKASI   TUGAS 
+AKHIR UNTUK KEPENTINGAN AKADEMIS  
+ 
+Sebagai civitas akademik Institut Teknologi Del, saya yang bertanda tangan di 
+bawah ini:  
+Demi pengembangan ilmu pengetahuan, menyetujui untuk memberikan kepada 
+Institut Teknologi Del Hak Bebas Royalti Non ekslusif (Non -exclusive Royalty 
+Free Right)  atas karya ilmiah saya yang berjudul :  
+IMPLEMENTASI REINFORCEMENT LEARNING (Q -LEARNING) UNTUK 
+KONTROL STABILITAS PH DAN EC PADA SISTEM HIDROPONIK .  
+beserta perangkat yang ada (jika diperlukan). Dengan Hak Bebas Royalti 
+Nonekslusif ini Institut Teknologi Del berhak menyimpan, mengalih/media format 
+dalam bentuk pangkalan data (database), merawat, dan mempublikasikan tugas 
+akhir saya selama tetap mencant umkan nama saya sebagai penulis/pencipta dan 
+sebagai pemilik Hak Cipta. Demikian pernyataan ini saya buat dengan sebenarnya.  
+ 
+Ditetapkan  : Laguboti  
+Tanggal  :  
+ 
+Yang menyatakan  
+ 
+ 
+ 
+SAMUEL P.  
+  vi 
+ ABSTRAK  
+Nama  : SAMUEL P.  
+NIM  : 14S22036  
+Program Studi  : S1 Teknik Elektro  
+Judul Tugas Akhir  : IMPLEMENTASI REINFORCEMENT LEARNING (Q -
+LEARNING) UNTUK KONTROL STABILITAS PH DAN EC 
+PADA SISTEM HIDROPONIK.  
+ 
+  vii 
+ ABSTRACT  
+Name  : SAMUEL P.  
+NIM : 14S22036  
+Program Studi  : S1 Teknik Elektro  
+Judul Tugas Akhir  : IMPLEMENTATION OF REINFORCEMENT  LEARNING (Q-
+LEARNING) FOR PH AND EC STABILITY CONTROL IN 
+HYDROPONIC SYSTEMS.  
+ 
+ 
+ 
+  viii 
+ DAFTAR ISI  
+HALAMAN PERNYATAAN ORISINALITAS  ................................ .............................  iii 
+HALAMAN PENGESAHAN  ................................ ................................ ........................... iv 
+HALAMAN PERNYATAAN PERSETUJUAN PUBLIKASI   TUGAS AKHIR UNTUK 
+KEPENTINGAN AKADEMIS  ................................ ................................ ..........................  v 
+ABSTRAK  ................................ ................................ ................................ ........................ vi 
+ABSTRACT  ................................ ................................ ................................ ...................  vii 
+DAFTAR ISI ................................ ................................ ................................ ..................  viii 
+DAFTAR GAMBAR  ................................ ................................ ................................ .........  x 
+DAFTAR TABEL  ................................ ................................ ................................ ............. xi 
+DAFTAR SINGKATAN  ................................ ................................ ................................  xii 
+BAB I PENDAHULUAN  ................................ ................................ ................................ .. 1 
+1.1. Latar Belakang  ................................ ................................ ................................ .. 1 
+1.2. Rumusan Masalah  ................................ ................................ .............................  3 
+1.3. Tujuan  ................................ ................................ ................................ ...............  4 
+1.4. Manfaat Penelitian  ................................ ................................ ............................  4 
+1.5. Batasan Masalah  ................................ ................................ ...............................  5 
+1.6. Sistematika Penulisan  ................................ ................................ .......................  5 
+BAB II LANDASAN TEORI  ................................ ................................ ............................  7 
+2.1 Sistem Hidroponik dan Dinamika Nutrisi  ................................ ................................  7 
+2.1.1 Definisi dan Prinsip Kerja  ................................ ................................ ...................  7 
+2.1.2 pH (Derajat Keasaman) ................................ ................................ ......................  7 
+2.1.3 Electrical Conductivity (EC)  ................................ ................................ ................  8 
+2.1.4 Interaksi pH dan EC sebagai Sistem Multivariabel  ................................ .............  9 
+2.2 Penelitian Terkait  ................................ ................................ ................................ ..... 9 
+2.2.1 Finite State Machine  ................................ ................................ .........................  9 
+2.2.2 PID (Propotional -Integral -Derivative)  ................................ ..............................  10 
+2.2.3 Fuzzy Logic Controller (FLC)  ................................ ................................ .............  11 
+2.2.4 Research Gap  ................................ ................................ ................................ .. 11 
+2.2.5 Solusi Reinforcement Learning (Q -Learning).  ................................ ..................  12 
+2.3 Reinforcement Learning dan Algoritma Q -Learning  ................................ ..............  13 
+2.3.1 Konsep Dasar Reinforcement Learning (RL)  ................................ ....................  13 
+2.3.2 Algoritma Q -Learning.  ................................ ................................ .....................  15 
+2.4 Arsitektur Sitem Kendali Terdistribusi  ................................ ................................ ... 16 
+2.4.1 Lapisan Persepsi dan Pengambilan Keputusan  ................................ ................  17 ix 
+ 2.4.2 Protokol Komunikasi Data  ................................ ................................ ...............  17 
+2.4.3 Mekanisme Keamanan (Safety Interlock)  ................................ ........................  18 
+2.5 Parameter Evaluasi Performasi Kontrol  ................................ ................................ . 18 
+2.5.1 Karakteristik Respon Transien  ................................ ................................ .........  18 
+2.5.2 Konvergensi Agen Pembelajaran  ................................ ................................ ..... 19 
+BAB III METODOLOGI PENELITIAN  ................................ ................................ .........  20 
+3.1 Alur Penelitian  ................................ ................................ ................................ ....... 20 
+3.2 Perancangan Arsitektur Sistem  ................................ ................................ ...............  21 
+3.3 Perancangan Hardware  ................................ ................................ ...........................  23 
+3.4 Perancangan Agen Cerdas  ................................ ................................ ......................  24 
+3.4.1 Definisi Ruang Keadaan (State -Space)  ................................ .............................  25 
+3.4.2 Definisi Ruang Aksi (Action -Space)  ................................ ................................ .. 28 
+3.4.3 Struktur Tabel Pengetahuan (Q -Table)  ................................ ............................  29 
+3.4.4 Perancangan Fungsi Hadiah (Reward Function)  ................................ ..............  30 
+3.4.5 Logika Algoritma dan Eksekusi Aksi  ................................ ................................ . 33 
+3.5 Skenario Pengujian  ................................ ................................ ................................ . 37 
+BAB IV  ................................ ................................ ................................ ............................  38 
+BAB V  ................................ ................................ ................................ .............................  38 
+Daftar Referensi  ................................ ................................ ................................ ...............  39 
+ 
+ 
+  x 
+ DAFTAR GAMBAR  
+Gambar 2. 1 Ilustrasi Interaksi Agen dan Lingkungan dalam Reinforcement Learning  ... 14 
+Gambar 3. 1 Diagram Alir Tahapan Penelitian  ................................ ................................  20 
+Gambar 3.2 Diagram Blok Arsitektur Sistem Kendali Terdistribusi.  ...............................  22 
+Gambar 3.3 Diagram Alir Logika Agen Q -Learning ................................ ........................  33 
+  xi 
+ DAFTAR TABEL  
+Tabel 3.1 Aturan Diskritisasi Parameter pH  ................................ ................................ ..... 26 
+Tabel 3. 2 Aturan Diskritisasi Parameter EC ................................ ................................ .... 26 
+Tabel 3. 3 Matrik Pemetaan Ruang Keadaan (State Mapping Matrix)  .............................  27 
+Tabel 3. 4 Definisi Ruang Aksi dan Durasi Dosing  ................................ .........................  29 
+Tabel 3.5 Struktur Matriks Q -Table (25 × 9)  ................................ ................................ ... 30 
+Tabel 3.6 Distribusi Nilai Reward Berdasarkan Zona State  ................................ .............  31 
+ 
+  xii 
+ DAFTAR SINGKATAN  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 1 
+ BAB I  
+PENDAHULUAN  
+1.1. Latar Belakang  
+ Peningkatan populasi global dan penyusutan lahan subur menuntut 
+transformasi metode pertanian konvensional menuju sistem yang lebih efisien dan 
+berkelanjutan. Hidroponik, sebagai metode budidaya tanpa tanah, muncul sebagai 
+solusi utama dalam pertanian mode rn karena kemampuannya menghemat 
+penggunaan air secara signifikan dan meminimalkan risiko penyakit tular tanah. 
+Namun, tidak seperti pertanian konvensional yang mengandalkan penyangga alami 
+dari tanah, keberhasilan sistem hidroponik sangat bergantung pada presisi 
+pengendalian parameter lingkungan, khususnya kualitas larutan nutrisi  (Shareef et 
+al., 2024) . Stabilitas parameter fisikokimia dalam larutan nutrisi menjadi faktor 
+determinan yang menentukan kualitas dan kuantitas hasil panen.  
+ Dua parameter paling kritis dalam larutan hidroponik adalah derajat 
+keasaman (pH) dan konduktivitas listrik ( Electrical Conductivity  atau EC). 
+Penelitian terbaru oleh Sulaiman et al. (2025) menegaskan bahwa pertumbuhan 
+tanaman dalam sistem hidroponik bergantung secara setara pada pengendalian pH 
+dan EC yang ketat  (Sulaiman et al., 2025) . Nilai pH yang tidak optimal dapat 
+menghambat penyerapan unsur hara esensial, di mana pH yang terlalu ekstrem 
+(misalnya pH 4) terbukti menyebabkan stres fisiologis dan menghambat 
+pembentukan biomassa tanaman  (Marković et al., 2025) . Sementara itu, EC 
+merepresentasikan konsentrasi nutrisi terlarut yang harus dijaga dalam rentang 
+spesifik (umumnya 0.8 –3.5 mS/cm) untuk mencegah defisiensi nutrisi atau 
+toksisitas akibat salinitas tinggi  (Jain & Kaur, 2024) . 
+ Meskipun parameter ini krusial, pemantauan dan pengendalian nutrisi di 
+banyak sistem hidroponik skala kecil hingga menengah masih dilakukan secara 
+manual atau menggunakan kontrol umpan balik sederhana. Pendekatan manual ini 
+tidak efisien, memakan waktu, da n rentan terhadap kesalahan manusia ( human 
+error ) yang menyebabkan fluktuasi nutrisi yang merugikan tanaman  (Jain & Kaur, 
+2024) . Metode konvensional seperti PID ( Proportional -Integral -Derivative ) 2 
+ dirancang optimal untuk sistem linear. Namun, penerapannya pada pengendalian 
+pH sering kali menghadapi keterbatasan karena karakteristik pH yang bersifat 
+logaritmik (sangat non -linear) dan adanya interaksi antar -parameter . 
+ Kelemahan utama dari kontroler PID konvensional pada sistem hidroponik 
+adalah ketidakmampuannya beradaptasi dengan perubahan kondisi tanpa 
+penyesuaian parameter ( tuning ) yang rumit. Studi simulasi terbaru oleh Cai et al. 
+(2025) membuktikan bahwa kontroler PID tradisional cenderung menghasilkan 
+lonjakan respons ( overshoot ) yang tinggi, mencapai 24,5%, serta memiliki waktu 
+penyelesaian ( settling time ) yang lambat saat menangani gangguan pada sistem 
+fluida  (Cai et al., 2025) . Selain itu, karena dinamika pH bersifat sangat non -linear 
+(logaritmik), pendekatan linear seperti PID sering kali kurang efektif dalam 
+menjaga stabilitas di sekitar titik setel yang diinginkan tanpa menyebabkan osilasi 
+berlebih  (Panjapornpon et al., 2022) . Metode lain seperti Fuzzy Logic Controller  
+(FLC) memang menawarkan solusi untuk ketidakpastian, namun metode ini 
+memiliki keterbatasan karena bergantung sepenuhnya pada aturan statis ( rule-base) 
+yang dirancang oleh pakar dan tidak memiliki kemampuan untuk belajar atau 
+beradaptasi secara mandiri terhadap perubahan karakteristik sistem seiring waktu  
+(Wang et al., 2022) . 
+ Untuk mengatasi keterbatasan metode konvensional tersebut, pendekatan 
+berbasis kecerdasan buatan, khususnya Reinforcement Learning  (RL), menawarkan 
+solusi yang menjanjikan. Berbeda dengan kontroler berbasis model yang 
+memerlukan pemodelan matematis presisi dari lingkungan, RL  khususnya 
+algoritma Q -Learning  bersifat model -free dan mampu belajar membuat keputusan 
+optimal melalui interaksi trial-and-error  dengan lingkungan  (Panjapornpon et al., 
+2022) . Pendekatan ini memungkinkan sistem untuk beradaptasi secara mandiri 
+terhadap dinamika non -linear larutan nutrisi.  
+ Urgensi penerapan RL dalam sistem hidroponik didukung oleh bukti 
+empiris terbaru yang signifikan. Penelitian oleh Dakshinamurthy & Mohan (2025) 
+menunjukkan bahwa sistem kontrol berbasis RL mampu mengungguli kinerja PID 
+konvensional secara nyata. Dalam studi komparatif mereka, sistem berbasis RL 
+terbukti meningkatkan hasil panen tanaman hingga 12,5% sek aligus mengurangi 3 
+ konsumsi sumber daya energi dan air sebesar 10 –12% dibandingkan dengan 
+kontroler PID  (Dakshinamurthy & Mohan, 2024) . Selain itu, penggunaan algoritma 
+Q-Learning dinilai lebih efisien secara komputasi untuk implementasi pada 
+perangkat keras mikrokontroler dibandingkan metode Deep Reinforcement 
+Learning  yang kompleks, namun tetap efektif dalam menghindari kesalahan kontrol 
+dan mempercepat konvergensi sistem menuju kondisi optimal  (Su, 2025) . 
+ Berdasarkan permasalahan stabilitas kontrol pada metode konvensional dan 
+potensi efisiensi yang ditawarkan oleh metode pembelajaran mesin, penelitian ini 
+bertujuan untuk mengimplementasikan algoritma Reinforcement Learning  (Q-
+Learning) guna mengontrol stabilitas pH dan EC pada sistem hidroponik. Sistem 
+ini dirancang untuk melakukan penyesuaian dosis nutrisi dan pH secara otomatis 
+dan adaptif, guna menciptakan lingkungan pertumbuhan tanaman yang presisi, 
+efisien sumber daya,  dan minim intervensi manusia.  
+1.2. Rumusan Masalah  
+ Berikut ini rumusan masalah pada penelitian ini, berdasarkan lata r 
+belakang yang telah diuraikan.   
+1. Bagaimana merancang arsitektur kendali modular yang 
+mengintegrasikan mikrokontroler (ESP32) sebagai unit I/O fisik 
+dan Raspberry Pi sebagai unit pemroses logika pusat untuk 
+merealisasikan loop kendali tertutup ( closed -loop) secara otonom? ? 
+2. Bagaimana merancang konfigurasi ruang keadaan ( State -Space ) 
+dan fungsi hadiah ( Reward Function ) pada algoritma Q -Learning 
+untuk menghasilkan kebijakan kendali yang adaptif terhadap 
+dinamika non -linear larutan nutrisi?  
+3. Bagaimana karakteristik respon transien ( settling time  dan 
+overshoot ) serta tingkat konvergensi agen Q -Learning dalam 
+mempertahankan stabilitas pH dan EC saat sistem menghadapi 
+gangguan operasional?  4 
+ 1.3. Tujuan  
+ Berikut ini tujuan dari penelitian ini, berdasarkan rumusan masalah 
+yang telah diuraikan : 
+1. Merancang bangun arsitektur kendali modular yang 
+mengintegrasikan mikrokontroler (ESP32) sebagai unit I/O fisik 
+dan Raspberry Pi sebagai unit pemroses logika pusat untuk 
+merealisasikan loop kendali tertutup ( closed -loop) secara otonom . 
+2. Merancang konfigurasi ruang keadaan ( State -Space ) dan fungsi 
+hadiah ( Reward Function ) pada algoritma Q -Learning untuk 
+menghasilkan kebijakan kendali yang adaptif terhadap dinamika 
+non-linear larutan nutrisi . 
+3. Mengevaluasi karakteristik respon transien ( settling time  dan 
+overshoot ) serta tingkat konvergensi agen Q -Learning dalam 
+mempertahankan stabilitas pH dan EC saat sistem menghadapi 
+gangguan operasional . 
+1.4. Manfaat Penelitian  
+ Berikut ini manfaat  dari penelitian ini : 
+1. Penelitian ini memberikan kontribusi terhadap pengembangan 
+sistem kontrol otomatis pH dan EC berbasis Machine Learning  
+yang mampu menyesuaikan aksi kontrolnya secara adaptif terhadap 
+perubahan nilai sensor secara real-time. 
+2. Penelitian ini memberikan pemahaman mendalam mengenai 
+penerapan prinsip algoritma Reinforcement Learning  (khususnya 
+Q-Learning ) dalam menentukan aksi kontrol yang optimal untuk 
+menjaga kestabilan parameter pH dan EC pada sistem hidroponik.  
+3. Penelitian ini menyediakan hasil analisis performa sistem kontrol 
+berbasis Q-Learning  dalam mempertahankan kestabilan pH dan EC 
+terhadap variasi kondisi lingkungan melalui pengujian prototipe 
+yang dikembangkan.  5 
+ 1.5. Batasan Masalah  
+ Berikut adalah sejumlah batas yang telah ditetapkan untuk 
+mempersempit cakupan masalah yang akan diteliti:  
+1. Penelitian ini hanya berfokus pada perancangan dan implementasi 
+sistem kontrol otomatis pH dan EC pada tandon utama sistem 
+hidroponik, tanpa membahas pengendalian pada jalur sirkulasi 
+nutrisi atau media tanam.  
+2. Sistem hanya mengendalikan dua parameter utama, yaitu pH dan 
+Electrical Conductivity (EC) . Selain itu, sistem mengintegrasikan 
+pemantauan keting gian air (Water Level) yang berfungsi sebagai 
+mekanisme keamanan ( safety) untuk perlindungan aktuator dan 
+logika pengisian air baku.  Parameter lingkungan lain seperti suhu air 
+dan kadar oksigen terlarut dianggap konstan atau tidak dikendalikan 
+secara aktif . 
+3. Algoritma pembelajaran mesin yang diterapkan terbatas pada 
+Tabular Q -Learning. Fokus penelitian ditekankan pada analisis 
+kelayakan (feasibility) implementasi, konvergensi pembelajaran, 
+dan kemampuan adaptasi sistem pada perangkat tertanam 
+(embedded system) . Penelitian ini tidak mencakup perbandingan 
+kinerja (benchmarking) dengan metode kontrol konvensional 
+(seperti PID, Fuzzy Logic) maupun varian Deep Reinforcement 
+Learning.  
+1.6. Sistematika Penulisan  
+ Penelitian pada tugas akhir ini terbagi ke  dalam beberapa bagian, 
+yang dijelaskan secara terstruktur sebagai berikut : 
+Bab 1 Pendahuluan  
+Bab ini menguraikan latar belakang masalah, rumusan masalah, tujuan 
+penelitian, manfaat penelitian, batasan masalah, serta sistematika penulisan 
+laporan tugas akhir.  6 
+ Bab 2 Landasan Teori  
+Bab ini memaparkan teori -teori penunjang yang relevan dengan topik 
+penelitian, meliputi konsep dasar hidroponik, karakteristik sensor pH dan 
+EC, arsitektur Internet of Things  (IoT) dan protokol MQTT, serta teori 
+Reinforcement Learning  khususnya algoritma Q -Learning. Bab ini juga 
+membahas penelitian -penelitian terdahulu yang menjadi rujukan (state of 
+the art).  
+Bab 3 Metodologi Penelitian  
+Bab ini menjelaskan tahapan pelaksanaan penelitian, mulai dari analisis 
+kebutuhan, perancangan perangkat keras ( dosing pump panel , integrasi 
+sensor dengan ESP32), perancangan sistem komunikasi data, hingga 
+perancangan agen cerdas (desain State, Action,  dan Reward Function ). Bab 
+ini juga menjabarkan skenario pengujian yang akan dilakukan.  
+Bab 4 Hasil dan Pembahasan  
+Bab ini menyajikan hasil implementasi sistem dan data pengujian yang 
+diperoleh. Pembahasan difokuskan pada analisis kinerja agen Q -Learning 
+dalam mencapai konvergensi, serta evaluasi respon sistem kendali (seperti 
+settling time  dan overshoot ) dalam menjaga stabilitas pH dan EC terhadap 
+gangguan.  
+Bab 5 Penutup  
+Bab ini berisi kesimpulan yang diperoleh dari seluruh rangkaian penelitian 
+serta saran -saran konstruktif untuk pengembangan sistem atau penelitian 
+selanjutnya di masa depan.  
+ 
+  7 
+ BAB II  
+LANDASAN TEORI  
+2.1 Sistem Hidroponik dan Dinamika N utrisi  
+2.1.1 Definisi dan Prinsip Kerja  
+ Hidroponik, yang berasal dari kata Yunani hydro  (air) dan ponos  
+(kerja), adalah metode budidaya tanaman tanpa menggunakan tanah 
+(soilless), di mana tanaman memperoleh nutrisi mineral esensial dari 
+larutan air  (Shareef et al., 2024) . Metode ini merupakan bagian dari 
+pertanian lingkungan terkontrol ( Controlled Environment Agriculture  - 
+CEA) yang menawarkan solusi terhadap tantangan global seperti 
+kelangkaan lahan subur dan perubahan iklim  (Dakshinamurthy & 
+Mohan, 2024) . 
+ Dibandingkan dengan pertanian konvensional, hidroponik memiliki 
+keunggulan signifikan dalam efisiensi sumber daya. Penelitian 
+menunjukkan bahwa sistem ini dapat mengurangi penggunaan air 
+hingga 90% melalui mekanisme resirkulasi, menghilangkan risiko 
+penyak it tular tanah, serta memungkinkan panen sepanjang tahun 
+dengan hasil yang lebih tinggi per satuan luas  (Dakshinamurthy & 
+Mohan, 2024; Shareef et al., 2024) . Terdapat berbagai jenis sistem 
+hidroponik, seperti Nutrient Film Technique  (NFT), Deep Water 
+Culture  (DWC), dan Drip System  (Shareef et al., 2024) . Namun, 
+keberhasilan sistem ini sangat bergantung pada manajemen presisi 
+parameter lingkungan, khususnya kualitas larutan nutrisi (Sulaiman et 
+al., 2025) . 
+2.1.2 pH (Derajat Keasaman)  
+ Derajat keasaman (pH) adalah parameter krusial yang menentukan 
+kelarutan dan ketersediaan unsur hara bagi akar tanaman.  
+• Dinamika pH: Skala pH mengukur konsentrasi ion hidrogen 
+(𝐻+) dalam larutan. Sifat pH adalah logaritmik dan sangat non -
+linear, yang membuat proses pengendaliannya menjadi 8 
+ tantangan tersendiri bagi sistem kontrol konvensional 
+(Panjapornpon et al., 2022) . 
+• Dampak pada Tanaman: Jika pH menyimpang dari rentang 
+optimal (umumnya 5.5 –6.5), tanaman akan mengalami nutrient 
+lockout , di mana unsur hara tertentu mengendap dan tidak dapat 
+diserap (Shareef et al., 2024) . Marković et al. (2025) 
+menemukan bahwa pH yang tidak optimal (misalnya terlalu 
+asam di pH 4) menyebabkan stres fisiologis yang menghambat 
+akumulasi biomassa dan tinggi tanaman (Marković et al., 2025) . 
+Sebaliknya, pada kondisi basa (pH tinggi), ketersediaan 
+mikronutrien seperti Besi (Fe) dan Mangan (Mn) menurun 
+drastis, menyebabkan klorosis (Marković et al., 2025) . Oleh 
+karena itu, menjaga stabilitas pH sangat penting untuk 
+memaksimalkan hasil panen (Sulaiman et al., 2025) . 
+2.1.3 Electrical Conductivity (EC)  
+ Electrical Conductivity  (EC) adalah indikator jumlah total garam 
+mineral terlarut (TDS) dalam larutan nutrisi . 
+• Hubungan dengan Nutrisi: EC berbanding lurus dengan 
+konsentrasi nutrisi , semakin banyak nutrisi yang dilarutkan, 
+semakin tinggi nilai EC (Jain & Kaur, 2024) . 
+• Dampak Fisiologis: Pengendalian EC harus presisi. Jika EC 
+terlalu rendah, tanaman akan mengalami defisiensi nutrisi yang 
+menghambat pertumbuhan. Sebaliknya, jika EC terlalu tinggi 
+(salinitas berlebih), tanaman akan mengalami stres osmotik yang 
+menghambat penyerapan air oleh akar dan dapat menyebabkan 
+toksisitas ion  (Marković et al., 2025) . Shareef et al. (2024) 
+merekomendasikan rentang EC optimal antara 0.8 hingga 3.5 
+mS/cm tergantung pada jenis tanaman untuk mencegah stres 
+garam  (Shareef et al., 2024) . 9 
+ 2.1.4 Interaksi pH dan EC sebagai Sistem Multivariabel  
+ Dalam implementasi kontrol otomatis, pH dan EC tidak dapat 
+dianggap sebagai variabel yang terpisah sepenuhnya karena adanya 
+interaksi kimia. Penambahan larutan korektor pH (asam/basa) seringkali 
+mempengaruhi total ion terlarut, yang secara tidak sengaja da pat 
+mengubah nilai EC  (Sulaiman et al., 2025) . Selain itu, volume air dalam 
+tangki ( Nutrient Solution Volume ) juga mempengaruhi konsentrasi ion , 
+penguapan air akan meningkatkan EC dan mengubah pH, menciptakan 
+dinamika sistem yang kompleks dan time-varying  (Sulaiman et al., 
+2025) . Kompleksitas dan non -linearitas inilah yang menjadi landasan 
+utama mengapa metode kontrol cerdas seperti Reinforcement Learning  
+diperlukan untuk menggantikan kontroler linear klasik (seperti PID) 
+yang sering mengalami kesulitan dalam menangani gangguan tersebut  
+(Dakshinamurthy & Mohan, 2024; Panjapornpon et al., 2022) . 
+2.2 Penelitian Terkait  
+ Perkembangan sistem kendali pada pertanian presisi, khususnya 
+hidroponik, telah berevolusi dari metode konvensional menuju sistem 
+cerdas yang adaptif. Tinjauan sistematis yang dilakukan oleh Catota -
+Ocapana et al. (2025 ) terhadap 654 artikel menunjukkan bahwa tren 
+penelitian saat ini berfokus pada integrasi Artificial Intelligence  (AI) dan 
+Internet of Things  (IoT) untuk manajemen nutrisi, menggantikan metode 
+umpan balik klasik yang memiliki keterbatasan dalam menangani dinamika 
+tanaman yang kompleks (Catota -Ocapana et al., 2025; Hutauruk, 2025) . 
+Berikut adalah analisis mendalam mengenai metode -metode kendali yang 
+telah diterapkan sebelumnya beserta keterbatasannya.  
+2.2.1 Finite State Machine  
+ Metode Finite State Machine  (FSM) merupakan pendekatan logika 
+berbasis aturan sekuensial yang banyak digunakan karena 
+kesederhanaannya dalam implementasi mikrokontroler.  
+ 10 
+ • Implementasi: Hutauruk (2025) mengembangkan sistem kendali 
+otomatis untuk ketinggian air dan nutrisi pada hidroponik rakit 
+apung menggunakan metode FSM. Sistem ini bekerja 
+berdasarkan transisi keadaan ( state ) yang telah didefinisikan 
+secara kaku, seperti "Siaga Air", "Siaga Nutrisi", "Siaga 
+Darurat", dan "Normal" berdasarkan input dari sensor ultrasonik 
+dan TDS (Hutauruk, 2025)  
+• Kelemahan: Meskipun sistem ini berhasil mengaktifkan pompa 
+secara otomatis berdasarkan ambang batas ( threshold ), FSM 
+memiliki keterbatasan utama yaitu sifatnya yang deterministik 
+dan kaku. Sistem hanya merespons berdasarkan logika if-then 
+yang telah diprogram sebelumnya dan tidak memiliki 
+kemampuan untuk beradaptasi atau "belajar" jika terjadi 
+perubahan dinamika lingkungan yang tidak terduga di luar 
+aturan transisi yang ditetapkan  (Hutauruk, 2025) . 
+2.2.2 PID (Propotional -Integral -Derivative)  
+ Kontroler PID merupakan standar industri yang banyak digunakan 
+untuk menjaga kestabilan parameter lingkungan. Namun, efektivitasnya 
+sering kali menurun pada sistem non -linear seperti pengendalian pH air.  
+• Implementasi: Cai et al. (2025) melakukan simulasi 
+perbandingan kinerja kontroler pada suhu larutan nutrisi.  
+• Kelemahan: Hasil penelitian menunjukkan bahwa kontroler PID 
+konvensional memiliki kelemahan signifikan dalam menangani 
+gangguan. PID menghasilkan waktu penyelesaian (settling time) 
+yang lama (hingga 200,36 detik) dan lonjakan (overshoot) yang 
+tinggi mencap ai 24,5% sebelum mencapai kestabilan (Cai et al., 
+2025) . 
+• Analisis: Wang et al. (2022) dan Panjapornpon et al. (2022) 
+menambahkan bahwa proses regulasi EC dan pH memiliki 
+karakteristik non -linearitas, penundaan waktu (time delay), dan 
+variasi waktu (time -varying). Kontroler PID tradisional, yang 11 
+ dirancang untuk sistem linear sederhana, sering kali 
+menghasilkan kesalahan besar dan osilasi berkelanjutan dalam 
+regulasi EC dan pH, sehingga memerlukan penyetelan (tuning) 
+parameter yang rumit dan berulang, (Panjapornpon et al., 2022; 
+Wang et al., 2022) . 
+2.2.3 Fuzzy Logic Controller (FLC)  
+ Untuk mengatasi ketidaklinieran PID, banyak peneliti beralih ke 
+Fuzzy Logic Controller  (FLC) yang meniru logika pengambilan 
+keputusan manusia.  
+• Implementasi: Ridwan et al. (2024) mengimplementasikan FLC 
+untuk menjaga kestabilan pH dan EC. Sistem ini menggunakan 
+aturan linguistik (seperti "Jika pH Asam, maka Pompa pH Up 
+Lama") dan berhasil mencapai akurasi pH sebesar 99% dan EC 
+sebesar 98,7% (Agustian et al., 2022; Ridwan et al., 2025) . 
+Serupa dengan itu, Agustian et al. (2022) menggunakan metode 
+Mamdani Fuzzy Inference System  untuk mengontrol durasi aktif 
+pompa nutrisi berdasarkan masukan sensor (Agustian et al., 
+2022) . 
+• Kelemahan: Kendati efektif, Catota -Ocapana et al. (2025) 
+menyoroti bahwa FLC sangat bergantung pada basis 
+pengetahuan ( knowledge base ) yang dirancang oleh pakar. 
+Kelemahannya adalah kurangnya kemampuan belajar mandiri , 
+jika karakteristik sistem berubah (misalnya degradasi pompa 
+atau perubahan volume tangki), FLC tidak dapat menyesuaikan 
+aturan kendalinya secara otomatis tanpa desain ulang oleh 
+manusia (Catota -Ocapana et al., 2025) . 
+2.2.4 Research Gap  
+ Berdasarkan analisis terhadap metode FSM, PID, dan FLC di atas, 
+ditemukan kesenjangan penelitian ( research gap ) sebagai berikut:  12 
+ 1. Kekakuan Adaptasi  metode FSM dan PID bersifat kaku dan sulit 
+menangani non -linearitas tinggi pada dinamika pH dan EC tanpa 
+model matematis yang presisi.  
+2. Ketergantungan pada Model/Pakar  metode FLC sangat 
+bergantung pada aturan pakar yang statis dan tidak mampu 
+belajar dari pengalaman baru secara real-time. 
+3. Efisiensi Sumber Daya  metode konvensional sering kali 
+menyebabkan overshoot  (pemborosan larutan nutrisi/air) seperti 
+yang ditunjukkan pada kinerja PID dengan overshoot  24,5% 
+(Cai et al., 2025) . 
+ Dibutuhkan sebuah metode kendali yang bersifat model -free (tidak 
+butuh model matematis rumit), adaptif (bisa belajar sendiri), dan mampu 
+mengoptimalkan penggunaan sumber daya secara mandiri.  
+2.2.5 Solusi Reinforcement Learning (Q -Learning).  
+ Untuk mengisi kesenjangan penelitian tersebut, penelitian ini 
+mengusulkan penggunaan algoritma Q-Learning . Berbeda dengan 
+metode kontrol konvensional maupun metode Deep Reinforcement 
+Learning  (DRL) yang kompleks, Q -Learning dipilih karena 
+menawarkan keseimbangan antara kemampuan adaptasi dan efisiensi 
+komputasi.  
+1. Kemampuan Model -Free  dan Off-Policy  seperti halnya 
+pendekatan RL lainnya, Q -Learning tidak memerlukan model 
+matematis proses yang presisi (seperti yang dibutuhkan PID atau 
+MPC). Morcego et al. (2023) menjelaskan bahwa pendekatan 
+model -free memungkinkan agen belajar langsung dari interaksi 
+lingkungan, menjadikannya fleksibel terhadap dinamika pH 
+yang sangat non -linear (Morcego et al., 2023) . Q-Learning 
+secara spesifik adalah algoritma off-policy , yang artinya dapat 
+memisahkan kebijakan eksplorasi (mencoba hal baru) dan 
+eksploitasi (menggunakan pengetahuan terbaik), 13 
+ memungkinkan pencarian solusi optimal global tanpa terjebak 
+pada aturan kaku  (Morcego et al., 2023) . 
+2. Efisiensi Komputasi Dibandingkan Deep RL  banyak penelitian 
+terbaru, seperti Dakshinamurthy & Mohan (2024) dan 
+Panjapornpon et al. (2022), menerapkan algoritma tingkat lanjut 
+seperti Deep Deterministic Policy Gradient  (DDPG) atau PPO 
+untuk kontrol proses  (Dakshinamurthy & Mohan, 2024; 
+Panjapornpon et al., 2022) . Meskipun metode tersebut sangat 
+presisi untuk ruang aksi kontinu, mereka membutuhkan sumber 
+daya komputasi yang besar (GPU/High -end CPU) dan waktu 
+pelatihan yang lama karena melibatkan Deep Neural Networks . 
+Sebaliknya, Q -Learning berbasis tabel (Tabular Q -Learning) 
+yang digunakan dalam penelitian ini jauh lebih ringan secara 
+komputasi. Pendekatan ini memungkinkan implementasi 
+langsung pada perangkat edge  dengan sumber daya terbatas 
+(seperti Raspberry Pi) tanpa mengorbankan kemampuan 
+adaptifnya secara sign ifikan. Hal ini sejalan dengan temuan 
+bahwa algoritma RL yang lebih sederhana sering kali lebih 
+praktis untuk aplikasi real-time dengan state -space  yang dapat 
+didiskritisasi  (Morcego et al., 2023; Panjapornpon et al., 2022) . 
+3. Mekanisme Reward  untuk Stabilitas kunci keberhasilan Q -
+Learning terletak pada perancangan fungsi reward . Penelitian ini 
+mengadopsi strategi di mana agen diberi reward  positif saat 
+menjaga pH/EC pada setpoint  dan penalti besar saat terjadi 
+overshoot , sebuah pendekatan yang terbukti mampu mengurangi 
+osilasi yang sering terjadi pada kontroler PID konvensional pada 
+sistem non -linear  (Panjapornpon et al., 2022) . 
+2.3 Reinforcement Learning dan Algoritma Q -Learning  
+2.3.1 Konsep Dasar Reinforcement Learning (RL)  
+ Reinforcement Learning  (RL) merupakan paradigma pembelajaran 
+mesin di mana sebuah agen ( agent ) belajar membuat keputusan secara 14 
+ berurutan melalui interaksi trial-and-error  dengan lingkungannya. 
+Berbeda dengan supervised learning  yang bergantung pada data 
+terlabel, ataupun unsupervised learning  yang bekerja tanpa luaran yang 
+ditentukan sebelumnya untuk menyingkap pola tersembunyi ( hidden 
+patterns ) dalam data tak berlabel  (Abdulkadir et al., 2025; Munaf & 
+Almusawi, 2024) , RL memiliki orientasi tujuan yang berbeda. Jika 
+dibandingkan dengan kontroler konvensional seperti PID yang 
+memerlukan penalaan parameter manual, RL secara spesifik berfokus 
+pada maksimalisasi sinyal hadiah numerik kumulatif ( cumulative 
+reward ) yang diterima dari lingkungan sebagai umpan balik atas 
+tindakan yang diambil  (Panjapornpon et al., 2022) . 
+ Dalam konteks sistem kendali, RL menawarkan pendekatan model -
+free, yang berarti agen tidak memerlukan model matematis yang presisi 
+dari dinamika fisik atau kimia sistem (seperti kinetika reaksi asam -basa) 
+untuk dapat mengendalikannya. Hal ini menjadikan RL sangat adaptif 
+terhadap gangguan lingkungan yang dinamis dan ket idakpastian sistem, 
+dibandingkan dengan metode kontrol berbasis model seperti Model 
+Predictive Control  (MPC) yang kinerjanya sangat bergantung pada 
+akurasi model matematis yang dibuat  (Morcego et al., 2023) . 
+ Interaksi antara agen dan lingkungan dalam RL dimodelkan sebagai 
+Markov Decision Process  (MDP), seperti yang diilustrasikan pada 
+Gambar 2.1. MDP terdiri dari empat elemen utama  (Lu et al., 2023) : 
+ 
+Gambar 2. 1 Ilustrasi Interaksi Agen dan Lingkungan dalam Reinforcement Learning  
+15 
+ 1. State (𝑆𝑡): Representasi kondisi lingkungan saat ini. Dalam 
+penelitian ini, state  adalah nilai pembacaan sensor pH dan EC.  
+2. Action ( 𝐴𝑡): Tindakan yang diambil oleh agen untuk 
+mempengaruhi lingkungan. Dalam konteks ini, action  adalah 
+durasi pengaktifan pompa peristaltik (dosing).  
+3. Reward ( 𝑅𝑡): Sinyal umpan balik skalar yang memberitahu 
+seberapa baik atau buruk tindakan yang diambil pada state  
+tertentu.  
+4. Policy (𝜋): Strategi atau kebijakan yang digunakan agen untuk 
+memetakan state  ke action  guna mencapai tujuan kontrol . 
+2.3.2 Algoritma Q -Learning . 
+ Q-Learning adalah salah satu algoritma Reinforcement Learning  
+(RL) yang paling populer dan banyak digunakan dalam sistem kendali 
+otonom karena sifatnya yang model -free (tidak memerlukan model 
+matematis dari lingkungan) dan off-policy . Algoritma ini 
+memungkinkan agen untuk mempelajari strategi kontrol yang optimal 
+dengan mengevaluasi utilitas atau "kualitas" (dilambangkan sebagai 𝑄) 
+dari setiap tindakan yang diambil pada suatu keadaan tertentu tanpa 
+perlu mengetahui dinamika fisika atau kimia yang kompleks dari sistem 
+tersebut (Munaf & Almusawi, 2024) . 
+ Prinsip dasar Q -Learning adalah mempelajari fungsi nilai aksi 
+(action -value function), 𝑄(𝑠,𝑎), yang merepresentasikan nilai imbalan 
+jangka panjang yang diharapkan (expected cumulative reward) jika agen 
+mengambil aksi 𝑎 pada keadaan 𝑠 dan kemudian mengikuti kebijakan 
+optimal setelahnya. Berbeda dengan metode kontrol konvensional 
+seperti PID yang bergantung pada parameter tetap, Q -Learning 
+memperbarui pengetahuannya secara iteratif melalui interaksi trial-and-
+error  dengan lingkungan (Munaf & Almusawi, 2024) . 
+ Proses pembelajaran Q -Learning melibatkan pembaruan tabel nilai 
+Q (Q-Table ) menggunakan Persamaan Bellman. Persamaan ini 
+menghitung selisih temporal ( Temporal Difference error ) antara nilai Q 16 
+ saat ini dengan nilai target yang didasarkan pada reward  yang diterima 
+dan estimasi nilai masa depan terbaik. Rumus pembaruan Q -Learning 
+dinyatakan sebagai berikut (Munaf & Almusawi, 2024) : 
+𝑄(𝑠,𝑎)←𝑄(𝑠,𝑎)+α[𝑟+γ⋅max
+𝑎′𝑄(𝑠′,𝑎′)−𝑄(𝑠,𝑎)]  
+Diman a: 
+𝑄(𝑠,𝑎) : Nilai Q saat ini untuk keadaan 𝑠 dan aksi 𝛼 
+𝛼 (Learning 
+Rate)  : Laju pembelajaran (0<𝛼≤1) yang menetukan 
+seberapa cepat agen mengadopsi informasi baru 
+dibandingkan informasi lama. Nilai yang terlalu 
+rendah menyebabkan pembelajaran lambat, 
+sedangkan nilai terlalu tinggi membuat sistem tidak 
+stabil.  
+ 
+𝑟 (Reward)  : Imbalan langsung yang diterima dari lingkungan 
+setelah melakukan aksi.  
+𝛾 (Discount 
+Factor)  : Faktor diskon (0≤𝛾<1) menentukan 
+pentingnya imbalan masa depan dibandingkan 
+imbalan saat ini. Nilai mendekati 1 membuat agen 
+lebih mementingkan tujuan jangka panjang 
+(stabilitas jangka panjang)  
+max
+𝑎′𝑄(𝑠′,𝑎′) : Estimasi nilai Q maksimum yang mungkin 
+didapatkan pada keadaan berikutnya ( 𝑠′). 
+ 
+2.4 Arsitektur Sitem Kendali Terdistribus i 
+ Sistem kendali modern pada pertanian presisi, khususnya 
+hidroponik, sering kali mengadopsi arsitektur terdistribusi yang 
+memisahkan fungsi akuisisi data ( sensing ) dan fungsi pengambilan 
+keputusan ( decision making ). Pendekatan ini bertujuan untuk meningkatkan 
+keandalan sistem, meminimalkan latensi, dan memungkinkan pengelolaan 
+data yang kompleks secara real-time (Tatas et al., 2022; Wang et al., 2022) . 17 
+ 2.4.1 Lapisan Persepsi dan Pengambilan K eputusan  
+ Dalam arsitektur Internet of Things  (IoT) untuk hidroponik, sistem 
+dibagi menjadi beberapa node fungsional:  
+1. Node Sensor ( Sensing Node/Slave Node ): Bertugas 
+mengumpulkan data parameter lingkungan seperti pH, 
+Electrical Conductivity  (EC), suhu air, dan kelembaban. Node 
+ini mengubah sinyal analog dari sensor menjadi data digital dan 
+mengirimkannya ke unit pemroses utama. Tatas et al. 
+menjelaskan bahwa node ini juga dapat bertindak sebagai 
+eksekutor yang mengaktifkan aktuator (seperti pompa atau 
+solenoid valve ) berdasarkan perintah dari pusat kendali (Tatas et 
+al., 2022) . 
+2. Node Kendali Pusat ( Master/Decision Node ): Merupakan unit 
+komputasi yang lebih tinggi yang menerima data dari node 
+sensor, memproses algoritma kendali (seperti logika fuzzy  atau 
+neural network ), dan mengirimkan kembali sinyal aksi. 
+Pemisahan ini memungkinkan penerapan algoritma cerdas yang 
+membutuhkan daya komputasi besar tanpa membebani node 
+sensor yang biasanya memiliki sumber daya terbatas (Tatas et 
+al., 2022; Wang et al., 2022) . 
+2.4.2 Protokol Komunikasi Data  
+ Komunikasi antar -node dalam sistem terdistribusi memerlukan protokol 
+yang efisien untuk menjamin integritas data. Protokol komunikasi yang 
+menggunakan mekanisme publish -subscribe  sering digunakan dalam arsitektur ini. 
+Dalam mekanisme ini, node sensor bertindak sebagai publisher  yang mengirimkan 
+data ke topik tertentu, sementara node kendali bertindak sebagai subscriber  yang 
+menerima data tersebut untuk diproses  (Wang et al., 2022) . Penggunaan protokol 
+telemetri seperti MQTT ( Message Queuing Telemetry Transport ) sangat relevan 
+dalam sistem hidroponik cerdas karena kemampuannya menangani transmisi data 
+pada bandwidth  rendah dengan latensi minimal, yang krusial untuk menjaga 
+kestabilan pengendalian nutrisi secara real-time(Sulaiman et al., 2025) . 18 
+ 2.4.3 Mekanisme Keamanan (Safety Interlock)  
+ Sistem otomatisasi yang melibatkan cairan dan aktuator listrik memerlukan 
+mekanisme keamanan untuk mencegah kegagalan perangkat keras. Salah satu 
+risiko utama dalam sistem hidroponik adalah dry running  (pompa beroperasi tanpa 
+air) atau overflow  (air meluap). Untuk memitigasi risiko ini, diterapkan logika 
+Finite State Machine  (FSM) yang mengintegrasikan sensor ketinggian air ( water 
+level ). Hutauruk menjelaskan bahwa FSM memungkinkan sistem berpindah ke 
+keadaan "Siaga Darurat" atau mematikan pompa secara oto matis apabila sensor 
+mendeteksi ketinggian air berada di bawah batas aman, terlepas dari perintah 
+algoritma kendali utama  (Hutauruk, 2025) . Mekanisme safety interlock  ini 
+memastikan bahwa optimasi nutrisi tidak mengorbankan keamanan fisik perangkat 
+keras  (Kurniawan & Amirullah, 2021) . 
+2.5 Parameter Evaluasi Performasi Kontrol  
+ Untuk mengukur efektivitas dan stabilitas algoritma kendali cerdas (seperti 
+Reinforcement Learning ) dalam menjaga setpoint pH dan EC, diperlukan metrik 
+evaluasi kuantitatif yang baku. Evaluasi ini umumnya dibagi menjadi analisis 
+respon transien dan analisis galat integral.  
+2.5.1 Karakteristik Respon Transien  
+ Analisis respon transien digunakan untuk melihat perilaku sistem sesaat 
+setelah diberikan gangguan atau perubahan target. Parameter kunci dalam evaluasi 
+ini meliputi:  
+1. Settling Time  (Waktu Tunak): Didefinisikan sebagai waktu 
+terpendek yang dibutuhkan oleh variabel respon untuk masuk 
+dan tetap berada dalam batas toleransi kesalahan tertentu 
+(biasanya ±2% atau ±5%) dari nilai akhir yang diinginkan (Cai 
+et al., 2025) . Semakin singkat settling time , semakin responsif 
+sistem dalam memulihkan kondisi nutrisi ideal bagi tanaman 
+(Ridwan et al., 2025) . 
+2. Overshoot  (Lonjakan Maksimum): Merupakan rasio deviasi 
+maksimum dari variabel respon yang melampaui nilai steady -19 
+ state . Dalam konteks hidroponik, overshoot  yang berlebihan 
+pada penambahan larutan asam atau basa dapat menyebabkan 
+kejutan ( shock ) pada akar tanaman. Sistem kendali yang baik 
+harus mampu meminimalkan persentase overshoot  ini (Cai et al., 
+2025; Su, 2025) . 
+2.5.2 Konvergensi Agen Pembelajaran  
+ Khusus untuk sistem berbasis Reinforcement Learning  (RL), kinerja juga 
+dievaluasi berdasarkan konvergensi reward . Konvergensi tercapai ketika agen 
+mampu memaksimalkan akumulasi reward  (imbalan) dan menstabilkan nilai fungsi 
+Q (Q-value ) seiring bertambahnya episode pembelajaran. Grafik pembelajaran 
+(learning curve ) yang menunjukkan peningkatan reward  kumulatif dan penurunan 
+variansi kesalahan mengindikasikan bahwa agen telah berhasil mempelajari 
+kebijakan ( policy ) optimal untuk mengendalikan lingkungan (Bashabsheh, 2024; 
+Cai et al., 2025)   20 
+ BAB III  
+METODOLOGI PENELITIAN  
+3.1 Alur Penelitian  
+ Tahapan pelaksanaan penelitian ini disusun secara sistematis untuk 
+memastikan tujuan perancangan sistem kendali adaptif tercapai. Alur kerja 
+penelitian, mulai dari identifikasi masalah hingga evaluasi kinerja akhir, 
+diilustrasikan pada Gambar 3.1.  
+ 
+Gambar 3. 1 Diagram Alir Tahapan Penelitian  
+Secara garis  besar, prosedur penelitian terdiri dari beberapa fase utama:  
+1. Tahapan Persiapan penelitian dimulai dengan studi literatur  untuk mempe lajari 
+teori tentang karakteristrik pH, E C, dan algoritma Reinforcement Learning , yang 
+dilanjutkan dengan Analisis Kebutuhan untuk menentukan spesifikasi komponen 
+perangkat keras seperti (sensor, pompa, mikrokontroler ) dan kebutuhan perangkat 
+lunak.  
+21 
+ 2. Tahap Perancangan dan Integrasi berdasarkan analisis tersebut, dilakukan 
+Perancangan Sistem yang mencakup desain mekanik, elektronik, dan arsitektur 
+agen cerdas. Seluruh komponen kemudian disatukan pada tahap Integrasi Sistem 
+agar siap beroperasi.  
+3. Tahap Pelatihan Agen ( Training Loop ) ini merupakan inti dari penerapan metode 
+Q-Learning. Sistem akan memasuki tahap Pelatihan Agen di mana agen belajar 
+berinteraksi dengan lingkungan. Seperti terlihat pada diagram alir, terdapat proses 
+evaluasi apakah reward  konverge n. Jika akumulasi reward  belum mencapai titik 
+konvergen (stabil), proses pelatihan akan diulang kembali. Agen dianggap "pintar" 
+hanya jika grafik reward  telah konvergen.  
+4. Tahap Pengujian dan Analisis setelah agen terlatih, dilakukan Pengujian Kinerja 
+Sistem untuk mengukur parameter respon transien ( overshoot  dan settling time ). 
+Data yang diperoleh kemudian diolah pada tahap Analisis Data untuk ditarik 
+kesimpulannya dalam Penyusunan Laporan . 
+ 
+3.2 Perancangan Arsitektur Sistem  
+ Perancangan sistem kendali pada penelitian ini mengadopsi arsitektur 
+terdistribusi ( distributed control system ) yang memisahkan fungsi akuisisi data, 
+pengambilan keputusan, dan eksekusi kontrol ke dalam perangkat keras yang 
+berbeda. Pendekatan ini dipilih untuk meningkatkan keandalan sistem dan 
+meminimalisir interferensi sinyal ( noise ) antara sirkuit sensor yang sensitif dan 
+sirkuit aktuator yang memiliki beban induktif tinggi . 
+ Secara fungsional, hubungan antar -komponen perangkat keras dan aliran 
+data dalam sistem ditunjukkan pada Gambar 3.2.  
+ 22 
+  
+Gambar 3. 2 Diagram Blok Arsitektur Sistem Kendali Terdistribusi.  
+ Seperti yang diilustrasikan pada Gambar 3.2, sistem terdiri dari tiga node  
+pemrosesan utama yang saling terhubung melalui jaringan nirkabel:  
+1. Node Senso r (Sensing Node)  ini menggunakan mikrokontroler 
+ESP32 Unit 1 yang berfungsi khusus sebagai slave  untuk akuisisi 
+data. Node ini terhubung dengan sensor pH, sensor EC, dan sensor 
+water level . Data analog yang dibaca akan diproses dan dikonversi 
+menjadi data digital, kemudian dikirimkan ( publish ) ke broker  
+MQTT. Pemisahan node ini bertujuan untuk menjaga integritas data 
+sensor dari gangguan elektromagnetik yang mungkin ditimbulkan 
+oleh motor pompa . 
+2. Node Kendali Cerdas ( Decision Node ) pusat pemrosesan logika 
+dijalankan oleh komputer papan tunggal Raspberry Pi 4. Perangkat 
+ini bertindak sebagai 'Agen' dalam algoritma Reinforcement 
+Learning  (RL). Raspberry Pi bertugas menerima data state  (𝑆𝑡) dari 
+Node Sensor, menghitung nilai Q-Function , dan menentukan aksi 
+(𝐴𝑡) terbaik berdasarkan kebijakan ( policy ) yang sedang dipelajari. 
+Keputusan durasi nyala pompa kemudian dikirimkan kembali ke 
+23 
+ jaringan MQTT , dan agen akan menunggu status penyelesaian aksi 
+sebelum memulai siklus observasi berikutnya  
+3. Node Aktuator ( Actuating Node ) node ini menggunakan 
+mikrokontroler ESP32 Unit 2 yang terpisah secara fisik dari node 
+sensor. Tugas utamanya adalah menerima ( subscribe ) perintah aksi 
+dari Raspberry Pi dan mengendalikan modul relay  6-channel. 
+Setelah durasi pemompaan selesai, node ini mempublikasikan sinyal 
+status ( acknowledgment ) kembali ke broker untuk 
+menginformasikan agen bahwa aksi telah tuntas dieksekusi. Relay  
+ini akan mengatur nyala -mati pompa peristaltik untuk larutan pH 
+Up, pH Down, Nutrisi A, dan Nutrisi B sesuai durasi yang 
+diperintahkan.  
+4. Jalur Komunikasi Data  pertukaran informasi antar -node difasilitasi 
+oleh protokol MQTT ( Message Queuing Telemetry Transport ). 
+Protokol ini dipilih karena kemampuannya yang ringan dan efisien 
+untuk komunikasi real-time pada sistem IoT . 
+ 
+ Selain pengendalian nutrisi, sistem ini juga menerapkan mekanisme 
+keamanan ( safety interlock ). Data dari sensor water level  digunakan sebagai syarat 
+logika  jika ketinggian air terdeteksi di bawah batas aman, Node Aktuator akan 
+memblokir perintah pompa untuk mencegah kerusakan akibat dry running  (pompa 
+bekerja tanpa air) . 
+3.3 Perancangan Hardware  
+ Realisasi fisik sistem kendali dibangun berdasarkan arsitektur terdistribusi 
+yang telah dirancang. Perangkat keras dibagi menjadi tiga modul utama yang 
+terpisah secara fisik untuk menjamin isolasi elektrik dan kemudahan perawatan 
+(maintenance ). Spesifikasi dan konfigurasi perangkat keras adalah sebagai berikut:  
+ 
+1. Modul Sensor ( Sensing Unit ): Unit ini difungsikan khusus untuk akuisisi 
+data lingkungan guna menghindari interferensi sinyal ( noise ) dari beban 
+induktif.  24 
+ o Mikrokontroler: Menggunakan ESP32 DevKit V1 (Unit 1) sebagai 
+pemroses sinyal analog -ke-digital (ADC).  
+o Sensor: Terdiri dari sensor pH analog (tipe SEN0161) dan sensor 
+Electrical Conductivity  (tipe DFR0300) yang terhubung ke pin 
+GPIO analog ESP32. Sensor ultrasonik ditambahkan untuk 
+pemantauan level air secara non -kontak.  
+o Catu Daya: Menggunakan suplai daya teregulasi 5V DC terpisah 
+untuk menjaga stabilitas pembacaan sensor presisi.  
+2. Modul Aktuator ( Dosing Unit ): Unit ini bertugas mengeksekusi perintah 
+fisik dan mengelola beban daya motor.  
+o Mikrokontroler: Menggunakan ESP32 DevKit V1 (Unit 2) sekunder 
+yang beroperasi sebagai MQTT Subscriber . 
+o Driver: Modul Relay 6 -Channel (5V, Active Low ) yang dilengkapi 
+optocoupler  untuk isolasi galvanik antara mikrokontroler dan sirkuit 
+daya pompa.  
+o Pompa: 5 unit pompa peristaltik 12V DC digunakan untuk 
+memompa larutan korektor (pH Up, pH Down), larutan nutrisi (Stok 
+A, Stok B), dan air baku (untuk dilusi).  
+3. Unit Komputasi Pusat ( Edge Server ) 
+o Menggunakan Raspberry Pi 4 Model B (RAM 4GB) yang berfungsi 
+sebagai MQTT Broker  lokal dan host untuk algoritma agen cerdas. 
+Perangkat ini ditempatkan dalam panel berventilasi aktif untuk 
+menjaga suhu operasi prosesor tetap optimal selama proses pelatihan 
+(training ) yang memakan sumber daya komputasi.  
+3.4 Perancangan Agen Cerdas  
+ Setelah  perancangan perangkat keras dan arsitektur komunikasi data selesai, 
+tahapan selanjutnya adalah perancangan logika kecerdasan buatan. Agen cerdas 
+dalam penelitian ini dibangun menggunakan algoritma Reinforcement Learning  
+dengan pendekatan Model -Free , di mana agen belajar menentukan strategi kendali 
+optimal melalui interaksi langsung dengan lingkungan tanpa memerlukan 
+pemodelan matematis sistem yang kompleks.  25 
+  Perancangan  agen didasarkan pada kerangka kerja Markov Decision 
+Process  (MDP) yang memetakan dinamika sistem hidroponik ke dalam empat 
+komponen fundamental, yaitu:  
+1. Ruang Keadaan ( State -Space ): Representasi numerik dari kondisi 
+kualitas air (pH dan EC) yang dibaca oleh sensor.  
+2. Ruang Aksi ( Action -Space ): Himpunan keputusan kendali durasi pompa 
+yang dapat dieksekusi oleh agen.  
+3. Tabel Pengetahuan ( Q-Table ): Struktur memori berbentuk matriks tempat 
+agen menyimpan nilai utilitas ( Q-Value ) dari setiap pengalaman 
+pembelajaran.  
+4. Fungsi Hadiah ( Reward Function ): Mekanisme evaluasi untuk 
+memberikan umpan balik positif atau negatif terhadap kinerja agen.  
+Rincian perancangan teknis untuk setiap komponen tersebut dijabarkan 
+pada sub -bab berikut.  
+3.4.1 Definisi Ruang Keadaan (State -Space)  
+ Data kualitas air yang diakuisisi oleh node sensor (ESP32) berupa nilai pH 
+dan EC memiliki format kontinu ( floating point ). Agar agen Q -Learning dapat 
+memproses data tersebut dalam tabel keputusan yang terbatas, nilai pembacaan 
+sensor harus didiskritisasi menjadi level -level diskrit. Langkah ini bertujuan untuk 
+mereduksi dimensi data lingkungan ( dimensionality reduction ) sehingga beban 
+komputasi pada perangkat pemroses pusat (Raspberry Pi) menjadi lebih efisien . 
+Pembagian menjadi 5 level (termasuk ' Very Lo w' dan ' Very High ') dipilih untuk 
+memberikan resolusi yang cukup bagi agen dalam membedakan antara kondisi 
+yang masih dapat ditoleransi ( Low/High ) dan kondisi yang memerlukan intervensi 
+darurat ( Very Low/Very High ), sehingga mencegah respons kendali yang terlalu 
+agresif pada penyimpangan kecil.  
+ Implementasi diskritisasi membagi rentang ukur masing -masing parameter 
+menjadi 5 kategori spesifik, yaitu Very Low , Low, Optimal , High , dan Very High . 
+Penentuan ambang batas ( threshold ) untuk setiap kategori menerapkan 26 
+ ketidaksamaan matematis yang ketat ( strict inequality ) untuk menjamin tidak 
+adanya tumpang tindih ( overlap ) pada pembacaan sensor. Rincian aturan 
+pembagian level untuk parameter pH disajikan pada Tabel 3.1 . 
+ 
+Tabel 3. 1 Aturan Diskritisasi Parameter pH  
+Level  Kategori  Rentang Nilai pH  
+0 Very Low  𝑝𝐻 < 5.5 
+1 Low 5.5 ≤𝑝𝐻<5.8 
+2 Optimal  5.8≤𝑝𝐻≤6.2 
+3 High  6.2<𝑝𝐻≤6.5 
+4 Very High  𝑝𝐻>6.5 
+ 
+ Sementara itu, parameter EC juga dibagi menjadi 5 level kategori 
+berdasarkan konsentrasi nutri si terlarut, seperti ter lihat pada Tabel 3.2  
+Tabel 3. 2 Aturan Diskritisasi Parameter EC  
+Level  Kategori  Rentang Nilai EC (𝜇𝑆/𝑐𝑚) 
+0 Very Low  𝐸𝐶 < 800 
+1 Low 800 ≤𝐸𝐶<1100  
+2 Optimal  1100≤𝐸𝐶≤1300  
+3 High  1300<𝐸𝐶≤1600  
+4 Very High  𝐸𝐶>1600  
+ 
+ Kedua tabel diskritisasi di atas (Tabel 3.1 dan Tabel 3.2) mendefinisikan 
+level secara parsial untuk masing -masing sensor. Namun, dalam algoritma Q -
+Learning, agen harus mempersepsikan lingkungan sebagai satu kesatuan kondisi 
+global yang utuh. Oleh karena itu, ruang keadaan ( State -Space ) dibentuk melalui 
+mekanisme pemetaan silang ( State Mapping ) yang mengombinasikan indeks pH 
+dan EC menjadi 25 identitas keadaan unik.  
+ Penentuan State ( 𝑆𝑡) dilakukan menggunakan metode pemetaan langsung 
+(Direct Mapping ). Sistem mengidentifikasi pertemuan antara indeks Level pH dan 27 
+ Level EC, lalu mencocokkannya dengan ID keadaan unik yang tertera secara 
+spesifik pada Tabel 3.3.  
+ 
+Tabel 3. 3 Matrik s Pemetaan Ruang Keadaan (State Mapping Matrix)  
+State ID  pH Index  EC Index  Kategori Zona  
+1 0 (VL)  0 (VL)  Kritis Ekstrem  
+2 0 (VL)  1 (L)  Kritis  
+3 0 (VL)  2 (Opt)  Kritis  
+4 0 (VL)  3 (H)  Kritis  
+5 0 (VL)  4 (VH)  Kritis Ekstrem  
+6 1 (L)  0 (VL)  Kritis  
+7 1 (L)  1 (L)  Transisi  
+8 1 (L)  2 (Opt)  Sub-Optimal  
+9 1 (L)  3 (H)  Transisi  
+10 1 (L)  4 (VH)  Kritis  
+11 2 (Opt)  0 (VL)  Kritis  
+12 2 (Opt)  1 (L)  Sub-Optimal  
+13 2 (Opt)  2 (Opt)  Target (Goal)  
+14 2 (Opt)  3 (H)  Sub-Optimal  
+15 2 (Opt)  4 (VH)  Kritis  
+16 3 (H)  0 (VL)  Kritis  
+17 3 (H)  1 (L)  Transisi  
+18 3 (H)  2 (Opt)  Sub-Optimal  
+19 3 (H)  3 (H)  Transisi  
+20 3 (H)  4 (VH)  Kritis  
+21 4 (VH)  0 (VL)  Kritis Ekstrem  
+22 4 (VH)  1 (L)  Kritis  
+23 4 (VH)  2 (Opt)  Kritis  
+24 4 (VH)  3 (H)  Kritis  
+25 4 (VH)  4 (VH)  Kritis Ekstrem  
+ 28 
+  Tabel matriks  di atas menjadi acuan navigasi bagi agen, di mana State 13 
+ditetapkan sebagai target kondisi ideal (pH Optimal dan EC Optimal).  
+3.4.2 Definisi Ruang Aksi (Action -Space)  
+ Efektivitas agen Q -Learning tidak hanya bergantung pada kemampuan 
+persepsi ( State ), tetapi juga pada granularitas kendali yang dimilikinya. Mengingat 
+karakteristik pH yang bersifat logaritmik dan sensitif, penggunaan durasi dosing 
+yang seragam ( fixed  duration ) berisiko menyebabkan osilasi di sekitar titik setpoint . 
+Oleh karena itu, Ruang Aksi ( Action -Space ) pada penelitian ini dirancang dengan 
+pendekatan Multi -Level  Dosing  untuk memberikan respons proporsional terhadap 
+tingkat keparahan error  yang teridentifikasi di ruang keadaan . 
+ Strategi ini membagi intervensi  aktuator menjadi dua kategori intensitas : 
+1. Fine-Tuning Action  (𝑡𝑠ℎ𝑜𝑟𝑡): Diterapkan saat sistem berada pada 
+zona 'Transisi' atau 'Sub -Optimal'. Aksi ini memberikan koreksi 
+halus untuk mendekati target secara perlahan ( soft landing ) tanpa 
+memicu lonjakan nilai yang drastis.  
+2. Coarse -Tuning Action  (𝑡𝑙𝑜𝑛𝑔): Diterapkan saat sistem berada pada 
+zona 'Kritis'. Aksi ini memberikan koreksi agresif untuk segera 
+mengembalikan parameter fisika air ke wilayah aman sebelum 
+tanaman mengalami stres permanen.  
+ Ruang aksi didefinisikan sebagai himpunan diskrit yang terdiri dari 9 
+kemungkinan keputusan, Aksi -aksi ini mengendalikan tiga kelompok aktuator, 
+pompa korektor pH  (Asam/Basa), pompa nutrisi A,  B (untuk menaikkan EC) dan 
+pompa air baku (untuk menurunkan EC melalui dilusi) . Definisi lengkap setiap aksi 
+beserta dampak fisiknya terhadap lingkungan disajikan pa da Tabel 3.4 . 29 
+ Tabel 3. 4 Definisi Ruang Aksi dan Durasi Dosing  
+Idx Kode Aksi  Aktuator 
+Target  Durasi  Dampak Fisik pada Lingkungan 
+(State)  
+0 Idle None  0 s Mempertahankan kondisi saat ini 
+(No Change)  
+1 pH Up 
+Short  Pompa pH 
+Up 𝑡𝑠ℎ𝑜𝑟𝑡 Menaikkan nilai pH (Koreksi 
+Halus)  
+2 pH Up 
+Long  Pompa pH 
+Up 𝑡𝑙𝑜𝑛𝑔 Menaikkan nilai pH (Koreksi 
+Kasar)  
+3 pH Down 
+Short  Pompa pH 
+Down  𝑡𝑠ℎ𝑜𝑟𝑡 Menurunkan nilai pH (Koreksi 
+Halus ) 
+4 pH Down 
+Long  Pompa pH 
+Down  𝑡𝑙𝑜𝑛𝑔 Menurunkan nilai pH (Koreksi 
+Kasar)  
+5 Nutrisi 
+Short  Pompa 
+Nutrisi  𝑡𝑠ℎ𝑜𝑟𝑡 Menaikkan nilai EC (Koreksi 
+Halus)  
+6 Nutrisi 
+Long  Pompa 
+Nutrisi  𝑡𝑙𝑜𝑛𝑔 Menaikkan nilai EC (Koreksi 
+Kasar)  
+7 Air Baku 
+Short  Pompa Air  𝑡𝑠ℎ𝑜𝑟𝑡 Menurunkan nilai EC (Dilusi 
+Halus)  
+8 Air Baku 
+Long  Pompa Air  𝑡𝑙𝑜𝑛𝑔 Menurunkan nilai EC (Dilusi 
+Halus)  
+ 
+3.4.3 Struktur Tabel Pengetahuan (Q -Table)  
+ Mengacu pada Matriks Pemetaan Ruang Keadaan (Tabel 3.3) dan Definisi 
+Ruang Aksi (Tabel 3.4), struktur memori agen dibentuk sebagai matriks Q -Table 
+berdimensi 25 × 9. Dimensi ini terbentuk secara matematis dari total 25 State  unik 
+(baris) dan 9 Action  diskrit (kolom).  
+ Setiap sel dalam matriks ini menyimpan nilai Q-Value  yang akan diperbarui 
+secara iteratif sela ma proses pembelajaran. Pada tahap inisialisasi awal, seluruh 
+elemen matriks diatur bernilai 0.00 yang menandakan agen belum memiliki 30 
+ pengetahuan awal. Struktur visual Q -Table yang digunakan disajikan pada Tabel 
+3.5. 
+Tabel 3. 5 Struktur Matriks Q -Table (25 × 9 ) 
+State 
+(S) A0 
+(Idle)  A1 
+(pH 
+Up S)  A2 
+(pH 
+Up L)  A3 
+(pH 
+Dn S)  A4 
+(pH 
+Dn L)  A5 
+(Nut 
+S) A6 
+(Nut 
+L) A7 
+(Air S)  A8 
+(Air L)  
+State 1  0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 
+State 2  0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+State 
+13 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+State 
+25 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 
+ 
+ Secara komputasional, matriks Q -Table berukuran 25 baris × 9 kolom ini 
+merepresentasikan kapasitas memori agen yang mencakup 225 pasangan Keadaan -
+Aksi ( State -Action Pairs ). Pada tahap inisialisasi ( 𝑡=0), seluruh sel matriks diatur 
+bernilai 0.00. Kondisi ini dikenal sebagai Tabula Rasa, di mana agen belum 
+memiliki pengetahuan apa pun tentang dinamika sistem hidroponik.  
+ Setiap sel nantinya tidak sekadar menyimpan nilai hadiah sesaat ( 𝑟𝑡), 
+melainkan mengakumulasi Expected Future Reward  (harapan imbalan jangka 
+panjang). Nilai ini akan diperbarui secara iteratif menggunakan Persamaan Bellman 
+setiap kali agen melakukan aksi, sehingga angka yang terbentuk di dalam tabel 
+merupakan representasi numerik dari 'pengalaman' agen dalam menjaga sta bilitas 
+pH dan EC.  
+3.4.4 Perancangan Fungsi Hadiah (Reward Function)  
+ Fungsi Hadiah ( Reward Function ) dirancang sebagai mekanisme navigasi 
+utama untuk menuntun agen menemukan kebijakan kontrol optimal. Penelitian ini 
+menerapkan strategi Insentif Berbasis Zona ( Zone -Based Incentive ), di mana 
+pemberian nilai hadiah ditentukan sepenuhnya oleh posisi akurasi  agen terhadap 
+target ( State Goal ). 31 
+ Dalam strategi ini, prioritas sistem adalah pencapaian stabilitas parameter fisika air. 
+Agen didorong untuk melakukan tindakan koreksi berdasarkan tingkat urgensi 
+kondisi lingkungan yang terdeteksi.  
+Secara matematis, total hadiah pada setiap langkah waktu diformulasikan 
+menggunakan fungsi sepotong -sepotong ( piecewise function ) yang memetakan 
+kategori zona keadaan ( State Zone ) ke nilai skalar tertentu, sebagai berikut:  
+𝑅(𝑡+1)=𝑅(𝑧𝑜𝑛𝑎)(𝑆𝑡+1)  
+ Komponen 𝑅𝑧𝑜𝑛𝑎 didefinisikan sebagai fungsi sepotong -sepotong 
+(piecewise ) berikut:  
+𝑅(zona)(𝑆)= 
+{    +50,jika 𝑆 ∈𝒮(target)     (Target/Goal)
++10,jika 𝑆 ∈𝒮(sub)     (Sub-Optimal)
+−5,jika 𝑆 ∈𝒮(trans)     (Transisi)
+−80,jika 𝑆 ∈𝒮(crit)     (Kritis)
+−120,jika 𝑆 ∈𝒮(extreme)     (Kritis Ekstrem) 
+Rasionalisasi nilai hadia h tersebut adalah : 
+• +50 (Target) hadiah terbesar agar agen mem prioritaskan kondisi State 13.  
+• +10 (Safety Net) mencegah agen melakukan aksi koreksi berlebihan 
+(Overshoot ) saat sudah dekat target.  
+• −5 (Warning) peringatan dini agar agen melakukan koreksi halus ( fine-
+tuning ). 
+• −80 (Kritis ) hukuman berat saat salah satu parameter masuk zona 
+berbahaya.  
+• −120 (Ekstrem) Hukuman maksimal saat pH dan EC rusak bersamaan 
+(State 1, 5, 21, 25). Perbedaan dengan nilai −80 memaksa agen untuk tidak 
+pasrah dan segera memperbaiki minimal satu para meter.  
+ 
+Tabel 3. 6 Distribusi Nilai Reward Berdasarkan Zona State  
+State 
+ID Status Zona (Ref. Tabel 
+3.3) Reward 
+(𝑅𝑧𝑜𝑛𝑎) Keterangan Logika  32 
+ 1 Kritis Ekstrem  -120 Bahaya Fatal (pH & EC 
+Buruk)  
+2 Kritis  -80 Bahaya (Salah satu Buruk)  
+3 Kritis  -80 Bahaya (Salah satu Buruk)  
+4 Kritis  -80 Bahaya (Salah satu Buruk)  
+5 Kritis Ekstrem  -120 Bahaya Fatal (pH & EC 
+Buruk)  
+6 Kritis  -80 Bahaya (Salah satu Buruk)  
+7 Transisi  -5 Peringatan Dini  
+8 Sub-Optimal  +10 Zona Aman (Safety Net)  
+9 Transisi  -5 Peringatan Dini  
+10 Kritis  -80 Bahaya (Salah satu Buruk)  
+11 Kritis  -80 Bahaya (Salah satu Buruk)  
+12 Sub-Optimal  +10 Zona Aman (Safety Net)  
+13 Target (Goal)  +50 Kondisi Ekuilibrium  
+14 Sub-Optimal  +10 Zona Aman (Safety Net)  
+15 Kritis  -80 Bahaya (Salah satu Buruk)  
+16 Kritis  -80 Bahaya (Salah satu Buruk)  
+17 Transisi  -5 Peringatan Dini  
+18 Sub-Optimal  +10 Zona Aman (Safety Net)  
+19 Transisi  -5 Peringatan Dini  
+20 Kritis  -80 Bahaya (Salah satu Buruk)  
+21 Kritis Ekstrem  -120 Bahaya Fatal (pH & EC 
+Buruk)  
+22 Kritis  -80 Bahaya (Salah satu Buruk)  
+23 Kritis  -80 Bahaya (Salah satu Buruk)  
+24 Kritis  -80 Bahaya (Salah satu Buruk)  
+25 Kritis Ekstrem  -120 Bahaya Fatal (pH & EC 
+Buruk)  
+ 33 
+ 3.4.5 Logika Algoritma dan Eksekusi Aksi  
+ Integrasi antara logika agen cerdas (Raspberry Pi) dan eksekusi fisik 
+(ESP32) divisualisasikan dalam diagram alir sistem pada Gambar 3.3 . Visualisasi 
+ini menggunakan alur Swimlane  untuk memisahkan beban kerja Node Kendali  dan 
+Node Aktuator  dalam arsitektur terdistribusi closed -loop. 
+ 
+Gambar 3. 3 Diagram Alir Logika Agen Q -Learning  
+ Berdasarkan alur pada Gambar 3.3, mekanisme pengendalian dibagi 
+menjadi empat fase sekuensial:  
+1. Fase Observasi ( Sensing & Mapping ) diklus dimulai dengan inisialisasi 
+sistem. Agen mengakuisisi data real-time dari sensor pH dan EC. Data 
+mentah yang bersifat kontinu ini kemudian didiskritisasi menjadi indeks 
+State  (𝑆𝑡) sesuai aturan pemetaan pada Tabel 3.3. Langkah ini krusial untuk 
+34 
+ menyederhanakan kompleksitas lingkungan menjadi format yang dapat 
+diproses oleh Q-Table . 
+2. Fase Keputusan ( Decision Making ): Berdasarkan State  yang teridentifikasi, 
+agen menyeleksi Aksi ( 𝐴𝑡) dari himpunan ruang aksi yang tersedia (Idx 0 –
+8). Algoritma memprioritaskan aksi dengan Q-Value  tertinggi untuk 
+mendekatkan sistem ke target. Krusial pada tahap ini, indeks aksi yang 
+terpilih dipetakan kembali ke variabel durasi yang sesuai ( 𝑡𝑠ℎ𝑜𝑟𝑡 atau 𝑡𝑙𝑜𝑛𝑔) 
+merujuk pada Tabel 3.4. Nilai durasi hasil pemetaan inilah yang kemudian 
+dikemas dalam format payload  protokol MQTT dan dikirimkan ke Node 
+Aktuator sebagai perintah kerja.  
+3. Fase Eksekusi dan Proteksi ( Actuation & Safety ): Node aktuator (ESP32) 
+menerima paket data berisi nilai durasi numerik (dalam milidetik) yang 
+dikirimkan oleh agen. Sebelum eksekusi, sistem menjalankan prosedur 
+Safety Interlock  dengan memeriksa sensor water level . 
+• Jika level air Aman: Relay  diaktifkan secara presisi sesuai durasi 
+waktu (𝑡) yang diterima dalam paket data . 
+• Jika level air Bahaya: Sistem melakukan Override  (memblokir aksi) 
+untuk mencegah kerusakan pompa akibat dry running . 
+• Status selesai : Baik dalam kondisi aman maupun terblokir, node 
+aktuator mengirimkan sinyal  balik ( Acknowledgment ) ke agen untuk 
+menandakan transaksi selesai.  
+4. Fase Evaluasi dan Pembelajaran ( Update Rule ) setelah aksi dieksekusi, 
+sistem memberikan jeda waktu ( delay ) agar larutan tercampur homogen 
+sebelum membaca kondisi terbaru ( 𝑆𝑡+1). Agen kemudian menghitung nilai 
+Reward  (𝑅𝑡+1) berdasarkan fungsi tujuan yang telah ditetapkan. Siklus 
+ditutup dengan pembaruan nilai matriks Q-Table  menggunakan persamaan 
+Bellman, yang memungkinkan agen untuk semakin "cerdas" dan presisi 
+seiring bertambahnya iterasi.  
+3.5 Skenario Pengujia n 
+ Rangkaian pengujian sistem dirancang untuk memvalidasi performa agen 
+Q-Learning dalam tiga aspek fundamental: kemampuan pembelajaran ( learning 35 
+ capability ), karakteristik respon transien ( transient response ), dan ketahanan 
+terhadap gangguan ( robustness ). Data hasil pengujian akan dianalisis secara 
+kuantitatif untuk membuktikan efektivitas algoritma dalam menjaga stabilitas pH 
+dan EC sesuai batasan masalah yang ditetapkan.  
+3.5.1 Pengujian Fase Pelatihan (Training Convergence)  
+ Pengujian ini bertujuan memverifikasi keberhasilan proses pembelajaran 
+agen dalam menemukan kebijakan optimal ( optimal policy ) dari kondisi null-
+knowledge  (Tabula Rasa).  
+• Skenario: Agen dilatih dalam simulasi lingkungan ( environment ) selama 
+500 episode. Pada setiap awal episode, nilai State  diinisialisasi secara acak 
+pada zona kritis untuk memaksa agen melakukan eksplorasi jalur keputusan 
+menuju target (State 13).  
+• Parameter yang Diuku r:  
+o Akumulasi reward  (Total Reward ) jumlah poin bersih yang 
+dikumpulkan agen dalam satu episode lengkap  
+o Jumlah langkah ( Steps per Episode ) banyaknya  iterasi aksi yang 
+dibutuhkan agen untuk mencapai target dari kondisi awal.  
+• Target Keberhasilan: Proses pelatihan dinyatakan berhasil jika grafik Total 
+Reward  menunjukkan tren peningkatan logaritmik yang kemudian stabil 
+(steady -state ) pada nilai positif maksimum. Secara simultan, grafik Steps  
+harus menunjukkan tren eksponensial menurun, yang membuktikan bahwa 
+agen mampu mencapai target dengan jalur eksekusi yang paling efisien 
+(langkah minimal) . 
+3.5.2 Pengujian Respon Kendali (Control Response)  
+ Setelah agen dinyatakan konvergen, pengujian ini dilakukan untuk 
+mengevaluasi kualitas respon transien sistem dalam menangani kondisi ekstrem. 
+Fokus utama pengujian adalah mengukur kecepatan ( speed ) dan ketepatan 
+(accuracy ) agen dalam mengembalikan parameter air ke titik ekuilibrium . 36 
+ • Skenari o: Sistem diinisialisasi secara paksa pada kondisi gangguan berat 
+(pH 4.0 atau EC 800 µS/cm). Agen diaktifkan untuk melakukan aksi koreksi 
+otonom menuju setpoint  (pH 6.0 dan EC 1200 µS/cm) . 
+ 
+Parameter yang Diukur:  
+1. Settling Time  (𝑡𝑠): Didefinisikan sebagai durasi waktu yang dibutuhkan 
+respons sistem untuk masuk dan bertahan ( holding ) di dalam pita toleransi 
+target (±0.2pH dan ±100 µS/cm) selama minimal 60 detik berturut -turut. 
+Jika nilai keluar dari pita toleransi sebelum 60 detik, waktu perhitungan 
+settling time  akan di -reset . 
+2. Maximum Overshoot  (𝑀𝑝): Diukur sebagai persentase atau nilai deviasi 
+maksimum yang melampaui setpoint  sebelum sistem mencapai kondisi 
+steady -state . Target optimasi agen adalah meminimalkan nilai ini untuk 
+mencegah shock  pada akar tanaman.  
+ 
+ 
+3.5.3 Pengujian Gangguan (Disturbance Test)  
+ Pengujian ini bertujuan memvalidasi robustness  sistem dalam 
+mempertahankan kestabilan parameter (pH dan EC) saat terjadi perubahan 
+lingkungan eksternal yang tidak terduga, seperti pengisian ulang air baku atau 
+hujan . 
+• Skenario Gangguan Langkah ( Step Disturbance ): Saat sistem telah 
+mencapai kondisi steady -state  pada titik kerja (pH 6.0 dan EC 1200  
+µS/cm), diberikan gangguan eksternal berupa injeksi air baku (pH ≈7.0, 
+EC ≈0 µS/cm) sebanyak 10% dari volume total cairan secara instan. 
+Gangguan ini mensimulasikan efek dilusi mendadak yang memaksa nilai 
+EC turun drastis dan pH berubah menjauhi setpoint . 
+• Parameter Ukur:  
+1. Maximum Deviation  (∆𝑚𝑎𝑥): Selisih terjauh antara nilai sensor 
+dengan setpoint  sesaat setelah gangguan diberikan. Parameter ini 37 
+ mengukur seberapa besar dampak gangguan terhadap sistem 
+sebelum agen bereaksi.  
+2. Recovery Time  (𝑡𝑟𝑒𝑐): Durasi waktu yang dibutuhkan agen untuk 
+mendeteksi perubahan State , mengambil aksi kompensasi (misal: 
+dosing  nutrisi), dan mengembalikan parameter air kembali ke zona 
+toleransi target  (± 2% dari setpoint ). Semakin singkat waktu 
+pemulihan, semakin responsif performa agen Q -Learning  
+ 
+ 38 
+ BAB IV  
+  39 
+ Daftar Referensi  
+Abdulkadir, A., Kabir, M. T., Abdulkareem, H. A., & Abdullahi, Z. (2025). Adaptive Q -
+Learning -Based Radio Resource Management Optimization in 5G and Beyond 
+Heterogeneous -Homogeneous Networks: A Comprehensive Review. Asian Journal 
+of Science, Technology, Engineering, and Art , 3(1), 137 –154. 
+https://doi.org/10.58578/ajstea.v3i1.4578  
+Agustian, I., Prayoga, B. I., Santosa, H., Daratha, N., & Faurina, R. (2022). NFT 
+Hydroponic Control Using Mamdani Fuzzy Inference System. Journal of Robotics 
+and Control (JRC) , 3(3), 374 –383. https://doi.org/10.18196/jrc.v3i3.14714  
+Bashabsheh, M. (2024). Autonomous Robotic Systems with Artificial Intelligence 
+Technology Using a Deep Q Network -Based Approach for Goal -Oriented 2D Arm 
+Control. Journal of Robotics and Control (JRC) , 5(6), 1872 –1887. 
+https://doi.org/10.18196/jrc.v5i6.23850  
+Cai, Y., Zhao, Z., Guo, W., Xu, H., Teng, Y., Han, X., Zhao, Q., & Wang, L. (2025). Smart 
+Nutrient Solution Temperature Control System for Oversummering Lettuce 
+Cultivation Based on Adaptive Dung Beetle Optimizer -Fuzzy PID. Applied Sciences 
+(Switzerland) , 15(10). https://doi.org/10.3390/app15105381  
+Catota -Ocapana, P., Minaya -Andino, C., Astudillo, P., & Pichoasamin, D. (2025). Smart 
+Control Models Used for Nutrient Management in Hydroponic Crops: A Systematic 
+Review. In IEEE Access  (Vol. 13, pp. 13070 –13087). Institute of Electrical and 
+Electronics Engineers Inc. https://doi.org/10.1109/ACCESS.2025.3526171  
+Dakshinamurthy, S., & Mohan, B. (2024). Adaptive Control of Smart Hydroponic Systems 
+Using Reinforcement Learning: A Comparative Study with PID . 
+https://doi.org/https://doi.org/10.36948/ijfmr.2025.v07i03.42424  
+Hutauruk, A. R. (2025). Kendali Otomatis Tingkat Ketinggian Air Dan Nutrisi Pada 
+Hidroponik Menggunakan Metode Finite State Machine. Jurnal Informatika Dan 
+Teknik Elektro Terapan , 13(1). https://doi.org/10.23960/jitet.v13i1.6044  
+Jain, S., & Kaur, M. (2024). Design and Implementation of an IoT -based automated EC 
+and pH Control System in an NFT -based Hydroponic Farm. Engineering, Technology 
+and Applied Science Research , 14(1), 13078 –13081. 
+https://doi.org/10.48084/etasr.6393  
+Kurniawan, L. A., & Amirullah, A. (2021). Monitoring and Controlling of pH Levels and 
+Plant Nutrition Supplied by Standalone Photovoltaic in a Greenhouse Hydroponic 
+System using Arduino Uno. Jurnal Iptek , 25, 69–76. 
+Lu, Y., Gong, M., Li, J., & Ma, J. (2023). Optimizing Controlled Environmental 
+Agriculture for Strawberry Cultivation Using RL -Informer Model. Agronomy , 13(8). 
+https://doi.org/10.3390/agronomy13082057  
+Marković, M., Galić, V., Težak, V., Ravlić, M., Barač, Ž., Jug, I., & Galić, L. (2025). The 
+Irrigation Water pH Has a Dominant Impact on the Growth and Stress Markers of 
+Bigleaf Hydrangea. Applied Sciences (Switzerland) , 15(16). 
+https://doi.org/10.3390/app15168773  40 
+ Morcego, B., Yin, W., Boersma, S., van Henten, E., Puig, V., & Sun, C. (2023). 
+Reinforcement Learning versus Model Predictive Control on greenhouse climate 
+control. Computers and Electronics in Agriculture , 215. 
+https://doi.org/10.1016/j.compag.2023.108372  
+Munaf, A., & Almusawi, A. R. J. (2024). Integration of Q -Learning and PID Controller for 
+Mobile Robots Trajectory Tracking in Unknown Environments. Journal Europeen 
+Des Systemes Automatises , 57(4), 1023 –1033. https://doi.org/10.18280/jesa.570410  
+Panjapornpon, C., Chinchalongporn, P., Bardeeniz, S., Makkayatorn, R., & 
+Wongpunnawat, W. (2022). Reinforcement Learning Control with Deep 
+Deterministic Policy Gradient Algorithm for Multivariable pH Process. Processes , 
+10(12). https://doi.org/10.3390/pr10122514  
+Ridwan, A. M., Milah, A. S., Kamelia, L., & Renaldi Gunawan, M. R. (2025). Sistem 
+Kendali Fuzzy Logic untuk Kestabilan pH dan EC Nutrisi Pada Hidroponik. Jurnal 
+Teknologi Elektro , 15(3), 152. https://doi.org/10.22441/jte.2024.v15i3.002  
+Shareef, U., Rehman, A. U., & Ahmad, R. (2024). A Systematic Literature Review on 
+Parameters Optimization for Smart Hydroponic Systems. In AI (Switzerland)  (Vol. 5, 
+Issue 3, pp. 1517 –1533). Multidisciplinary Digital Publishing Institute (MDPI). 
+https://doi.org/10.3390/ai5030073  
+Su, Z. (2025). Application of Q -learning in Autonomous Robot Obstacle Avoidance  (pp. 
+366–375). https://doi.org/10.2991/978 -94-6463 -823-3_36  
+Sulaiman, H., Yusof, A. A., & Mohamed Nor, M. K. (2025). Automated Hydroponic 
+Nutrient Dosing System: A Scoping Review of pH and Electrical Conductivity 
+Dosing Frameworks. In AgriEngineering  (Vol. 7, Issue 2). Multidisciplinary Digital 
+Publishing Institute (MDPI). https://doi.org/10.3390/agriengineering7020043  
+Tatas, K., Al -Zoubi, A., Christofides, N., Zannettis, C., Chrysostomou, M., Panteli, S., & 
+Antoniou, A. (2022). Reliable IoT -Based Monitoring and Control of Hydroponic 
+Systems. Technologies , 10(1). https://doi.org/10.3390/technologies10010026  
+Wang, Y., Liu, J., Li, R., Suo, X., & Lu, E. (2022). Application of PSO -BPNN -PID 
+Controller in Nutrient Solution EC Precise Control System: Applied Research. 
+Sensors , 22(15). https://doi.org/10.3390/s22155515  
+  

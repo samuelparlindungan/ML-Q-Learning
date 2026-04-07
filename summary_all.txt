@@ -1,0 +1,935 @@
+
+========================================
+FILE: B100_TA_01_Revisi 3.docx
+========================================
+
+
+
+Lembar Sampul Dokumen
+	
+
+
+
+DAFTAR ISI
+
+
+
+
+
+
+Catatan Sejarah Perbaikan Dokumen
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Proposal Proyek
+Design and Implementation of Q-Learning Control for pH and EC Stability with Real-Time Monitoring based on IoT
+Pengantar
+RINGKASAN ISI DOKUMEN
+  Dokumen ini menjelaskan tentang kebutuhan dasar untuk proyek “Design and Implementation of Q-Learning Control for pH and EC Stability with Real-Time Monitoring and Data Visualization based on IoT”. alam dokumen ini akan dilampirkan dan dijelaskan tentang tujuan penulisan, masalah dan tujuan yang melatarbelakangi proyek ini, mekanisme sistem dan karakteristik sistem yang akan dipakai dan dirancang. Pada dokumen ini juga, akan dijelaskan mengenai estimasi biaya, analisis aspek finansial, pemanfaatan sistem dan pengembangan sistem atau produk.
+Secara spesifik, produk ini menggabungkan algoritma kecerdasan buatan Reinforcement Learning (Q-Learning) untuk pengendalian nutrisi otomatis yang adaptif, serta sistem monitoring mandiri berbasis IoT yang menyediakan visualisasi data real-time tanpa ketergantungan pada server pihak ketiga.
+Tujuan Penulisan dan Aplikasi/Kegunaan Dokumen
+Tujuan penulisan dokumen ini adalah sebagai berikut:
+ Menguraikan latar belakang dan solusi integratif menjelaskan permasalahan ketidakstabilan parameter nutrisi pada sistem hidroponik konvensional serta mengusulkan solusi terintegrasi yang menggabungkan kecerdasan buatan (Reinforcement Learning) untuk pengendalian presisi dan sistem monitoring berbasis visualisasi data untuk pemantauan yang informatif dan andal.
+Menyajikan rancangan mekanisme sistem memaparkan mekanisme kerja sistem secara menyeluruh, mencakup algoritma Q-Learning dalam menentukan aksi dosing otomatis, serta alur pemrosesan data sensor pada unit pemrosesan mandiri (Standalone Processing Unit) yang menjamin keamanan data dan visualisasi secara real-time tanpa ketergantungan pada server eksternal.
+Menjelaskan kebutuhan komponen dan estimasi biaya merinci spesifikasi komponen perangkat keras dan perangkat lunak yang diperlukan, serta menyajikan analisis estimasi biaya produksi untuk mengimplementasikan sistem ini.
+Sebagai bahan evaluasi dalam aspek biaya yang dibutuhkan untuk merancang sistem kendali adaptif berbasis Reinforcement Learning dan infrastruktur monitoring dengan visualisasi data mandiri.
+Dokumen ini ditujukan kepada dosen pembimbing tugas akhir dan tim tugas akhir Program Studi Teknik Elektro ITDel sebagai bahan penilaian tugas akhir.
+REFERENSI
+	
+
+DAFTAR SINGKATAN
+PROPOSAL PENGEMBANGAN PRODUK TEKNOLOGI
+MASALAH DAN TUJUAN
+Keberhasilan sistem budidaya hidroponik sangat bergantung pada presisi parameter larutan nutrisi, khususnya derajat keasaman (pH) dan konduktivitas listrik (EC), yang secara langsung mempengaruhi penyerapan unsur hara oleh tanaman. Namun, menjaga stabilitas kedua parameter ini menghadapi tantangan teknis karena karakteristik proses kimia air yang sangat non-linear, time-varying, dan memiliki interaksi silang (coupling) yang kuat antara pH dan konsentrasi nutrisi . Metode pengendalian konvensional seperti PID (Proportional-Integral-Derivative) sering kali memiliki keterbatasan dalam menangani dinamika ini; studi terbaru menunjukkan bahwa kontroler PID cenderung kaku dan menghasilkan overshoot yang tinggi serta waktu penyelesaian (settling time) yang lambat ketika terjadi gangguan lingkungan . Selain itu, metode seperti Fuzzy Logic sangat bergantung pada aturan pakar yang statis dan tidak memiliki kemampuan belajar untuk beradaptasi terhadap perubahan kondisi alat seiring waktu .
+Untuk mengatasi keterbatasan tersebut, penelitian ini menerapkan pendekatan kontrol cerdas menggunakan algoritma Reinforcement Learning (Q-Learning). Berbeda dengan PID, Q-Learning merupakan metode model-free yang memungkinkan sistem belajar kebijakan dosing (durasi pompa) secara mandiri melalui interaksi trial-and-error dengan lingkungan untuk mencapai target yang optimal. Penelitian komparatif menunjukkan bahwa pendekatan berbasis Reinforcement Learning mampu meningkatkan efisiensi penggunaan sumber daya hingga 10% dan hasil panen sebesar 12,5% dibandingkan kontroler PID konvensional karena kemampuannya beradaptasi secara dinamis .
+Namun, penerapan algoritma kontrol cerdas ini menuntut infrastruktur data yang andal dan responsif. Sistem monitoring hidroponik konvensional yang bergantung sepenuhnya pada Cloud Computing sering menghadapi masalah latensi jaringan dan risiko kegagalan sistem kontrol saat koneksi internet tidak stabil . Oleh karena itu, diperlukan integrasi arsitektur Edge Computing. Dengan menempatkan komputasi pada Edge (Raspberry Pi), sistem dapat memproses data sensor dan menjalankan algoritma Q-Learning secara lokal dengan latensi yang sangat rendah (turun dari ~257ms menjadi ~10ms), menjamin respons aktuator yang real-time . Sementara itu, lapisan jaringan difokuskan untuk akses visualisasi data jarak jauh yang aman melalui secure tunneling tanpa membebani proses kontrol kritis .
+Berdasarkan permasalahan di atas, tujuan utama dari penelitian Tugas Akhir ini adalah merancang bangun sistem hidroponik cerdas yang terintegrasi. Secara spesifik, penelitian ini bertujuan untuk mengimplementasikan algoritma Q-Learning guna mengendalikan pH dan EC secara adaptif demi meminimalkan error dan osilasi, serta mengembangkan arsitektur Edge Computing yang membagi beban kerja antara node sensor (ESP32) dan Edge Server (Raspberry Pi) untuk menjamin keandalan data. Selain itu, penelitian ini juga menyediakan antarmuka monitoring berbasis web yang menampilkan status nutrisi dan kinerja sistem secara real-time untuk memudahkan evaluasi dan pemeliharaan.
+
+ANALISIS UMUM
+Proyek ini mengeksplorasi penggunaan algoritma Q-Learning, salah satu metode fundamental dalam Reinforcement Learning (RL), untuk mengotomatiskan kontrol pH dan EC dalam sistem hidroponik. Q-Learning adalah algoritma model-free yang belajar nilai dari pasangan state-action (nilai Q) melalui interaksi coba-coba dengan lingkungan, dipandu oleh reward . Pendekatan ini menarik karena tidak memerlukan model matematis yang kompleks dari dinamika pH dan EC dalam sistem hidroponik, yang seringkali sulit diperoleh secara akurat . Q-Learning berpotensi menemukan strategi kontrol yang efektif hanya berdasarkan observasi (state) dan konsekuensi dari aksi (reward).
+Namun, penerapan Q-Learning standar (yang menggunakan tabel Q) menghadapi tantangan signifikan dalam konteks ini. Parameter pH dan EC adalah variabel kontinu, demikian pula dengan durasi aktivasi pompa yang idealnya bisa bervariasi secara halus untuk presisi dosing . Q-Learning standar dirancang untuk ruang state dan action yang diskrit . Oleh karena itu, implementasi langsung memerlukan diskritisasi, yaitu membagi rentang nilai pH, EC, dan durasi pompa menjadi sejumlah interval atau level terbatas . Proses diskritisasi ini membawa trade-off jika interval terlalu lebar, presisi kontrol akan berkurang jika interval terlalu sempit, ukuran tabel Q akan menjadi sangat besar (masalah curse of dimensionality), membuat proses pembelajaran menjadi lambat atau bahkan tidak praktis . Meskipun Q-Learning telah diterapkan dalam kontrol pH , presisi yang dapat dicapai mungkin terbatas oleh tingkat diskritisasi yang dipilih.
+Alternatif untuk mengatasi batasan state kontinu adalah menggunakan Q-Learning dengan function approximation, seperti Deep Q-Networks (DQN), di mana nilai Q diestimasi oleh jaringan saraf . Namun, DQN standar masih menghasilkan aksi diskrit. Mengingat keterbatasan ini, analisis umum menunjukkan bahwa Q-Learning (baik standar maupun dengan adaptasi) mungkin lebih mudah diimplementasikan secara konseptual dibandingkan algoritma aksi kontinu seperti Deep Deterministic Policy Gradient (DDPG) , tetapi efektivitasnya dalam mencapai "kontrol presisi" akan sangat bergantung pada bagaimana tantangan diskritisasi state dan action ditangani. Proyek ini akan mengimplementasikan Q-Learning (kemungkinan dengan diskritisasi), menganalisis kinerjanya, dan membandingkannya dengan PID untuk memahami secara praktis kapabilitas dan keterbatasannya dalam aplikasi kontrol hidroponik ini .
+Selain aspek kontrol, sistem hidroponik modern menuntut adanya infrastruktur monitoring real-time yang mampu menyediakan data sensor yang akurat, historis, dan mudah diakses untuk mendukung evaluasi kinerja kontrol. Oleh karena itu, proyek ini juga mengintegrasikan sistem Internet of Things (IoT) berbasis arsitektur Edge Computing untuk memantau variabel pH, EC, dan level air secara berkelanjutan. Node ESP32 bertindak sebagai edge device yang membaca data sensor dan mengirimkan data melalui protokol MQTT menuju Raspberry Pi sebagai edge gateway. Raspberry Pi menjalankan Telegraf sebagai data collector, InfluxDB sebagai basis data time-series, dan Grafana sebagai platform visualisasi. Pendekatan ini mengikuti praktik sistem monitoring hidroponik modern yang menekankan pemrosesan edge untuk mengurangi latensi dan meningkatkan keandalan . 
+Arsitektur Edge Computing memungkinkan pengguna mengakses dashboard secara aman melalui mekanisme Cloudflare HTTPS untuk memantau sensor, histori data, performa jaringan, serta respon sistem terhadap aksi RL. Integrasi monitoring ini sangat penting untuk melakukan performance validation, seperti mengukur latensi komunikasi, kestabilan broker MQTT, dan akurasi sensor terhadap pembacaan referensi. Banyak studi menegaskan bahwa integrasi kontrol otomatis dan monitoring berbasis cloud dapat meningkatkan efisiensi dan kualitas keputusan dalam sistem pertanian presisi .
+
+KARAKTERISTIK PRODUK
+Produk yang dikembangkan adalah prototipe sistem kendali skala laboratorium (Laboratory Scale Prototype) dengan kapasitas tandon 15 Liter. Sistem ini dirancang untuk mensimulasikan logika kontrol otomatis menggunakan algoritma Q-Learning pada lingkungan terbatas, bukan untuk implementasi industri perkebunan luas. Karena kemampuannya belajar dari interaksi tanpa model, sistem ini difokuskan untuk menemukan kebijakan dosing yang efektif pada volume air terkecil yang terkendali, meskipun dengan potensi keterbatasan presisi akibat sifat diskrit algoritma.
+Fitur Utama Kontrol Q-Learning:
+Menggunakan algoritma O-Learning untuk mempelajari nilai dari setiap kombinasi state (kondisi pH/EC yang didiskritisasi) dan action (dosing yang didiskritisasi). 
+Fitur Dasar Sistem:
+Input Sensor, menerima data dari sensor pH dan sensor EC, di mana nilai kontinu dari sensor ini kemudian didiskritisasi menjadi lima kategori level (yaitu: Very Low, Low, Optimal, High, dan Very High) untuk membentuk ruang keadaan (State-Space) bagi agen Q-Learning.
+Input Sensor Level Cairan, menggunakan sensor ultrasonik yang dipasang pada tandon utama serta pada masing-masing botol stok larutan (Nutrisi, pH, dan Air). Data level ini digunakan sebagai logika pengaman (safety interlock) untuk mencegah aktivasi pompa saat cairan habis dan untuk memantau sisa stok via dashboard.
+Platform Komputasi dan Komunikasi.
+Raspberry Pi, sebagai unit pemrosesan utama yang menjalan algoritma Q-Learning inti dan logika pengambilan keputusan. Raspberry Pi memiliki kemampuan komputasi yang memadai untuk tugas Q-Learning dan mengelola komunikasi MQTT. Pi akan menerima data sensor dari MCU publisher dan mengirimkan perintah kontrol ke MCU subscriber melalui protokol MQTT.
+MCU Publisher: Sebuah MCU (Microcontroller Unit) bertugas membaca data dari Sensor pH dan Sensor EC secara berkala, kemudian memublikasikan (publish) data tersebut ke broker MQTT.
+MCU Subscriber: Sebuah MCU bertugas berlangganan (subscribe) perintah kontrol dari Raspberry Pi melalui broker MQTT. Setelah menerima perintah, MCU ini akan mengendalikan aktuator pompa peristaltik dan menjalankan logika pengaman level cairan.
+Algoritma Inti, yang merupakan implementasi algoritma Q-Learning pada Raspberry Pi untuk memperbarui nilai Q dalam tabel berdasarkan reward yang diterima setelah melakukan aksi dosing.
+Output Kontrol, berupa pemilihan perintah dosing dari sejumlah opsi durasi yang telah ditentukan sebelumnya, seperti “menyalakan Pompa X selama 5 detik”, “menyalakan Pompa Y selama 10 detik”, atau “tidak melakukan tindakan apa pun”. Pemilihan aksi dilakukan berdasarkan nilai Q tertinggi pada kondisi (state) saat ini, kemudian perintah tersebut dikirim ke sistem eksekusi melalui protokol MQTT.
+Aktuator yang mengendalikan lima unit pompa peristaltik, yang terdiri dari pompa pH Up, pompa pH Down, dua pompa untuk stok Nutrisi (A dan B), serta satu pompa untuk penambahan Air Baku. Pengoperasian pompa dilakukan melalui modul relay yang dikendalikan oleh MCU subscriber berdasarkan perintah durasi (dosing) dari agen Q-Learning dan validasi dari logika pengaman level cairan.
+Sifat solusi yang diharapkan dari Sistem Kontrol Q-Learning:
+Otomatis yang mampu mengatur pH dan EC secara mandiri tanpa intervensi manual berkelanjutan
+Adaptif meski terbatas diharapkan mampu menyesuaikan kebijakan seiring waktu berdasarkan reward, meskipun adaptasinya mungkin lebih lambat dibandingkan dengan metode aksi kontinu.
+Fitur Sistem IoT dan Monitoring:
+Sensor Monitoring: pH, EC, dan level cairan air.
+Edge Processing: ESP32 membaca data sensor dan mengirimkan ke broker MQTT di Raspberry Pi.
+Data Management: Raspberry Pi menjalankan Telegraf dan InfluxDB untuk menyimpan data.
+Visualization Layer: Dashboard Grafana menampilkan data real-time dan historis.
+Cloud Access: Cloudflare Tunnel digunakan untuk akses jarak jauh yang aman.
+Performance Evaluation: Sistem mengukur latensi, stabilitas koneksi, dan akurasi sensor.
+
+PERKIRAAN BIAYA PRODUKSI
+Perkiraan biaya yang akan diperlukan untuk mengembangkan produk ......akan disajikan melalui tabel berikut. Adapun biaya yang perlu dihitung, antara lain :
+Biaya produk
+Tabel Estimasi Biaya Produk
+
+Biaya rekayasa
+Perhitungan biaya rekayasa dilakukan dengan asumsi pengembangan produk dilakukan oleh sebuah tim mahasiswa setara startup dengan 2 orang engineer. Waktu pengerjaan proyek diperkirakan selama 5 bulan dengan alokasi waktu per minggu 40 jam. Diasumsikan tarif satu jam engineer bekerja adalah upah Rp15.000,00. Sehingga untuk menyelesaikan produk ini dibutuhkan biaya sebesar Rp6.000.000,00.
+Analisis Finansial
+	Sistem hidroponik terintegrasi berbasis Q-Learning dan IoT Edge Computing ini memiliki potensi untuk dipasarkan kepada berbagai segmen, seperti petani hidroponik skala kecil hingga menengah, institusi pendidikan, pegiat hobi, maupun peneliti pemula yang membutuhkan solusi otomatisasi nutrisi yang terjangkau. Kombinasi teknologi Q-Learning dan IoT memberikan keunggulan berupa kemampuan kontrol pH dan EC secara otomatis, stabil, serta dapat dipantau secara real-time melalui dashboard berbasis web.
+	Dari sisi operasional, sistem ini mampu mengurangi kebutuhan pengecekan manual dan dosing nutrisi secara konvensional, sehingga menekan beban kerja pengguna serta meningkatkan konsistensi parameter larutan. Penggunaan kontrol berbasis Q-Learning juga meningkatkan adaptabilitas sistem terhadap dinamika perubahan pH
+========================================
+FILE: B200_TA_01._Revisi 2.docx
+========================================
+INSTITUT TEKNOLOGI DEL
+PROGRAM STUDI TEKNIK ELEKTRO
+Jalan SISINGAMANGARAJA Laguboti, Kabupaten Toba,  (0632) 331234,  (0632)331116
+Sumatera Utara 22381
+
+
+
+Lembar Sampul Dokumen
+	
+
+
+
+
+
+
+DAFTAR ISI
+DAFTAR ISI	3
+Catatan Sejarah Perbaikan Dokumen	4
+Proposal Proyek pH and EC Precision Control Using Reinforcement Learning	5
+1	Pengantar	5
+1.1	RINGKASAN ISI DOKUMEN	5
+1.2	Tujuan Penulisan dan Aplikasi/Kegunaan Dokumen.	5
+1.3	REFERENSI	5
+1.4	DAFTAR SINGKATAN	6
+2	SPESIFIKASI	6
+2.1	Definisi, Fungsi dan Spesifikasi dari Solusi	6
+2.2	Spesifikasi Tugas Akhir	7
+2.2.1	Kontrol	7
+2.2.2	Sensor	8
+2.2.3	Integrasi Machine Learning	8
+2.2.4	Aktuator	8
+2.2.5	Manajemen Data dan Tampilan.	8
+2.3	Penjelasan fungsi, fitur, dan verifikasi	9
+2.3.1	Adaptive Intelligent Dosing (Q-Learning)	9
+2.3.2	Reliable Edge Computing Architecture	9
+2.3.3	Secure Remote Access (Zero Trust)	9
+2.3.4	Active Safety Mechanism (Level Monitoring):	9
+2.4	Rancangan	10
+2.4.1	Diagram Blok.	10
+2.4.2	Flowchart.	12
+2.5	Biaya dan Jadwal	13
+2.5.1	Biaya Produk	13
+2.5.2	Jadwal	14
+
+Catatan Sejarah Perbaikan Dokumen
+
+
+
+Design and Implementation of Q-Learning Control for pH and EC Stability with Real-Time Monitoring based on IoT 
+Pengantar
+RINGKASAN ISI DOKUMEN
+Dokumen ini memuat spesifikasi perancangan dan implementasi (dalam bentuk prototipe atau simulasi) dari sistem "Kontrol Presisi pH dan EC Menggunakan Reinforcement Learning". Tujuan utamanya adalah mengembangkan sebuah sistem kontrol cerdas yang mampu menjaga stabilitas parameter kunci larutan nutrisi dalam budidaya hidroponik secara otomatis. Dokumen ini akan merinci definisi solusi yang diusulkan, fungsi utamanya dalam mengelola pH dan EC, serta spesifikasi teknis dari komponen perangkat keras dan perangkat lunak yang akan digunakan, termasuk algoritma Q-Learning sebagai inti kontrol. Akan dijelaskan pula fitur-fitur sistem, rancangan arsitektur melalui diagram blok dan flowchart, estimasi biaya komponen utama, serta jadwal pelaksanaan proyek Tugas Akhir ini.
+Tujuan Penulisan dan Aplikasi/Kegunaan Dokumen.
+Tujuan penulisan dokumen ini adalah sebagai berikut:
+Memaparkan spesifikasi dari perancangan serta pengembangan “Sistem Kontrol Presisi pH dan EC Menggunakan Reinforcement Learning pada Hidroponik Berbasis Edge Intelligence”.
+Sebagai dasar dokumentasi pembuatan proyek “Sistem Kontrol Presisi pH dan EC Menggunakan Reinforcement Learning pada Hidroponik Berbasis Edge Intelligence” untuk proses implementasi, pengujian, dan verifikasi.
+Memahami tentang penggunaan alat yang akan digunakan dalam proyek “Sistem Kontrol Presisi pH dan EC Menggunakan Reinforcement Learning pada Hidroponik Berbasis Edge Intelligence”, yang mencakup integrasi mikrokontroler (ESP32), Single Board Computer (Raspberry Pi), algoritma Q-Learning, serta sensor kualitas air.
+Menjelaskan estimasi biaya pembuatan proyek “Sistem Kontrol Presisi pH dan EC Menggunakan Reinforcement Learning pada Hidroponik Berbasis Edge Intelligence”.
+Untuk memenuhi persyaratan kelulusan mata kuliah terkait Tugas Akhir 1 di Program Studi Teknik Elektro IT Del.
+REFERENSI
+DAFTAR SINGKATAN
+Pada dokumen penelitian Tugas Akhir ini, terdapat beberapa singkatan yang akan memudahkan pemahaman. Oleh karena itu, telah dibuat sebuah tabel yang berisi daftar singkatan yang digunakan dalam dokumen ini, sebagai berikut
+
+SPESIFIKASI
+Definisi, Fungsi dan Spesifikasi dari Solusi
+	Permasalahan mendasar dalam otomatisasi sistem hidroponik presisi adalah menjaga stabilitas parameter larutan nutrisi, khususnya pH dan Electrical Conductivity (EC), yang memiliki karakteristik dinamika non-linear serta interaksi silang (coupling) yang kuat antar variabel . Metode kontrol konvensional seperti PID sering kali menghasilkan respons yang kurang optimal pada sistem dinamis ini, ditandai dengan overshoot yang tinggi dan waktu penyelesaian yang lambat karena parameter gain yang bersifat statis . Di sisi lain, sistem pemantauan yang bergantung sepenuhnya pada komputasi awan (Cloud Computing) menghadapi kendala latensi jaringan yang tinggi, yang berisiko menyebabkan kegagalan eksekusi aktuator secara real-time saat koneksi internet tidak stabil . Sebagai solusi komprehensif, produk yang dikembangkan didefinisikan sebagai Sistem Edge-Intelligence hidroponik mandiri. Solusi ini menerapkan Integrasi kontrol adaptif Q-Learning pada arsitektur terdistribusi berbasis Edge. Solusi ini menawarkan pendekatan hibrida di mana kecerdasan buatan digunakan untuk mempelajari kebijakan kontrol optimal secara mandiri, sementara arsitektur Edge Computing diterapkan untuk menjamin kecepatan pemrosesan data.
+	Secara fungsional, sistem ini dirancang untuk menjalankan mekanisme kendali tertutup (closed-loop) yang membagi beban kerja secara hierarkis. Fungsi utamanya adalah menjalankan agen cerdas Reinforcement Learning yang bertugas memetakan kondisi sensor (state) menjadi aksi durasi pompa (action) yang paling tepat guna meminimalkan error nutrisi. Agen ini beroperasi secara model-free, yang berarti sistem dapat beradaptasi dengan lingkungan tanpa memerlukan pemodelan matematis yang rumit seperti pada metode konvensional . Secara simultan, fungsi arsitektural memastikan bahwa seluruh keputusan kritis diproses secara lokal di Edge Server untuk mencapai latensi rendah (<10 ms), sementara fungsi visualisasi menyediakan pemantauan jarak jauh yang andal.
+	Spesifikasi teknis produk disusun berdasarkan arsitektur tiga lapis untuk mendukung kinerja tinggi dan keamanan data. Pada lapisan perangkat (Device Layer), sistem menggunakan mikrokontroler ESP32 sebagai node sensor yang bertugas mengakuisisi data presisi dari sensor pH dan EC, lalu mentransmisikannya melalui protokol ringan MQTT. Pusat kecerdasan sistem terletak pada lapisan tepi (Edge Layer) yang menggunakan Raspberry Pi 4, yang dispesifikasikan untuk menjalankan algoritma Q-Learning serta mengelola basis data lokal untuk penyangga data saat kondisi offline. Terakhir, pada lapisan aplikasi, antarmuka visualisasi dibangun menggunakan platform Grafana yang diakses melalui mekanisme Cloudflare Tunnel, memberikan akses global yang aman tanpa perlu mengekspos alamat IP jaringan lokal ke publik .
+
+Spesifikasi Tugas Akhir
+	Alat pengendali nutrisi hidroponik ini dirancang memiliki beberapa bagian utama pada sistemnya yang bertujuan untuk menstabilkan kadar pH dan Electrical Conductivity (EC) serta memantau ketersediaan stok cairan secara menyeluruh menggunakan pendekatan kecerdasan buatan pada arsitektur Edge Computing. Bagian-bagian tersebut dijelaskan sebagai berikut:
+Kontrol
+	Pusat kendali alat ini menggunakan Raspberry Pi yang berfungsi sebagai Edge Server untuk menjalankan algoritma kecerdasan buatan dan memproses data secara lokal guna meminimalisir latensi jaringan dan menjaga keandalan sistem saat koneksi internet tidak stabil . Selain itu, sistem menggunakan mikrokontroler ESP32 sebagai unit node akuisisi yang bertugas menangani pembacaan data dari berbagai sensor dan pengendalian tegangan ke driver pompa . Komunikasi antara unit kontrol pusat dan node sensor dilakukan secara nirkabel menggunakan protokol komunikasi yang ringan dan efisien. Sistem beroperasi dengan siklus pengambilan data (sampling rate) setiap 1 menit dan menerapkan jeda (delay) 3 menit pasca-aksi untuk homogenisasi larutan
+Sensor
+	Sistem ini dilengkapi dengan instrumen penginderaan yang komprehensif. Sensor pH dan Sensor EC digunakan untuk memantau kualitas kimiawi larutan nutrisi di tandon utama berkapasitas 15 liter secara real-time. Selain itu, sistem mengimplementasikan Sensor Ultrasonik (Level) secara multipoint: satu unit dipasang pada tandon utama untuk memantau sirkulasi air, dan unit lainnya dipasang pada masing-masing 5 botol larutan stok berkapasitas 1 liter (Nutrisi A, Nutrisi B, pH Up, dan pH Down dan Air Baku). Penggunaan sensor level pada botol stok berfungsi untuk mendeteksi ketersediaan cairan korektor secara dini, memastikan pengguna mengetahui kapan harus melakukan pengisian ulang sebelum cairan habis total.
+Integrasi Machine Learning
+	Sistem dirancang untuk beroperasi secara adaptif menggunakan algoritma Q-Learning (Reinforcement Learning). Pendekatan ini dipilih karena kemampuannya yang bersifat model-free, memungkinkan sistem mempelajari strategi pemberian nutrisi yang optimal secara mandiri melalui interaksi langsung dengan lingkungan. Algoritma ini bertujuan mencapai stabilitas pH dan EC dengan meminimalkan error dan osilasi, serta mengoptimalkan penggunaan sumber daya air dan nutrisi.
+Aktuator
+	Eksekusi kontrol dilakukan menggunakan 5 unit Pompa Peristaltik (estimasi debit  ml/menit) untuk menyuntikkan larutan korektor (pH Up/Down dan Nutrisi) ke tandon utama. Sistem menerapkan logika keamanan (safety logic) berbasis data sensor level mikrokontroler hanya akan mengaktifkan pompa jika sensor ultrasonik pada botol stok terkait mendeteksi ketinggian cairan di atas ambang batas aman. Jika botol terdeteksi kosong (Level <10%), sistem akan memblokir perintah aktivasi pompa tersebut untuk mencegah kerusakan mekanis akibat beroperasi kering (dry-run).
+Manajemen Data dan Tampilan.
+	Alat ini mengadopsi arsitektur Edge Computing, di mana data diproses dan disimpan di sisi Edge (Raspberry Pi/InfluxDB) untuk keandalan data historis. Visualisasi dilakukan melalui Dashboard Monitoring (seperti Grafana) yang tidak hanya menampilkan grafik tren pH dan EC, tetapi juga indikator volume sisa pada setiap botol larutan stok dan tandon utama secara real-time. Akses ke dashboard diamankan menggunakan teknologi tunneling (Cloudflare) untuk pemantauan jarak jauh yang aman tanpa mengekspos jaringan lokal.
+Penjelasan fungsi, fitur, dan verifikasi
+	Sistem pengendali nutrisi hidroponik ini dirancang sebagai sistem closed-loop terdistribusi yang mengintegrasikan fungsi akuisisi data, pengambilan keputusan cerdas, dan eksekusi aktuator secara real-time. Fungsi utama sistem adalah menjaga stabilitas parameter pH dan EC (Electrical Conductivity) larutan nutrisi secara otonom menggunakan agen Q-Learning yang berjalan pada Edge Server (Raspberry Pi). Fungsi kontrol pada alat ini diproses secara lokal melalui jaringan LAN (Local Area Network), sehingga sistem menjamin aktuator pompa dapat merespons perubahan kondisi air dengan latensi yang sangat rendah (mendekati 10 ms) dan tetap beroperasi normal menjaga tanaman meskipun koneksi internet ke luar terputus. Selain fungsi kontrol, sistem berfungsi sebagai data logger yang menyimpan riwayat parameter lingkungan ke basis data lokal (InfluxDB) dan menampilkannya melalui dashboard visualisasi yang dapat diakses secara aman dari jaringan publik.
+
+Fitur-fitur unggulan yang dikembangkan untuk memenuhi spesifikasi sistem meliputi:
+Adaptive Intelligent Dosing (Q-Learning)
+Sistem menggunakan algoritma Reinforcement Learning jenis Q-Learning yang bersifat model-free, memungkinkan agen untuk mempelajari strategi pemberian nutrisi optimal melalui interaksi trial-and-error dengan lingkungan. Fitur ini membuat sistem mampu beradaptasi terhadap dinamika non-linear pH dan EC untuk meminimalkan overshoot dan error statis yang sering terjadi pada kontroler PID konvensional
+Reliable Edge Computing Architecture
+Implementasi arsitektur di mana Raspberry Pi bertindak sebagai broker komunikasi (MQTT) dan pusat komputasi lokal. Fitur ini memastikan bahwa komunikasi antara sensor (ESP32) dan otak sistem (Raspberry Pi) tetap berjalan melalui jaringan Wi-Fi lokal meskipun akses internet (WAN) mengalami gangguan, sehingga mencegah kegagalan kontrol akibat downtime jaringan.
+Secure Remote Access (Zero Trust)
+Akses jarak jauh terhadap dashboard pemantauan (Grafana) diamankan menggunakan teknologi Zero Trust Network Access (ZTNA) melalui Cloudflare Tunnel. Fitur ini memungkinkan pengguna memantau data secara real-time dari mana saja tanpa perlu mengekspos alamat IP lokal atau membuka port router yang rentan terhadap serangan siber, menerapkan prinsip "verify explicit trust" untuk setiap akses.
+Active Safety Mechanism (Level Monitoring):
+Integrasi sensor ultrasonik pada botol larutan stok dan tandon utama berfungsi sebagai mekanisme keselamatan aktif. Sistem diprogram untuk secara otomatis memblokir sinyal aktivasi ke pompa jika sensor mendeteksi level cairan di bawah ambang batas kritis, mencegah kerusakan perangkat akibat operasi kering (dry-run) dan memberikan indikasi peringatan dini ketersediaan stok.
+Untuk memastikan sistem memenuhi spesifikasi desain, proses verifikasi akan dilakukan melalui serangkaian pengujian kuantitatif:
+Verifikasi Kinerja Kontrol dilakukan dengan memberikan gangguan (disturbance) berupa penambahan asam atau air murni secara tiba-tiba, kemudian mengukur parameter respon transien seperti settling time (waktu untuk stabil) dan persentase overshoot (lonjakan nilai melebihi target). Target verifikasi adalah sistem mampu mengembalikan pH dan EC ke setpoint dengan osilasi yang minim.
+Verifikasi Akurasi Sensor dilakukan dengan membandingkan pembacaan sensor pH dan EC pada sistem terhadap alat ukur standar yang terkalibrasi. Nilai error rata-rata akan dihitung untuk memastikan akurasi pembacaan berada dalam batas toleransi yang dapat diterima (misalnya < 5%).
+Verifikasi Keandalan Jaringan (QoS) dilakukan dengan menguji latensi pengiriman data dari node sensor ke dashboard serta menguji skenario fail-over dengan memutus koneksi internet. Verifikasi ini bertujuan membuktikan bahwa data tetap tersimpan di basis data lokal dan kontrol pompa tetap berjalan otomatis saat mode offline.
+Rancangan
+Diagram Blok.
+
+Gambar 2.I Diagram Blok Sistem
+	Gambar 2.I di atas mengilustrasikan arsitektur sistem kendali terdistribusi yang dirancang untuk menjaga stabilitas nutrisi hidroponik. Sistem ini terbagi menjadi tiga blok utama, yaitu Bagian Input, Bagian Proses, dan Bagian Output, yang bekerja secara terintegrasi melalui protokol komunikasi MQTT.
+
+	Pada Bagian Input, sistem menggunakan mikrokontroler Publisher (ESP32) yang bertugas mengakuisisi data mentah (raw data) dari sensor pH, sensor EC, dan sensor Level Air. Data analog dari lingkungan ini dikonversi menjadi sinyal digital dan dikirimkan (publish) secara real-time menuju pusat pemrosesan melalui jaringan lokal.
+Bagian Proses dijalankan pada Raspberry Pi yang berfungsi sebagai Edge Server. Di dalam blok ini, terjadi percabangan aliran data untuk dua fungsi utama:
+
+1. Fungsi Kontrol Cerdas (Control Agent): Data sensor diterima oleh agen Q-Learning untuk dipetakan sebagai State. Agen kemudian menentukan keputusan Action (durasi pompa) terbaik berdasarkan tabel pembelajaran (Q-Table) untuk menstabilkan parameter air.
+2. Fungsi Monitoring (Monitoring Stack): Secara paralel, data dikumpulkan oleh Telegraf dan disimpan ke dalam basis data InfluxDB untuk keperluan analisis historis dan visualisasi, memastikan data tersimpan aman meskipun koneksi internet terputus.
+
+	Terakhir, Bagian Output merealisasikan hasil pemrosesan ke dalam dua bentuk. Pertama, visualisasi data ditampilkan pada Dashboard Grafana yang dapat diakses pengguna secara aman melalui Clou
+========================================
+FILE: B600 Josh Delon Revisi_2.pdf
+========================================
+1 
+  
+ 
+ 
+TUGAS  AKHIR  
+ 
+ 
+ 
+ 
+IMPLEMENTASI SISTEM MONITORING REAL -TIME PH 
+DAN EC HIDROPONIK BERBASIS IOT DENGAN 
+VISUALISASI DATA  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PROGRAM STUDI SARJANA TEKNIK ELEKTRO  
+FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO  
+INSTITUT TEKNOLOGI DEL  
+2025
+14S22030  Josh Delon  
+i 
+  
+ 
+TUGAS AKHIR  
+ 
+ 
+IMPLEMENTASI SISTEM MONITORING REAL -TIME PH 
+DAN EC HIDROPONIK BERBASIS IOT DENGAN 
+VISUALISASI DATA  
+ 
+Diajukan sebagai salah satu syarat untuk memperoleh gelar  
+Sarjana Teknik (S.T)  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PROGRAM STUDI SARJANA TEKNIK ELEKTRO  
+FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO  
+INSTITUT TEKNOLOGI DEL  
+2025  
+14S22030  JOSH DELON  
+ii  Institut Teknologi Del  
+ HALAMAN PERNYATAAN ORISINALITAS  
+Tugas Akhir ini adalah karya saya sendiri dan semua sumber baik yang dikutip  
+maupun dirujuk telah saya nyatakan dengan benar.  
+Nama  : Josh Delon  
+NIM  : 14S22030  
+Tanda Tangan  :  
+   
+Tanggal  :  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+iii  Institut Teknologi Del  
+ HALAMAN PENGESAHAN  
+Tugas Akhir ini diajukan oleh :  
+Telah berhasil dipertanggungjawabkan di hadapan Dewan penguji dan 
+diterima sebagai bagian persyaratan yang di perlukan untuk memperoleh 
+gelar Sarjana Teknik (S.T) pada program studi Sarjana Teknik Elektro, 
+Fakultas Informatika dan Teknik Elektro, Institut Teknol ogi Del.  
+DEWAN PENGUJI  
+Pembimbing 1  : Albert Sagala, S.T, M.T  
+ (           ) 
+Penguji 1  : Good Fried Panggabean, S .T, MT, Ph.D  (           ) 
+Penguji 2  : Andi Ray Hutauruk, S.T.,M.T.  (           ) 
+ 
+Ditetapkan  : Laguboti  
+Tanggal  :  
+ 
+ 
+ 
+ Nama  : Josh Delon  
+NIM  : 14S22030  
+Program Studi  : Sarjana Teknik Elektro  
+Judul Tugas Akhir  : Implementasi Sistem Monitoring Real -Time Ph Dan Ec 
+Hidroponik Berbasis Iot Dengan Visualisasi Data . 
+iv  Institut Teknologi Del  
+ HALAMAN PERNYATAAN PERSETUJUAN PUBLIKASI  
+TUGAS AKHIR UNTUK KEPENTINGAN AKADEMIS  
+Sebagai civitas akademik Institut Teknologi Del, saya yang bertanda tangan di bawah ini:  
+Nama    : Josh Delon  
+NIM    : 14S22030  
+ 
+Program Studi  : Sarjana Teknik Elektro  
+Fakultas   : Informatika dan Teknik Elektro  
+Jenis Karya   : Tugas Akhir  
+Demi pengembangan ilmu pengetahuan, menyetujui untuk memberikan kepada 
+Institut Teknologi Del Hak Bebas Royalti Non ekslusif (Non -exclusive Royalty 
+Free Right)  atas karya ilmiah saya yan g berjudul  : 
+“Implementasi Sistem Monitoring Real -Time Ph Dan Ec Hidroponik Berbasis Iot 
+Dengan Visualisasi Data. .” beserta perangkat yang ada (jika diperlukan). Dengan 
+Hak Bebas Royalti Nonekslusif ini Institut Teknologi Del berhak menyimpan, 
+mengalih/med ia format dalam bentuk pangkalan data (database), merawat, dan 
+mempublikasikan tugas akhir saya selama tetap mencantumkan nama saya sebagai 
+penulis/pencipta dan sebagai pemilik Hak Cipta. Demikian pernyataan ini saya buat 
+dengan sebenarnya.  
+ 
+Ditetapkan  : Laguboti  
+Tanggal  :  
+ 
+Yang menyatakan  
+ 
+ 
+ 
+Josh Delon  
+v  Institut Teknologi Del  
+ ABSTRAK  
+  
+Nama  : Josh Delon  
+Program Studi  : Teknik Elektro  
+Judul  : Implementasi Sistem Monitoring Real -Time Ph 
+Dan Ec Hidroponik Berbasis Iot Dengan 
+Visualisasi Data . 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+vi  Institut Teknologi Del  
+ ABSTRACT   
+Name  : Josh Delon  
+Study Program  : Electrical Engineering  
+Title : Implementation of an IoT -Based Real -Time pH and EC 
+Monitoring System for Hydroponics with Data 
+Visualization.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+vii  Institut Teknologi Del  
+ DAFTAR ISI  
+ 
+HALAMAN PERNYATAAN ORISINALITAS  ................................ ..............................  ii 
+HALAMAN PENGESAHAN  ................................ ................................ ..........................  iii 
+HALAMAN PERNYATAAN PERSETUJUAN PUBLIKASI  TUGAS AKHIR UNTUK 
+KEPENTINGAN AKADEMIS  ................................ ................................ ......................... iv 
+ABSTRAK  ................................ ................................ ................................ .........................  v 
+ABSTRACT  ................................ ................................ ................................ ....................... vi 
+DAFTAR ISI ................................ ................................ ................................ ...................  vii 
+DAFTAR GAMBAR  ................................ ................................ ................................ ........ ix 
+DAFTAR TABEL  ................................ ................................ ................................ ..............  x 
+DAFTAR SINGKATAN  ................................ ................................ ................................ ..xi 
+BAB I PENDAHULUAN  ................................ ................................ ................................ .. 1 
+1.1 Latar Belakang  ................................ ................................ ................................ .........  1 
+1.2 Rumusan Masalah  ................................ ................................ ................................ .... 2 
+1.3 Manfaat  ................................ ................................ ................................ ....................  2 
+1.4 Tujuan  ................................ ................................ ................................ ......................  3 
+1.5 Batasan Masala h ................................ ................................ ................................ ...... 3 
+BAB II LANDASAN TEORI  ................................ ................................ ............................  4 
+2.1 Penelitian Terkait  ................................ ................................ ................................ ..... 4 
+2.2 Internet of Things (IoT)  ................................ ................................ ............................  5 
+2.3 Sistem Hidroponik dan Parameter Nutrisi  ................................ ................................  6 
+2.3.1  Toleransi pH dan EC dalam Sistem Hidroponik  ................................ ..................  6 
+2.4 Komponen Perangkat Keras Siste m IoT  ................................ ................................ ... 7 
+2.4.1  Sensor pH  ................................ ................................ ................................ ..........  8 
+2.4.2  Sensor Electrical Conductivity (EC)  ................................ ................................ .... 8 
+2.4.3 Sensor Level Air  ................................ ................................ ................................ . 9 
+2.4.4  Raspberry Pi 4  ................................ ................................ ................................ . 10 
+2.4.5  ESP32  ................................ ................................ ................................ ...............  12 
+2.4.6  Pompa Peristaltik  ................................ ................................ ............................  12 
+2.5 Visualisasi Data dan Dashboard  ................................ ................................ .............  13 
+BAB III METODOLOGI PENELITIAN  ................................ ................................ .........  16 
+3.1 Metode Penelitian ................................ ................................ ................................ ... 16 
+3.2 Arsitektur Sistem  ................................ ................................ ................................ .... 19 
+3.2.2  Spesifikasi Wadah Cairan/Tandon  ................................ ................................ ... 21 
+3.2.3  Parameter Monitoring dan Frekuensi Pengambilan Data  ...............................  23 
+viii  Institut Teknologi Del  
+ 3.2.4  Skenario Pengukuran dan Proses Kalibrasi  ................................ ......................  24 
+3.2.5  Perancangan Dashboard Monitoring ................................ ...............................  25 
+3.3 Skenario Pengukuran dan Proses Kalibrasi Sensor ................................ .................  27 
+3.4 Flowchart Sistem  ................................ ................................ ................................ .... 29 
+3.5 Wiring Antar Komponen Perangkat Keras  ................................ .............................  30 
+3.6 Desain Alat  ................................ ................................ ................................ .............  32 
+3.7 Block Di agram  ................................ ................................ ................................ ....... 35 
+3.8 Skenario Pengujian Sistem Monitoring  ................................ ................................ .. 36 
+3.8.1  Analisis Data Sistem Monitoring ................................ ................................ ...... 37 
+DAFTAR PUSTAKA  ................................ ................................ ................................ ...... 39 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ix  Institut Teknologi Del  
+ DAFTAR GAMBAR  
+Gambar 2.1 Sensor pH  ................................ ................................ ................................ ....... 8 
+Gambar 2.2 Sensor Electrical Conductivity (EC)  ................................ ...............................  9 
+Gambar 2.3 Sensor Ultrasonic hc -sr04 ................................ ................................ .............  10 
+Gambar 2.4 Raspberry Pi 4  ................................ ................................ ..............................  11 
+Gambar 2.5 Mikrokontroler ESP 32  ................................ ................................ .................  12 
+Gambar 2.6 Pompa Peristaltik  ................................ ................................ ..........................  13 
+Gambar 3.1 Diagram alur penelitian  ................................ ................................ ................  18 
+Gambar 3.2 Arsitektur Sistem  ................................ ................................ ..........................  20 
+Gambar 3.3 Diagram System  ................................ ................................ ...........................  21 
+Gambar 3.4 Desain Dashbord Grafana  ................................ ................................ .............  27 
+Gambar 3.5 Flowchart Sistem  ................................ ................................ ..........................  29 
+Gambar 3.6 Desain Wiring Antar Komponen Perangkat Sensor  ................................ ...... 31 
+Gambar 3.7 Desain Wiring Antar Pompa  ................................ ................................ .........  32 
+Gambar 3.8 Desain alat tampak depan  ................................ ................................ .............  33 
+Gambar 3.9 Desain alat tampak samping kanan  ................................ ...............................  34 
+Gambar 3.10 Desain alat tampak dalam  ................................ ................................ ...........  34 
+Gambar 3.11 Ukuran Alat  ................................ ................................ ................................  34 
+Gambar 3.12 Block Diagram  ................................ ................................ ...........................  36 
+Gambar 3.13 Diagram Skenario Pengujian Sistem Monitoring Nutrisi Hidroponik  .........  37 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+x  Institut Teknologi Del  
+ DAFTAR TABEL  
+Tabel 2.1 Toleransi pH dan EC  ................................ ................................ ..........................  7 
+Tabel 3.1 Spesifikasi Wadah/Tandon  ................................ ................................ ...............  21 
+Tabel 3.2 Frekuensi Pengambilan Data  ................................ ................................ ............  24 
+ 
+  
+xi  Institut Teknologi Del  
+ DAFTAR SINGKATAN  
+SINGKATAN  ARTI 
+ITDel  Institut Teknologi Del  
+pH Potential of Hydrogen  
+EC Electrical Conductivity  
+IoT Internet of Things  
+TA Tugas Akhir   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1 
+ BAB I  
+PENDAHULUAN  
+1.1 Latar Belakang  
+Pertumbuhan populasi dan alih fungsi lahan pertanian menjadi tantangan 
+besar dalam pemenuhan kebutuhan pangan saat ini. Hidroponik muncul sebagai 
+solusi pertanian perkotaan yang efisien karena tidak memerlukan tanah dan 
+hemat penggunaan air (Chatterjee et al., 2025) . Dalam sistem hidroponik, 
+keberhasilan pertumbuhan tanaman sangat bergantung pada kualitas larutan 
+nutrisi, khususnya parameter derajat keasaman (pH) dan kepekatan nutrisi atau 
+Electrical Conductivity  (EC). Nilai pH yang tidak sesuai dapat menghambat 
+penyerapan nutrisi oleh akar, sedangkan nilai EC yang tidak tepat dapat 
+menyebabkan tanaman kekurangan u nsur hara atau mengalami 
+keracunan (Farooq et al., 2022) ,(Reza et al., 2025) . 
+Saat ini, banyak petani hidroponik masih melakukan pemantauan kualitas 
+air secara manual menggunakan alat ukur portabel (handheld). Metode ini 
+memiliki kelemahan karena menyit a waktu, tenaga, dan tidak dapat 
+memberikan data kondisi air secara terus -menerus ( real-time)(Chatterjee et al., 
+2025) . Keterlambatan dalam mengetahui perubahan pH atau EC sering kali 
+menyebabkan penurunan kualitas tanaman bahkan gagal panen.  
+Teknologi Internet of Things  (IoT) menawarkan solusi dengan 
+mengintegrasikan sensor dan mikrokontroler untuk memantau kondisi 
+lingkungan secara otomatis (Chatterjee et al., 2025) . Beberapa penelitian 
+sebelumnya telah mengembangkan alat monitoring menggunakan 
+mikroko ntroler ESP32 dan berbagai sensor (Muhammad et al., 2025) . Namun, 
+aspek penting yang perlu dikembangkan adalah bagaimana data tersebut 
+disajikan (divisualisasikan) agar mudah dipahami oleh pengguna secara real-
+time untuk pengambilan keputusan yang cepat.  
+Berdasarkan permasalahan tersebut, penelitian ini berfokus pada 
+implementasi sistem monitoring yang mampu membaca parameter pH dan EC 
+secara presisi menggunakan sensor yang terhubung dengan sistem IoT. Data 
+yang diperoleh akan diolah dan ditampilkan dalam bentuk visualisasi data 
+2  Institut Teknologi Del  
+ (grafik dan indikator) pada sebuah dashboard  digital. Sistem ini dirancang 
+untuk memudahkan petani dalam memantau kondisi nutrisi tanaman kapan saja 
+tanpa harus berada di lokasi, sehingga efisiensi dan produktivitas hasil pertanian 
+dapat ditingkatkan.  
+Penelitian ini difokuskan pada perancangan dan implementasi prototipe 
+sistem monitoring, bukan sistem hidroponik operasional skala produksi. Sistem 
+yang dikembangkan bertujuan untuk memvalidasi alur akuisisi data, transmisi 
+data, penyim panan, dan visualisasi parameter pH, EC, serta level cairan secara 
+real-time. Oleh karena itu, aspek pengendalian nutrisi tanaman dan optimasi 
+pertumbuhan tidak menjadi ruang lingkup penelitian ini.  
+1.2 Rumusan Masalah  
+Rumusan masalah yang ingin diselesaikan dalam penelitian ini adalah:  
+1. Bagaimana merancang dan mengimplementasikan sistem monitoring 
+berbasis IoT dengan unit pemrosesan mandiri  unt
+========================================
+FILE: B600_TA_01_SAMUEL P._Revisi 2 -_.pdf
+========================================
+i 
+  
+ 
+TUGAS AKHIR  
+ 
+ 
+ 
+IMPLEMENTASI REINFORCEMENT  LEARNING  (Q-LEARNING)  UNTUK KONTROL 
+STABILITAS PH DAN EC PADA SISTEM HIDROPONIK  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PROGRAM STUD I SARJANA TEKNIK ELEKTRO  
+FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO  
+INSTITUT TEKNOLOGI DEL  
+2025 
+14S2203 6 SAMUEL P.  
+ii 
+  
+ 
+TUGAS AKHIR  
+ 
+ 
+ 
+ 
+ 
+IMPLEMENTASI REINFORCEMENT LEARNING (Q -LEARNING) UNTUK KONTROL 
+STABILITAS PH DAN EC PADA SISTEM HIDROPONIK  
+Diajukan sebagai salah satu syarat untuk memperoleh gelar  
+Sarjana Teknik (S.T)  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PROGRAM STUDI SARJANA TEKNIK ELEKTRO  
+FAKULTAS INFORMATIKA DAN TEKNIK ELEKTRO  
+INSTITUT TEKNOLOGI DEL  
+2025   
+14S2203 6 SAMUEL P.  
+iii 
+ HALAMAN PERNYATAAN ORISINALITAS  
+Tugas Akhir ini adalah karya saya sendiri dan semua sumber baik yang dikutip  
+maupun dirujuk telah saya nyatakan dengan benar.  
+Nama  : SAMUEL P.  
+NIM  : 14S2203 6 
+Tanda Tangan  : 
+  
+  
+Tanggal   
+ 
+  
+iv 
+ HALAMAN PENGESAHAN  
+Tugas Akhir ini diajukan oleh :  
+ 
+Telah berhasil dipertanggungjawabkan di hadapan Dewan penguji dan 
+diterima sebagai bagian persyaratan yang di perlukan untuk memperoleh 
+gelar Sarjana Teknik (S.T) pada program studi Sarjana Teknik Elektro, 
+Fakultas Informatika dan Teknik Elektro, Institut Teknologi Del.  
+DEWAN PENGUJI  
+Pembimbing 1  
+ : Albert Sagala, S.T, M.T  
+ (                      )  
+Penguji 1  : Good Fried Panggabean, S .T, MT, 
+Ph.D  (                      )  
+Penguji 2  : Andi Ray Hutauruk, S.T.,M.T.  (                      )  
+ 
+Ditetapkan  : Laguboti  
+Tanggal  :  
+ Nama  : SAMUEL P.  
+NIM  : 14S22036  
+Program 
+Studi  : Sarja Teknik Elektro  
+Judul 
+Tugas 
+Akhir  : IMPLEMENTASI  REINFORCEMENT LEARNING (Q -
+LEARNING) UNTUK KONTROL STABILITAS PH DAN EC 
+PADA SISTEM HIDROPONIK.  
+v 
+ HALAMAN PERNYATAAN PERSETUJUAN PUBLIKASI   TUGAS 
+AKHIR UNTUK KEPENTINGAN AKADEMIS  
+ 
+Sebagai civitas akademik Institut Teknologi Del, saya yang bertanda tangan di 
+bawah ini:  
+Demi pengembangan ilmu pengetahuan, menyetujui untuk memberikan kepada 
+Institut Teknologi Del Hak Bebas Royalti Non ekslusif (Non -exclusive Royalty 
+Free Right)  atas karya ilmiah saya yang berjudul :  
+IMPLEMENTASI REINFORCEMENT LEARNING (Q -LEARNING) UNTUK 
+KONTROL STABILITAS PH DAN EC PADA SISTEM HIDROPONIK .  
+beserta perangkat yang ada (jika diperlukan). Dengan Hak Bebas Royalti 
+Nonekslusif ini Institut Teknologi Del berhak menyimpan, mengalih/media format 
+dalam bentuk pangkalan data (database), merawat, dan mempublikasikan tugas 
+akhir saya selama tetap mencant umkan nama saya sebagai penulis/pencipta dan 
+sebagai pemilik Hak Cipta. Demikian pernyataan ini saya buat dengan sebenarnya.  
+ 
+Ditetapkan  : Laguboti  
+Tanggal  :  
+ 
+Yang menyatakan  
+ 
+ 
+ 
+SAMUEL P.  
+  
+vi 
+ ABSTRAK  
+Nama  : SAMUEL P.  
+NIM  : 14S22036  
+Program Studi  : S1 Teknik Elektro  
+Judul Tugas Akhir  : IMPLEMENTASI REINFORCEMENT LEARNING (Q -
+LEARNING) UNTUK KONTROL STABILITAS PH DAN EC 
+PADA SISTEM HIDROPONIK.  
+ 
+  
+vii 
+ ABSTRACT  
+Name  : SAMUEL P.  
+NIM : 14S22036  
+Program Studi  : S1 Teknik Elektro  
+Judul Tugas Akhir  : IMPLEMENTATION OF REINFORCEMENT  LEARNING (Q-
+LEARNING) FOR PH AND EC STABILITY CONTROL IN 
+HYDROPONIC SYSTEMS.  
+ 
+ 
+ 
+  
+viii 
+ DAFTAR ISI  
+HALAMAN PERNYATAAN ORISINALITAS  ................................ .............................  iii 
+HALAMAN PENGESAHAN  ................................ ................................ ........................... iv 
+HALAMAN PERNYATAAN PERSETUJUAN PUBLIKASI   TUGAS AKHIR UNTUK 
+KEPENTINGAN AKADEMIS  ................................ ................................ ..........................  v 
+ABSTRAK  ................................ ................................ ................................ ........................ vi 
+ABSTRACT  ................................ ................................ ................................ ...................  vii 
+DAFTAR ISI ................................ ................................ ................................ ..................  viii 
+DAFTAR GAMBAR  ................................ ................................ ................................ .........  x 
+DAFTAR TABEL  ................................ ................................ ................................ ............. xi 
+DAFTAR SINGKATAN  ................................ ................................ ................................  xii 
+BAB I PENDAHULUAN  ................................ ................................ ................................ .. 1 
+1.1. Latar Belakang  ................................ ................................ ................................ .. 1 
+1.2. Rumusan Masalah  ................................ ................................ .............................  3 
+1.3. Tujuan  ................................ ................................ ................................ ...............  4 
+1.4. Manfaat Penelitian  ................................ ................................ ............................  4 
+1.5. Batasan Masalah  ................................ ................................ ...............................  5 
+1.6. Sistematika Penulisan  ................................ ................................ .......................  5 
+BAB II LANDASAN TEORI  ................................ ................................ ............................  7 
+2.1 Sistem Hidroponik dan Dinamika Nutrisi  ................................ ................................  7 
+2.1.1 Definisi dan Prinsip Kerja  ................................ ................................ ...................  7 
+2.1.2 pH (Derajat Keasaman) ................................ ................................ ......................  7 
+2.1.3 Electrical Conductivity (EC)  ................................ ................................ ................  8 
+2.1.4 Interaksi pH dan EC sebagai Sistem Multivariabel  ................................ .............  9 
+2.2 Penelitian Terkait  ................................ ................................ ................................ ..... 9 
+2.2.1 Finite State Machine  ................................ ................................ .........................  9 
+2.2.2 PID (Propotional -Integral -Derivative)  ................................ ..............................  10 
+2.2.3 Fuzzy Logic Controller (FLC)  ................................ ................................ .............  11 
+2.2.4 Research Gap  ................................ ................................ ................................ .. 11 
+2.2.5 Solusi Reinforcement Learning (Q -Learning).  ................................ ..................  12 
+2.3 Reinforcement Learning dan Algoritma Q -Learning  ................................ ..............  13 
+2.3.1 Konsep Dasar Reinforcement Learning (RL)  ................................ ....................  13 
+2.3.2 Algoritma Q -Learning.  ................................ ................................ .....................  15 
+2.4 Arsitektur Sitem Kendali Terdistribusi  ................................ ................................ ... 16 
+2.4.1 Lapisan Persepsi dan Pengambilan Keputusan  ................................ ................  17 
+ix 
+ 2.4.2 Protokol Komunikasi Data  ................................ ................................ ...............  17 
+2.4.3 Mekanisme Keamanan (Safety Interlock)  ................................ ........................  18 
+2.5 Parameter Evaluasi Performasi Kontrol  ................................ ................................ . 18 
+2.5.1 Karakteristik Respon Transien  ................................ ................................ .........  18 
+2.5.2 Konvergensi Agen Pembelajaran  ................................ ................................ ..... 19 
+BAB III METODOLOGI PENELITIAN  ................................ ................................ .........  20 
+3.1 Alur Penelitian  ................................ ................................ ................................ ....... 20 
+3.2 Perancangan Arsitektur Sistem  ................................ ................................ ...............  21 
+3.3 Perancangan Hardware  ................................ ................................ ...........................  23 
+3.4 Perancangan Agen Cerdas  ................................ ................................ ......................  24 
+3.4.1 Definisi Ruang Keadaan (State -Space)  ................................ .............................  25 
+3.4.2 Definisi Ruang Aksi (Action -Space)  ................................ ................................ .. 28 
+3.4.3 Struktur Tabel Pengetahuan (Q -Table)  ................................ ............................  29 
+3.4.4 Perancangan Fungsi Hadiah (Reward Function)  ................................ ..............  30 
+3.4.5 Logika Algoritma dan Eksekusi Aksi  ................................ ................................ . 33 
+3.5 Skenario Pengujian  ................................ ................................ ................................ . 37 
+BAB IV  ................................ ................................ ................................ ............................  38 
+BAB V  ................................ ................................ ................................ .............................  38 
+Daftar Referensi  ................................ ................................ ................................ ...............  39 
+ 
+ 
+  
+x 
+ DAFTAR GAMBAR  
+Gambar 2. 1 Ilustrasi Interaksi Agen dan Lingkungan dalam Reinforcement Learning  ... 14 
+Gambar 3. 1 Diagram Alir Tahapan Penelitian  ................................ ................................  20 
+Gambar 3.2 Diagram Blok Arsitektur Sistem Kendali Terdistribusi.  ...............................  22 
+Gambar 3.3 Diagram Alir Logika Agen Q -Learning ................................ ........................  33 
+  
+xi 
+ DAFTAR TABEL  
+Tabel 3.1 Aturan Diskritisasi Parameter pH  ................................ ................................ ..... 26 
+Tabel 3. 2 Aturan Diskritisasi Parameter EC ................................ ................................ .... 26 
+Tabel 3. 3 Matrik Pemetaan Ruang Keadaan (State Mapping Matrix)  .............................  27 
+Tabel 3. 4 Definisi Ruang Aksi dan Durasi Dosing  ................................ .........................  29 
+Tabel 3.5 Struktur Matriks Q -Table (25 × 9)  ................................ ................................ ... 30 
+Tabel 3.6 Distribusi Nilai Reward Berdasarkan Zona State  ................................ .............  31 
+ 
+  
+xii 
+ DAFTAR SINGKATAN  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1 
+ BAB I  
+PENDAHULUAN  
+1.1. Latar Belakang  
+ Peningkatan populasi global dan penyusutan lahan subur menuntut 
+transformasi metode pertanian konvensional menuju sistem yang lebih efisien dan 
+berkelanjutan. Hidroponik, sebagai metode budidaya tanpa tanah, muncul sebagai 
+solusi utama dalam pertanian mode rn karena kemampuannya menghemat 
+penggunaan air secara signifikan dan meminimalkan risiko penyakit tular tanah. 
+Namun, tidak seperti pertanian konvensional yang mengandalkan penyangga alami 
+dari tanah, keberhasilan sistem hidroponik sangat bergantung pada presisi 
+pengendalian parameter lingkungan, khususnya kualitas larutan nutrisi  (Shareef et 
+al., 2024) . Stabilitas parameter fisikokimia dalam larutan nutrisi menjadi faktor 
+determinan yang menentukan kualitas dan kuantitas hasil panen.  
+ Dua parameter paling kritis dalam larutan hidroponik adalah derajat 
+keasaman (pH) dan konduktivitas listrik ( Electrical Conductivity  atau EC). 
+Penelitian terbaru oleh Sulaiman et al. (2025) menegaskan bahwa pertumbuhan 
+tanaman dalam sistem hidroponik bergantung secara setara pada pengendalian pH 
+dan EC yang ketat  (Sulaiman et al., 2025) . Nilai pH yang tidak optimal dapat 
+menghambat penyerapan unsur hara esensial, di mana pH yang terlalu ekstrem 
+(misalnya pH 4) terbukti menyebabkan stres fisiologis dan menghambat 
+pembentukan biomassa tanaman  (Marković et al., 2025) . Sementara itu, EC 
+merepresentasikan konsentrasi nutrisi terlarut yang harus dijaga dalam rentang 
+spesifik (umumnya 0.8 –3.5 mS/cm) untuk mencegah defisiensi nutrisi atau 
+toksisitas akibat salinitas tinggi  (Jain & Kaur, 2024) . 
+ Meskipun parameter ini krusial, pemantauan dan pengendalian nutrisi di 
+banyak sistem hidroponik skala kecil hingga menengah masih dilakukan secara 
+manual atau menggunakan kontrol umpan balik sederhana. Pendekatan manual ini 
+tidak efisien, memakan waktu, da n rentan terhadap kesalahan manusia ( human 
+error ) yang menyebabkan fluktuasi nutrisi yang merugikan tanaman  (Jain & Kaur, 
+2024) . Metode konvensional seperti PID ( Proportional -Integral -Derivative ) 
+2 
+ dirancang optimal untuk sistem linear. Namun, penerapannya pada pengendalian 
+pH sering kali menghadapi keterbatasan karena karakteristik pH yang bersifat 
+logaritmik (sangat non -linear) dan adanya interaksi antar -parameter . 
+ Kelemahan utama dari kontroler PID konvensional pada sistem hidroponik 
+adalah ketidakmampuannya beradaptasi dengan perubahan kondisi tanpa 
+penyesuaian parameter ( tuning ) yang rumit. Studi simulasi terbaru oleh Cai et al. 
+(2025) membuktikan bahwa kontroler PID tradisional cenderung menghasilkan 
+lonjakan respons ( overshoot ) yang tinggi, mencapai 24,5%, serta memiliki waktu 
+penyelesaian ( settling time ) yang lambat saat menangani gangguan pada sistem 
+fluida  (Cai et al., 2025) . Selain itu, karena dinamika pH bersifat sangat non -linear 
+(logaritmik), pendekatan linear seperti PID sering kali kurang efektif dalam 
+menjaga stabilitas di sekitar titik setel yang diinginkan tanpa menyebabkan osilasi 
+berlebih  (Panjapornpon et al., 2022) . Metode lain seperti Fuzzy Logic Controller  
+(FLC) memang menawarkan solusi untuk ketidakpastian, namun metode ini 
+memiliki keterbatasan karena bergantung sepenuhnya pada aturan statis ( rule-base) 
+yang dirancang oleh pakar dan tidak memiliki kemampuan untuk belajar atau 
+beradaptasi secara mandiri terhadap perubahan karakteristik sistem seiring waktu  
+(Wang et al., 2022) . 
+ Untuk mengatasi keterbatasan metode konvensional tersebut, pendekatan 
+berbasis kecerdasan buatan, khususnya Reinforcement Learning  (RL), menawarkan 
+solusi yang menjanjikan. Berbeda dengan kontroler berbasis model yang 
+memerlukan pemodelan matematis presisi dari lingkungan, RL  khususnya 
+algoritma Q -Learning  bersifat model -free dan mampu belajar membuat keputusan 
+optimal melalui interaksi trial-and-error  dengan lingkungan  (Panjapornpon et al., 
+2022) . Pendekatan ini memungkinkan sistem untuk beradaptasi secara mandiri 
+terhadap dinamika non -linear larutan nutrisi.  
+ Urgensi penerapan RL dalam sistem hidroponik didukung oleh bukti 
+empiris terbaru yang signifikan. Penelitian oleh Dakshinamurthy & Mohan (20
