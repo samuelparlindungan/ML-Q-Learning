@@ -229,7 +229,7 @@ if __name__ == "__main__":
     inisialisasi_csv()
     load_ai_policy()
 
-    client = mqtt.Client()
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
     client.on_connect = on_connect
     client.on_message = on_message
 
