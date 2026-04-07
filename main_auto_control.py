@@ -55,7 +55,7 @@ def load_ai_policy():
         exit()
     with open(POLICY_FILE, "r") as f:
         policy_ai = json.load(f)
-    print("? Berhasil memuat kecerdasan AI dari policy.json!")
+    print("[OK] Berhasil memuat kecerdasan AI dari policy.json!")
 
 
 # ==========================================
@@ -94,7 +94,7 @@ def eksekusi_aksi(action_id):
     nama_aksi = ""
     if action_id == 0:
         nama_aksi = "IDLE"
-        print("?? AKSI 0: IDLE (Kondisi sudah optimal. Menunggu Homogenisasi alami...)")
+        print("[IDLE] AKSI 0: IDLE (Kondisi sudah optimal. Menunggu Homogenisasi alami...)")
     elif action_id == 1:
         nama_aksi = "pH Up Short"
     elif action_id == 2:
@@ -114,7 +114,7 @@ def eksekusi_aksi(action_id):
 
     # Publikasikan angka tunggal ke ESP32 Aktuator
     client.publish(TOPIC_ACTION, str(action_id))
-    print(f"?? MENGIRIM PERINTAH AKSI {action_id} ({nama_aksi}) ke ESP32")
+    print(f"[ACTION] MENGIRIM PERINTAH AKSI {action_id} ({nama_aksi}) ke ESP32")
     return True
 
 
@@ -122,7 +122,7 @@ def eksekusi_aksi(action_id):
 # 5. HANDLER MQTT
 # ==========================================
 def on_connect(client, userdata, flags, rc):
-    print("?? Terhubung ke MQTT Broker!")
+    print("[MQTT] Terhubung ke MQTT Broker!")
     client.subscribe(TOPIC_SENSOR)
     client.subscribe(TOPIC_STATUS)
 
@@ -137,7 +137,7 @@ def on_message(client, userdata, msg):
     # --- MENANGANI STATUS SELESAI DARI AKTUATOR ---
     if topic == TOPIC_STATUS and payload.strip() == "DONE":
         if status_sistem == "DOSING":
-            print("? Pompa selesai! Memasuki Fase Homogenisasi (3 Menit)...")
+            print("[INFO] Pompa selesai! Memasuki Fase Homogenisasi (3 Menit)...")
             status_sistem = "HOMOGENISASI"
             waktu_selesai_homogenisasi = time.time() + WAKTU_HOMOGENISASI
 
@@ -147,7 +147,7 @@ def on_message(client, userdata, msg):
         if status_sistem == "HOMOGENISASI":
             if time.time() >= waktu_selesai_homogenisasi:
                 print(
-                    "?? Homogenisasi Selesai. Sistem kembali STANDBY untuk State baru."
+                    "[OK] Homogenisasi Selesai. Sistem kembali STANDBY untuk State baru."
                 )
                 status_sistem = "STANDBY"
             return
@@ -161,8 +161,8 @@ def on_message(client, userdata, msg):
 
                 # ----- FITUR SAFETY INTERLOCK (CEGAH SENSOR ERROR KABEL MENGAMBANG) -----
                 if pH_val < 0.0 or pH_val > 14.0 or EC_val < 0.0 or EC_val > 5000.0:
-                    print(f"?? [BAHAYA] Sensor Anomali Terdeteksi! (pH: {pH_val}, EC: {EC_val})")
-                    print("?? Agen menahan semua aksi pompa untuk mencegah kerusakan tandon.")
+                    print(f"[BAHAYA] Sensor Anomali Terdeteksi! (pH: {pH_val}, EC: {EC_val})")
+                    print("[STOP] Agen menahan semua aksi pompa untuk mencegah kerusakan tandon.")
                     return
                 # ------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ def on_message(client, userdata, msg):
                         "Timestamp": waktu_sekarang
                     }])
                     df_baru.to_csv(CSV_AUTO, mode='a', header=not os.path.exists(CSV_AUTO), index=False)
-                    print(f"?? [LOG CSV TERSIMPAN] Aksi: {last_action} | Delta pH: {delta_ph} | Delta EC: {delta_ec}")
+                    print(f"[LOG] CSV TERSIMPAN | Aksi: {last_action} | Delta pH: {delta_ph} | Delta EC: {delta_ec}")
                     menunggu_st1 = False
 
                 # 1. Tentukan State saat ini
@@ -199,7 +199,7 @@ def on_message(client, userdata, msg):
                     best_action = policy_ai[state_key]["best_action"]
                     max_q = policy_ai[state_key]["max_q"]
                     print(
-                        f"?? Sensor -> pH: {pH_val:.2f}, EC: {EC_val:.2f} | Memasuki {state_key}"
+                        f"[DATA] Sensor -> pH: {pH_val:.2f}, EC: {EC_val:.2f} | Memasuki {state_key}"
                     )
                     
                     # 3. Kunci State saat ini (St) untuk log masa depan
@@ -215,7 +215,7 @@ def on_message(client, userdata, msg):
                         status_sistem = "DOSING"
 
             except Exception as e:
-                print(f"?? Error parsing sensor data: {e}")
+                print(f"[ERROR] Parsing sensor data: {e}")
 
 
 # ==========================================
@@ -223,7 +223,7 @@ def on_message(client, userdata, msg):
 # ==========================================
 if __name__ == "__main__":
     print("=============================================")
-    print("?? SISTEM KENDALI HIDROPONIK AI (Q-LEARNING) ??")
+    print("[SYSTEM] SISTEM KENDALI HIDROPONIK AI (Q-LEARNING)")
     print("=============================================")
 
     inisialisasi_csv()
@@ -237,5 +237,5 @@ if __name__ == "__main__":
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_forever()
     except KeyboardInterrupt:
-        print("\n?? Sistem dihentikan manual oleh user.")
+        print("\n[STOP] Sistem dihentikan manual oleh user.")
         client.disconnect()
