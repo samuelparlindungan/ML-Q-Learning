@@ -196,14 +196,32 @@ void loop() {
 
   // Jika ada antrean perintah dari Python
   if (action_pending) {
-    // 1. Jalankan Pompa
-    eksekusiPompa(current_action);
+    int aksiDikerjakan = current_action;
+    unsigned long durasiNyala = 0;
+
+    // Hitung durasi berdasarkan aksi
+    if (aksiDikerjakan == 1 || aksiDikerjakan == 3) durasiNyala = t_ph_short;
+    else if (aksiDikerjakan == 2 || aksiDikerjakan == 4) durasiNyala = t_ph_long;
+    else if (aksiDikerjakan == 5) durasiNyala = t_nut_short;
+    else if (aksiDikerjakan == 6) durasiNyala = t_nut_long;
+    else if (aksiDikerjakan == 7) durasiNyala = t_air_short;
+    else if (aksiDikerjakan == 8) durasiNyala = t_air_long;
+
+    // 1. Jalankan Hardware
+    eksekusiPompa(aksiDikerjakan);
     
-    // 2. Kirim Sinyal "DONE" Kembali ke Python
-    Serial.println("Selesai! Mengirim status 'DONE' ke Python...");
+    // 2. Kirim JSON LENGKAP ke InfluxDB via Telegraf
+    String statusPayload = "{\"last_action\":" + String(aksiDikerjakan) + 
+                           ",\"duration_ms\":" + String(durasiNyala) + 
+                           ",\"status\":1}";
+    mqttClient.publish(topic_status, statusPayload.c_str());
+    
+    // 3. Kirim "DONE" ke Python (biar Python lanjut ke homogenisasi)
     mqttClient.publish(topic_status, "DONE");
     
-    // 3. Reset Antrean
+    Serial.print("Selesai! Data dikirim: ");
+    Serial.println(statusPayload);
+
     action_pending = false;
   }
 }
