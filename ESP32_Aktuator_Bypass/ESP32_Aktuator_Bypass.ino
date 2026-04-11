@@ -10,8 +10,9 @@ const char* mqtt_server = "192.168.100.10";
 const int   mqtt_port   = 1883;
 
 // Topik Komunikasi (Wajib sama dengan Python)
-const char* topic_action = "hidroponik/action"; 
-const char* topic_status = "hidroponik/status"; 
+const char* topic_action   = "hidroponik/action"; 
+const char* topic_status   = "hidroponik/status"; 
+const char* topic_aktuator = "hidroponik/aktuator"; // ✅ Topik baru untuk InfluxDB
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -19,38 +20,56 @@ PubSubClient mqttClient(espClient);
 // ==========================================
 // 2. DEFINISI PIN RELAY (Sesuai Hardware Anda)
 // ==========================================
-// Relay 1 (4-Channel)
 const int RELAY_PH_UP   = 14; 
 const int RELAY_PH_DN   = 27; 
 const int RELAY_AIR     = 26; 
 const int RELAY_NUT_A   = 25; 
-
-// Relay 2 (2-Channel, pakai 1)
 const int RELAY_NUT_B   = 33; 
 
 // ==========================================
-// 3. DURASI POMPA (Hasil Rekomendasi Anda)
+// 3. DURASI POMPA (ms)
 // ==========================================
-const unsigned long t_ph_short  = 2000;   // pH 2 detik
-const unsigned long t_ph_long   = 5000;   // pH 5 detik
-const unsigned long t_nut_short = 2000;   // Nutrisi 2 detik
-const unsigned long t_nut_long  = 6000;   // Nutrisi 6 detik
-const unsigned long t_air_short = 5000;   // Air Baku 5 detik
-const unsigned long t_air_long  = 15000;  // Air Baku 15 detik
+const unsigned long t_ph_short  = 2000;   
+const unsigned long t_ph_long   = 5000;   
+const unsigned long t_nut_short = 2000;   
+const unsigned long t_nut_long  = 6000;   
+const unsigned long t_air_short = 5000;   
+const unsigned long t_air_long  = 15000;  
 
-// Variabel eksekusi
 int current_action = -1;
 bool action_pending = false;
 
 // ==========================================
+// ✅ FUNGSI PUBLISH MONITORING AKTUATOR
+// Untuk visualisasi detail di Grafana/InfluxDB
+// ==========================================
+void publishAktuator(const char* nama_pompa, int aksi, float durasi_detik, int status) {
+  char payload[256];
+  char tampilan[32];
+
+  // Membentuk string tampilan: misal "ON / 2.0s"
+  if (status == 1) {
+    snprintf(tampilan, sizeof(tampilan), "ON / %.1fs", durasi_detik);
+  } else {
+    snprintf(tampilan, sizeof(tampilan), "OFF / %.1fs", durasi_detik);
+  }
+
+  snprintf(payload, sizeof(payload),
+    "{\"nama_pompa\":\"%s\",\"aksi\":%d,\"durasi_detik\":%.1f,\"status\":%d,\"tampilan\":\"%s\"}",
+    nama_pompa, aksi, durasi_detik, status, tampilan
+  );
+  
+  mqttClient.publish(topic_aktuator, payload);
+  Serial.print("[INFLUX] "); Serial.println(payload);
+}
+
+// ==========================================
 // FUNGSI SMART DELAY (Mencegah MQTT Putus)
 // ==========================================
-// Fungsi ini menggantikan delay() biasa agar saat pompa menyala 15 detik,
-// ESP32 tetap menjaga koneksi ke Broker MQTT tidak terputus.
 void smartDelay(unsigned long ms) {
   unsigned long start = millis();
   while (millis() - start < ms) {
-    mqttClient.loop(); // Jaga detak jantung MQTT
+    mqttClient.loop();
     delay(10);
   }
 }
@@ -143,40 +162,56 @@ void eksekusiPompa(int aksi) {
 
   switch(aksi) {
     case 0: // Idle
-      Serial.println("Idle - Tidak ada pompa menyala.");
-      smartDelay(1000); // Jeda basa-basi 1 detik
+      publishAktuator("idle", 0, 1.0, 0); 
+      smartDelay(1000); 
       break;
     
     case 1: // pH Up Short
+      publishAktuator("ph_up", 1, 2.0, 1);
       digitalWrite(RELAY_PH_UP, LOW); smartDelay(t_ph_short); digitalWrite(RELAY_PH_UP, HIGH);
+      publishAktuator("ph_up", 1, 2.0, 0);
       break;
     case 2: // pH Up Long
+      publishAktuator("ph_up", 2, 5.0, 1);
       digitalWrite(RELAY_PH_UP, LOW); smartDelay(t_ph_long);  digitalWrite(RELAY_PH_UP, HIGH);
+      publishAktuator("ph_up", 2, 5.0, 0);
       break;
 
     case 3: // pH Down Short
+      publishAktuator("ph_down", 3, 2.0, 1);
       digitalWrite(RELAY_PH_DN, LOW); smartDelay(t_ph_short); digitalWrite(RELAY_PH_DN, HIGH);
+      publishAktuator("ph_down", 3, 2.0, 0);
       break;
     case 4: // pH Down Long
+      publishAktuator("ph_down", 4, 5.0, 1);
       digitalWrite(RELAY_PH_DN, LOW); smartDelay(t_ph_long);  digitalWrite(RELAY_PH_DN, HIGH);
+      publishAktuator("ph_down", 4, 5.0, 0);
       break;
 
     case 5: // Nutrisi Short (A & B bersamaan)
+      publishAktuator("nutrisi_ab", 5, 2.0, 1);
       digitalWrite(RELAY_NUT_A, LOW); digitalWrite(RELAY_NUT_B, LOW); 
       smartDelay(t_nut_short); 
       digitalWrite(RELAY_NUT_A, HIGH); digitalWrite(RELAY_NUT_B, HIGH);
+      publishAktuator("nutrisi_ab", 5, 2.0, 0);
       break;
     case 6: // Nutrisi Long (A & B bersamaan)
+      publishAktuator("nutrisi_ab", 6, 6.0, 1);
       digitalWrite(RELAY_NUT_A, LOW); digitalWrite(RELAY_NUT_B, LOW); 
       smartDelay(t_nut_long); 
       digitalWrite(RELAY_NUT_A, HIGH); digitalWrite(RELAY_NUT_B, HIGH);
+      publishAktuator("nutrisi_ab", 6, 6.0, 0);
       break;
 
     case 7: // Air Baku Short
+      publishAktuator("air_baku", 7, 5.0, 1);
       digitalWrite(RELAY_AIR, LOW); smartDelay(t_air_short); digitalWrite(RELAY_AIR, HIGH);
+      publishAktuator("air_baku", 7, 5.0, 0);
       break;
     case 8: // Air Baku Long
+      publishAktuator("air_baku", 8, 15.0, 1);
       digitalWrite(RELAY_AIR, LOW); smartDelay(t_air_long); digitalWrite(RELAY_AIR, HIGH);
+      publishAktuator("air_baku", 8, 15.0, 0);
       break;
 
     default:
@@ -186,7 +221,7 @@ void eksekusiPompa(int aksi) {
 }
 
 // ==========================================
-// MAIN LOOP
+// MAIN LOOP (VERSI LENGKAP: AKSI + DURASI + STATUS)
 // ==========================================
 void loop() {
   if (!mqttClient.connected()) {
@@ -194,34 +229,39 @@ void loop() {
   }
   mqttClient.loop();
 
-  // Jika ada antrean perintah dari Python
   if (action_pending) {
     int aksiDikerjakan = current_action;
     unsigned long durasiNyala = 0;
 
-    // Hitung durasi berdasarkan aksi
+    // A. Tentukan durasi otomatis untuk dikirim ke Database
     if (aksiDikerjakan == 1 || aksiDikerjakan == 3) durasiNyala = t_ph_short;
     else if (aksiDikerjakan == 2 || aksiDikerjakan == 4) durasiNyala = t_ph_long;
     else if (aksiDikerjakan == 5) durasiNyala = t_nut_short;
     else if (aksiDikerjakan == 6) durasiNyala = t_nut_long;
     else if (aksiDikerjakan == 7) durasiNyala = t_air_short;
     else if (aksiDikerjakan == 8) durasiNyala = t_air_long;
+    else durasiNyala = 0; // Untuk aksi 0 (Idle)
 
-    // 1. Jalankan Hardware
+    // 1. Kirim Sinyal ON (Status 1) - Pompa Mulai
+    String statusOn = "{\"last_action\":" + String(aksiDikerjakan) + 
+                      ", \"duration_ms\":" + String(durasiNyala) + 
+                      ", \"status\":1}";
+    mqttClient.publish(topic_status, statusOn.c_str());
+    Serial.print("Pompa ON: "); Serial.println(statusOn);
+
+    // 2. Jalankan Hardware (Bloking sesuai durasi)
     eksekusiPompa(aksiDikerjakan);
     
-    // 2. Kirim JSON LENGKAP ke InfluxDB via Telegraf
-    String statusPayload = "{\"last_action\":" + String(aksiDikerjakan) + 
-                           ",\"duration_ms\":" + String(durasiNyala) + 
-                           ",\"status\":1}";
-    mqttClient.publish(topic_status, statusPayload.c_str());
+    // 3. Kirim Sinyal OFF (Status 0) - Pompa Selesai
+    String statusOff = "{\"last_action\":" + String(aksiDikerjakan) + 
+                       ", \"duration_ms\":" + String(durasiNyala) + 
+                       ", \"status\":0}";
+    mqttClient.publish(topic_status, statusOff.c_str());
+    Serial.print("Pompa OFF: "); Serial.println(statusOff);
     
-    // 3. Kirim "DONE" ke Python (biar Python lanjut ke homogenisasi)
+    // 4. Kirim "DONE" ke Python (Sinyal untuk Homogenisasi)
     mqttClient.publish(topic_status, "DONE");
     
-    Serial.print("Selesai! Data dikirim: ");
-    Serial.println(statusPayload);
-
     action_pending = false;
   }
 }
