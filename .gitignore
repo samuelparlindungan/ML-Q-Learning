@@ -1,0 +1,21 @@
+# Abaikan file konfigurasi sensitif
+telegraf.conf
+
+# Abaikan file sistem
+__pycache__/
+*.pyc
+env_rl/
+.DS_Store
+
+# Abaikan dokumen akademik penting (Skripsi)
+*.docx
+*.pdf
+
+# Abaikan file data & log cadangan
+*.csv
+*data*
+summary_all.txt
+pdf_text.txt
+
+# Abaikan folder output sensor (opsional)
+# output/*

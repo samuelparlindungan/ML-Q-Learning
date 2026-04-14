@@ -14,12 +14,14 @@ Dokumen ini berfungsi sebagai "Ingatan Permanen" dan "Single Source of Truth" un
 
 ## 🏗️ 2. ARSITEKTUR TEKNIS & HARDWARE
 - **Pusat Komputasi (Agent)**: Raspberry Pi 4 (Python 3). IP Broker: `192.168.100.10`.
+- **Node Sensor (ESP32)**: `ESP_Sensor.ino`.
+    - **Power Setup**: pH (3.3V Direct), EC (5V via Analog Isolator DFR0504 + Voltage Divider 1k/2.2k).
+    - **Signal Logic**: EC menggunakan pengali `1.4545` (untuk netralisir resistor), pH tanpa pengali.
 - **Node Aktuator (ESP32)**: `ESP32_Aktuator_Bypass/ESP32_Aktuator_Bypass.ino`.
     - **Pin Relay (Active LOW)**: pH Up (14), pH Down (27), Air Baku (26), Nutrisi A (25), Nutrisi B (33).
     - **Fitur Kunci**: 
         - `smartDelay()`: Menangani jeda pompa tanpa memutus koneksi MQTT.
-        - **Real-time Report**: Mengirim status `1` (ON) dan `0` (OFF) ke topik `hidroponik/aktuator`.
-        - **Sinkronisasi**: Mengirim payload `"DONE"` ke `hidroponik/status` setelah aksi selesai.
+        - **Real-time Report**: Mengirim status kelima pompa sekaligus dalam format JSON ke `hidroponik/aktuator`.
 
 ---
 
@@ -34,12 +36,12 @@ Dokumen ini berfungsi sebagai "Ingatan Permanen" dan "Single Source of Truth" un
 ---
 
 ## 📊 4. STATUS TERAKHIR & FITUR KRITIS (CRITICAL)
-1. **Auto-Logging CSV**: `output/data_transisi_otomatis.csv` mencatat `St`, `Action`, `St+1`, `Delta`, dan `Max_Q_Value`.
-2. **Homogenisasi Konsisten**: Setiap aksi (termasuk IDLE) memicu jeda 3 menit agar data CSV konsisten untuk validasi Bab 4.
-3. **Safety Interlock**: Filtrasi anomali sensor (pH 0-14, EC 0-5000) di sisi Python untuk mencegah pemompaan berlebih.
+1. **Stabilisasi Sensor**: Implementasi `getSmoothADC` (Median Filter 30 sampel) pada pH dan EC untuk membuang noise Wi-Fi dan interferensi pulsa EC di air.
+2. **Kompensasi Suhu Real-time**: Seluruh modul kalibrasi (`Kalibrasi_EC`, `Kalibrasi_pH`, `Kombinasi_pH_EC`) sudah terintegrasi dengan DS18B20 (Non-Blocking).
+3. **Data Logging**: `output/data_transisi_otomatis.csv` mencatat `St`, `Action`, `St+1`, `Delta`, dan `Max_Q_Value`.
 4. **Monitoring Pipeline**:
-    - **Telegraf Config**: Menambahkan topik `hidroponik/aktuator` dan `json_string_fields = ["nama_pompa", "tampilan"]`.
-    - **Visualisasi**: Field `tampilan` (e.g. "ON / 2.0s") digunakan untuk dashboard State Timeline di Grafana.
+    - **Telegraf Config**: Mendukung multi-field JSON parsing untuk status aktuator serentak.
+    - **Grafana**: Dashboard dikonfigurasi untuk menampilkan tren pH/EC yang sudah difilter (mulus).
 
 ---
 
@@ -54,14 +56,16 @@ Dokumen ini berfungsi sebagai "Ingatan Permanen" dan "Single Source of Truth" un
 ```text
 / (Root)
 │
+├── Kalibrasi_pH/               # Tool Kalibrasi pH (DS18B20 Real-time)
+├── Kalibrasi_EC/               # Tool Kalibrasi EC (Multiplier 1.4545 + DS18B20)
+├── Kombinasi_pH_EC/            # Kode Gabungan (Filter Median + Suhu Real-time)
+├── ESP32_Aktuator_Bypass/      # Firmware Aktuator (Pompa + JSON Reporting)
+├── ESP_Sensor.ino              # Firmware Produksi (DSP Filter + Async Suhu)
+│
 ├── main_auto_control.py        # Controller Utama (Autonomous Mode)
 ├── qlearning_agent.py          # Implementasi Algoritma RL
 ├── env_ph_ec.py                # Environment Sensor Logic
 ├── telegraf.conf               # Konfigurasi Jembatan Data (MQTT-InfluxDB)
-├── STABILITAS_Q_VALUE.md       # Catatan Tuning & Konvergensi AI
-│
-├── ESP32_Aktuator_Bypass/      # Firmware Aktuator (Pompa)
-├── ESP_Sensor.ino              # Firmware Sensor (Monitoring)
 │
 ├── output/                     # Hasil AI: policy.json, CSV Logs
 └── Bimbingan/Dokumen/          # File Naskah Skripsi & Revisi (.docx, .pdf)

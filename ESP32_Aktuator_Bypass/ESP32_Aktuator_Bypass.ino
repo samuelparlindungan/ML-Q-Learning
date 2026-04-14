@@ -45,18 +45,27 @@ bool action_pending = false;
 // ==========================================
 void publishAktuator(const char* nama_pompa, int aksi, float durasi_detik, int status) {
   char payload[256];
-  char tampilan[32];
+  char tampilan[64];
 
-  // Membentuk string tampilan: misal "ON / 2.0s"
+  // Membentuk string tampilan: misal "ON ph_up / 2.0s" atau "STANDBY"
   if (status == 1) {
-    snprintf(tampilan, sizeof(tampilan), "ON / %.1fs", durasi_detik);
+    snprintf(tampilan, sizeof(tampilan), "ON %s / %.1fs", nama_pompa, durasi_detik);
+  } else if (status == 0 && durasi_detik > 0.0) {
+    snprintf(tampilan, sizeof(tampilan), "OFF %s / %.1fs", nama_pompa, durasi_detik);
   } else {
-    snprintf(tampilan, sizeof(tampilan), "OFF / %.1fs", durasi_detik);
+    snprintf(tampilan, sizeof(tampilan), "STANDBY");
   }
 
+  // Baca status aktual 5 pin relay (Active LOW = ON, sehingga jika LOW nilainya 1)
+  int st_ph_up = (digitalRead(RELAY_PH_UP) == LOW) ? 1 : 0;
+  int st_ph_dn = (digitalRead(RELAY_PH_DN) == LOW) ? 1 : 0;
+  int st_nut_a = (digitalRead(RELAY_NUT_A) == LOW) ? 1 : 0;
+  int st_nut_b = (digitalRead(RELAY_NUT_B) == LOW) ? 1 : 0;
+  int st_air   = (digitalRead(RELAY_AIR) == LOW)   ? 1 : 0;
+
   snprintf(payload, sizeof(payload),
-    "{\"nama_pompa\":\"%s\",\"aksi\":%d,\"durasi_detik\":%.1f,\"status\":%d,\"tampilan\":\"%s\"}",
-    nama_pompa, aksi, durasi_detik, status, tampilan
+    "{\"ph_up\":%d,\"ph_down\":%d,\"nutrisi_a\":%d,\"nutrisi_b\":%d,\"air_baku\":%d,\"aksi\":%d,\"tampilan\":\"%s\"}",
+    st_ph_up, st_ph_dn, st_nut_a, st_nut_b, st_air, aksi, tampilan
   );
   
   mqttClient.publish(topic_aktuator, payload);
@@ -64,15 +73,8 @@ void publishAktuator(const char* nama_pompa, int aksi, float durasi_detik, int s
 }
 
 // ==========================================
-// FUNGSI SMART DELAY (Mencegah MQTT Putus)
+// 8. LOGIKA EKSEKUSI RELAY (PINDAH KE BAWAH)
 // ==========================================
-void smartDelay(unsigned long ms) {
-  unsigned long start = millis();
-  while (millis() - start < ms) {
-    mqttClient.loop();
-    delay(10);
-  }
-}
 
 // ==========================================
 // FUNGSI KONEKSI WIFI & MQTT
@@ -156,6 +158,32 @@ void setup() {
 // ==========================================
 // FUNGSI EKSEKUSI POMPA (Sesuai 9 Aksi Q-Learning)
 // ==========================================
+// ==========================================
+// FUNGSI SMART DELAY (DENGAN HEARTBEAT STATUS)
+// ==========================================
+void smartDelay(unsigned long ms, const char* name, int action, float dur_sec, int status_val) {
+  unsigned long start = millis();
+  unsigned long lastPing = 0;
+  
+  while (millis() - start < ms) {
+    mqttClient.loop();
+    
+    // Heartbeat: Kirim ulang status setiap 1 detik agar terekam sebagai deret titik di InfluxDB
+    if (millis() - lastPing > 1000) {
+      publishAktuator(name, action, dur_sec, status_val);
+      // Kirim juga ke topik status lama agar sinkron dengan Python/Grafana (0/1)
+      mqttClient.publish(topic_status, String(status_val).c_str());
+      lastPing = millis();
+    }
+    delay(10);
+  }
+}
+
+// ==========================================
+// 8. LOGIKA EKSEKUSI RELAY
+// ==========================================
+unsigned long lastStandbyPing = 0; // Untuk detak jantung siaga
+
 void eksekusiPompa(int aksi) {
   Serial.print("Mengeksekusi Aksi: ");
   Serial.println(aksi);
@@ -163,54 +191,66 @@ void eksekusiPompa(int aksi) {
   switch(aksi) {
     case 0: // Idle
       publishAktuator("idle", 0, 1.0, 0); 
-      smartDelay(1000); 
+      smartDelay(1000, "idle", 0, 1.0, 0); 
       break;
     
     case 1: // pH Up Short
+      digitalWrite(RELAY_PH_UP, LOW); 
       publishAktuator("ph_up", 1, 2.0, 1);
-      digitalWrite(RELAY_PH_UP, LOW); smartDelay(t_ph_short); digitalWrite(RELAY_PH_UP, HIGH);
+      smartDelay(t_ph_short, "ph_up", 1, 2.0, 1); 
+      digitalWrite(RELAY_PH_UP, HIGH);
       publishAktuator("ph_up", 1, 2.0, 0);
       break;
     case 2: // pH Up Long
+      digitalWrite(RELAY_PH_UP, LOW); 
       publishAktuator("ph_up", 2, 5.0, 1);
-      digitalWrite(RELAY_PH_UP, LOW); smartDelay(t_ph_long);  digitalWrite(RELAY_PH_UP, HIGH);
+      smartDelay(t_ph_long, "ph_up", 2, 5.0, 1); 
+      digitalWrite(RELAY_PH_UP, HIGH);
       publishAktuator("ph_up", 2, 5.0, 0);
       break;
 
     case 3: // pH Down Short
+      digitalWrite(RELAY_PH_DN, LOW); 
       publishAktuator("ph_down", 3, 2.0, 1);
-      digitalWrite(RELAY_PH_DN, LOW); smartDelay(t_ph_short); digitalWrite(RELAY_PH_DN, HIGH);
+      smartDelay(t_ph_short, "ph_down", 3, 2.0, 1); 
+      digitalWrite(RELAY_PH_DN, HIGH);
       publishAktuator("ph_down", 3, 2.0, 0);
       break;
     case 4: // pH Down Long
+      digitalWrite(RELAY_PH_DN, LOW); 
       publishAktuator("ph_down", 4, 5.0, 1);
-      digitalWrite(RELAY_PH_DN, LOW); smartDelay(t_ph_long);  digitalWrite(RELAY_PH_DN, HIGH);
+      smartDelay(t_ph_long, "ph_down", 4, 5.0, 1); 
+      digitalWrite(RELAY_PH_DN, HIGH);
       publishAktuator("ph_down", 4, 5.0, 0);
       break;
 
     case 5: // Nutrisi Short (A & B bersamaan)
-      publishAktuator("nutrisi_ab", 5, 2.0, 1);
       digitalWrite(RELAY_NUT_A, LOW); digitalWrite(RELAY_NUT_B, LOW); 
-      smartDelay(t_nut_short); 
+      publishAktuator("nutrisi_ab", 5, 2.0, 1);
+      smartDelay(t_nut_short, "nutrisi_ab", 5, 2.0, 1); 
       digitalWrite(RELAY_NUT_A, HIGH); digitalWrite(RELAY_NUT_B, HIGH);
       publishAktuator("nutrisi_ab", 5, 2.0, 0);
       break;
     case 6: // Nutrisi Long (A & B bersamaan)
-      publishAktuator("nutrisi_ab", 6, 6.0, 1);
       digitalWrite(RELAY_NUT_A, LOW); digitalWrite(RELAY_NUT_B, LOW); 
-      smartDelay(t_nut_long); 
+      publishAktuator("nutrisi_ab", 6, 6.0, 1);
+      smartDelay(t_nut_long, "nutrisi_ab", 6, 6.0, 1); 
       digitalWrite(RELAY_NUT_A, HIGH); digitalWrite(RELAY_NUT_B, HIGH);
       publishAktuator("nutrisi_ab", 6, 6.0, 0);
       break;
 
     case 7: // Air Baku Short
+      digitalWrite(RELAY_AIR, LOW); 
       publishAktuator("air_baku", 7, 5.0, 1);
-      digitalWrite(RELAY_AIR, LOW); smartDelay(t_air_short); digitalWrite(RELAY_AIR, HIGH);
+      smartDelay(t_air_short, "air_baku", 7, 5.0, 1); 
+      digitalWrite(RELAY_AIR, HIGH);
       publishAktuator("air_baku", 7, 5.0, 0);
       break;
     case 8: // Air Baku Long
+      digitalWrite(RELAY_AIR, LOW); 
       publishAktuator("air_baku", 8, 15.0, 1);
-      digitalWrite(RELAY_AIR, LOW); smartDelay(t_air_long); digitalWrite(RELAY_AIR, HIGH);
+      smartDelay(t_air_long, "air_baku", 8, 15.0, 1); 
+      digitalWrite(RELAY_AIR, HIGH);
       publishAktuator("air_baku", 8, 15.0, 0);
       break;
 
@@ -220,9 +260,6 @@ void eksekusiPompa(int aksi) {
   }
 }
 
-// ==========================================
-// MAIN LOOP (VERSI LENGKAP: AKSI + DURASI + STATUS)
-// ==========================================
 void loop() {
   if (!mqttClient.connected()) {
     reconnect();
@@ -230,38 +267,22 @@ void loop() {
   mqttClient.loop();
 
   if (action_pending) {
-    int aksiDikerjakan = current_action;
-    unsigned long durasiNyala = 0;
+    // 1. Eksekusi Pompa (Di dalamnya sudah ada Heartbeat tiap 1 detik)
+    eksekusiPompa(current_action);
 
-    // A. Tentukan durasi otomatis untuk dikirim ke Database
-    if (aksiDikerjakan == 1 || aksiDikerjakan == 3) durasiNyala = t_ph_short;
-    else if (aksiDikerjakan == 2 || aksiDikerjakan == 4) durasiNyala = t_ph_long;
-    else if (aksiDikerjakan == 5) durasiNyala = t_nut_short;
-    else if (aksiDikerjakan == 6) durasiNyala = t_nut_long;
-    else if (aksiDikerjakan == 7) durasiNyala = t_air_short;
-    else if (aksiDikerjakan == 8) durasiNyala = t_air_long;
-    else durasiNyala = 0; // Untuk aksi 0 (Idle)
-
-    // 1. Kirim Sinyal ON (Status 1) - Pompa Mulai
-    String statusOn = "{\"last_action\":" + String(aksiDikerjakan) + 
-                      ", \"duration_ms\":" + String(durasiNyala) + 
-                      ", \"status\":1}";
-    mqttClient.publish(topic_status, statusOn.c_str());
-    Serial.print("Pompa ON: "); Serial.println(statusOn);
-
-    // 2. Jalankan Hardware (Bloking sesuai durasi)
-    eksekusiPompa(aksiDikerjakan);
-    
-    // 3. Kirim Sinyal OFF (Status 0) - Pompa Selesai
-    String statusOff = "{\"last_action\":" + String(aksiDikerjakan) + 
-                       ", \"duration_ms\":" + String(durasiNyala) + 
-                       ", \"status\":0}";
-    mqttClient.publish(topic_status, statusOff.c_str());
-    Serial.print("Pompa OFF: "); Serial.println(statusOff);
-    
-    // 4. Kirim "DONE" ke Python (Sinyal untuk Homogenisasi)
+    // 2. Kirim sinyal DONE ke Python
     mqttClient.publish(topic_status, "DONE");
-    
+    Serial.println("[MQTT] Sinyal DONE dikirim ke RPi.");
+
     action_pending = false;
+    lastStandbyPing = millis(); // Reset waktu siaga setelah aksi
+  } else {
+    // Detak Jantung Siaga: Kirim status 0 setiap 10 detik agar database tidak kosong
+    if (millis() - lastStandbyPing > 10000) {
+      publishAktuator("standby", 0, 0.0, 0);
+      mqttClient.publish(topic_status, "0");
+      lastStandbyPing = millis();
+      Serial.println("[HEARTBEAT] Status 0 terkirim (Siaga).");
+    }
   }
 }

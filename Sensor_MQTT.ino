@@ -323,7 +323,6 @@ void setup() {
   ph.begin();
   ec.begin();
   objDS.begin();
-  objDS.setWaitForConversion(false); // <--- REFACTOR: Non-blocking DS18B20
 
   // WiFi & MQTT
   setupWifi();
@@ -356,39 +355,24 @@ void loop() {
   // Hitung flow non-blocking
   hitungFlow();
 
-  // ── REFACTOR: ASYNCHRONOUS TEMPERATURE & SENSORS (1 Detik) ──
-  static unsigned long tReqTemp = 0;
-  static bool isTempRequested = false;
+  // ── pH & EC: baca setiap 1 detik (dari kode referensi) ──
+  if (millis() - tSensor > 1000UL) {
+    tSensor = millis();
 
-  // 1. Minta sensor membaca suhu setiap 1 detik (Sangat Cepat, Non-Blocking)
-  if (millis() - tReqTemp > 1000UL) {
+    // Baca suhu untuk kompensasi
     objDS.requestTemperatures();
-    isTempRequested = true;
-    tReqTemp = millis(); // Reset Timer
-  }
-
-  // 2. Ambil hasilnya setelah 800ms berlalu dari saat meminta (DS18B20 butuh waktu convert 750ms)
-  // Selama waktu 800ms ini, ESP32 bebas melakukan tugas WiFi, Ultrasonik, dan Flow Meter!
-  if (isTempRequested && (millis() - tReqTemp > 800UL)) {
     float t2 = objDS.getTempCByIndex(0);
-    
-    // Jika valid, masukan ke variabel utama
-    if (t2 != DEVICE_DISCONNECTED_C) {
-      temperature = t2;
-    }
+    if (t2 != DEVICE_DISCONNECTED_C) temperature = t2;
 
-    // Baca pH 
+    // Baca pH
     int adcPH = analogRead(PH_PIN);
     voltagePH = (float)adcPH / ESP_ADC_RES * ESP_ADC_VREF;
     phValue   = ph.readPH(voltagePH, temperature);
 
-    // Baca EC 
+    // Baca EC
     int adcEC = analogRead(EC_PIN);
-    voltageEC = ((float)adcEC / ESP_ADC_RES * ESP_ADC_VREF) * 1.4545f;
+    voltageEC = (float)adcEC / ESP_ADC_RES * ESP_ADC_VREF;
     ecValue   = ec.readEC(voltageEC, temperature) * 1000.0f; // mS/cm → uS/cm
-    
-    // Tandai selesai
-    isTempRequested = false; 
   }
 
   // ── Kalibrasi wajib jalan terus ──
