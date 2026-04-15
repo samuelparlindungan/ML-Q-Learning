@@ -1,106 +1,84 @@
 // ==========================================
-// 1. PIN RELAY (Sesuai Konfigurasi Kamu)
+// KONTROL MANUAL POMPA PARALEL (NON-BLOCKING)
 // ==========================================
-const int RELAY_PH_UP = 14;    // Pompa 1
-const int RELAY_PH_DOWN = 27;  // Pompa 2
-const int RELAY_NUT_A = 26;    // Pompa 3
-const int RELAY_NUT_B = 25;    // Pompa 4
-const int RELAY_AIR = 33;      // Pompa 5
+// Pin Relay (Active Low)
+const int RELAY_PH_UP   = 14; 
+const int RELAY_PH_DOWN = 27; 
+const int RELAY_NUT_A   = 26; 
+const int RELAY_NUT_B   = 25; 
+const int RELAY_AIR     = 33; 
+
+// Array untuk mempermudah akses (indeks 1-5)
+const int PUMP_PINS[6] = {0, RELAY_PH_UP, RELAY_PH_DOWN, RELAY_NUT_A, RELAY_NUT_B, RELAY_AIR};
+const String PUMP_NAMES[6] = {"", "pH UP", "pH DOWN", "NUTRISI A", "NUTRISI B", "AIR BAKU"};
+
+// Variabel Timer (Millis)
+unsigned long stopTime[6] = {0, 0, 0, 0, 0, 0};
 
 void setup() {
   Serial.begin(115200);
 
-  // Inisialisasi Pin
-  pinMode(RELAY_PH_UP, OUTPUT);
-  pinMode(RELAY_PH_DOWN, OUTPUT);
-  pinMode(RELAY_NUT_A, OUTPUT);
-  pinMode(RELAY_NUT_B, OUTPUT);
-  pinMode(RELAY_AIR, OUTPUT);
+  for (int i = 1; i <= 5; i++) {
+    pinMode(PUMP_PINS[i], OUTPUT);
+    digitalWrite(PUMP_PINS[i], HIGH); // OFF di awal
+  }
 
-  // Pastikan semua OFF di awal (Active Low: HIGH = OFF)
-  digitalWrite(RELAY_PH_UP, HIGH);
-  digitalWrite(RELAY_PH_DOWN, HIGH);
-  digitalWrite(RELAY_NUT_A, HIGH);
-  digitalWrite(RELAY_NUT_B, HIGH);
-  digitalWrite(RELAY_AIR, HIGH);
-
+  Serial.println("\n==========================================");
+  Serial.println("   KONTROL MANUAL POMPA (MULTITASKING)    ");
   Serial.println("==========================================");
-  Serial.println("      KONTROL MANUAL POMPA HIDROPONIK     ");
-  Serial.println("==========================================");
-  Serial.println("Format ketik: [Nomor_Pompa] [Durasi_Detik]");
-  Serial.println("Contoh: '1 5' (pH Up nyala 5 detik)");
-  Serial.println("------------------------------------------");
-  Serial.println("Daftar Pompa:");
-  Serial.println("1: pH UP");
-  Serial.println("2: pH DOWN");
-  Serial.println("3: NUTRISI A");
-  Serial.println("4: NUTRISI B");
-  Serial.println("5: AIR BAKU");
+  Serial.println("Format: [Nomor_Pompa] [Durasi_Detik]");
+  Serial.println("Contoh: '1 50' lalu '2 50' (Jalan Bareng)");
+  Serial.println("Ketik '0' untuk mematikan SEMUA pompa.");
   Serial.println("------------------------------------------");
 }
 
 void loop() {
-  // Cek jika ada input masuk di Serial Monitor
+  // 1. CEK TIMER POMPA (Non-Blocking)
+  unsigned long sekarang = millis();
+  for (int i = 1; i <= 5; i++) {
+    if (stopTime[i] > 0 && sekarang >= stopTime[i]) {
+      digitalWrite(PUMP_PINS[i], HIGH); // Matikan (OFF)
+      stopTime[i] = 0;                  // Reset timer
+      Serial.printf(">> %s Selesai (Otomatis OFF)\n", PUMP_NAMES[i].c_str());
+    }
+  }
+
+  // 2. CEK INPUT SERIAL
   if (Serial.available() > 0) {
-
-    // Membaca nomor pompa (angka pertama)
     int nomor = Serial.parseInt();
-    // Membaca durasi dalam detik (angka kedua)
-    int durasiDetik = Serial.parseInt();
+    int durasi = Serial.parseInt();
 
-    // Membersihkan sisa karakter (seperti \n atau \r)
+    // Clear buffer
     while (Serial.available() > 0) Serial.read();
 
-    // Validasi input
-    if (nomor >= 1 && nomor <= 5 && durasiDetik > 0) {
-      eksekusiPompa(nomor, durasiDetik);
-    } else if (nomor != 0) {
-      Serial.println("⚠️ Input tidak valid! Gunakan format: [1-5] [durasi]");
+    if (nomor == 0) {
+      stopSemua();
+    } 
+    else if (nomor >= 1 && nomor <= 5 && durasi > 0) {
+      nyalakanPompa(nomor, durasi);
+    } 
+    else if (nomor != 0) {
+      Serial.println("⚠️ Input salah! Gunakan: [1-5] [durasi]");
     }
   }
 }
 
-void eksekusiPompa(int nomor, int detik) {
-  int pinTarget;
-  String namaPompa;
-  unsigned long ms = detik * 1000;  // Konversi ke milidetik
+void nyalakanPompa(int nomor, int detik) {
+  // Batasi durasi maksimal (misal 5 menit untuk pengamanan)
+  if (detik > 300) detik = 300; 
 
-  // Pemilihan Pin berdasarkan nomor
-  switch (nomor) {
-    case 1:
-      pinTarget = RELAY_PH_UP;
-      namaPompa = "pH UP";
-      break;
-    case 2:
-      pinTarget = RELAY_PH_DOWN;
-      namaPompa = "pH DOWN";
-      break;
-    case 3:
-      pinTarget = RELAY_NUT_A;
-      namaPompa = "NUTRISI A";
-      break;
-    case 4:
-      pinTarget = RELAY_NUT_B;
-      namaPompa = "NUTRISI B";
-      break;
-    case 5:
-      pinTarget = RELAY_AIR;
-      namaPompa = "AIR BAKU";
-      break;
-    default: return;
+  // Hitung waktu berhenti
+  stopTime[nomor] = millis() + (unsigned long)detik * 1000;
+
+  digitalWrite(PUMP_PINS[nomor], LOW); // ON (Active Low)
+
+  Serial.printf(">> %s AKTIF selama %d detik\n", PUMP_NAMES[nomor].c_str(), detik);
+}
+
+void stopSemua() {
+  Serial.println("!!! EMERGENCY STOP: SEMUA POMPA MATI !!!");
+  for (int i = 1; i <= 5; i++) {
+    digitalWrite(PUMP_PINS[i], HIGH);
+    stopTime[i] = 0;
   }
-
-  // Proses Eksekusi
-  Serial.print(">> Menyalakan ");
-  Serial.print(namaPompa);
-  Serial.print(" selama ");
-  Serial.print(detik);
-  Serial.println(" detik...");
-
-  digitalWrite(pinTarget, LOW);   // ON (Active Low)
-  delay(ms);                      // Tunggu
-  digitalWrite(pinTarget, HIGH);  // OFF
-
-  Serial.println(">> Selesai.");
-  Serial.println("------------------------------------------");
 }
