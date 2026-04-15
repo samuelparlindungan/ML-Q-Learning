@@ -4,11 +4,12 @@
 // Pin Relay (Active Low)
 const int RELAY_PH_UP   = 14; 
 const int RELAY_PH_DOWN = 27; 
-const int RELAY_NUT_A   = 26; 
-const int RELAY_NUT_B   = 25; 
-const int RELAY_AIR     = 33; 
+const int RELAY_AIR     = 26; 
+const int RELAY_NUT_A   = 25; 
+const int RELAY_NUT_B   = 33; 
 
 // Array untuk mempermudah akses (indeks 1-5)
+// Urutan tetap: 1:PH_UP, 2:PH_DN, 3:NUT_A, 4:NUT_B, 5:AIR
 const int PUMP_PINS[6] = {0, RELAY_PH_UP, RELAY_PH_DOWN, RELAY_NUT_A, RELAY_NUT_B, RELAY_AIR};
 const String PUMP_NAMES[6] = {"", "pH UP", "pH DOWN", "NUTRISI A", "NUTRISI B", "AIR BAKU"};
 
