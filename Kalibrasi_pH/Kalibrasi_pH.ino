@@ -38,8 +38,8 @@ void loop() {
         }
         
         // PENYESUAIAN 2: Rumus perhitungan Voltage untuk ESP32
-        // tanpa pengali karena sensor pH dicolok ke 3.3V tanpa voltage divider
-        voltage = (float)analogRead(PH_PIN) / ADC_RES * VREF;
+        // Kalikan 1.4545 untuk mencairkan efek Voltage Divider 1K & 2.2K
+        voltage = ((float)analogRead(PH_PIN) / ADC_RES * VREF) * 1.4545;
         
         phValue = ph.readPH(voltage, temperature);
         

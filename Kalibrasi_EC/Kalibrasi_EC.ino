@@ -58,8 +58,12 @@ void loop() {
       temperature = t_real;
     }
     
-    // Kalikan 1.4545 untuk mencairkan efek Voltage Divider 1K & 2.2K
-    voltage = (analogRead(EC_PIN) / 4096.0 * 3300.0) * 1.4545; 
+    // --- RUMUS TEGANGAN KHUSUS ESP32 (Jumper 3.3V) ---
+    // analogRead(EC_PIN): Membaca nilai mentah (0 - 4095)
+    // 4096.0: Resolusi ADC ESP32 (12-bit)
+    // 3300.0: Tegangan referensi (3.3V dalam milivolt)
+    
+    voltage = analogRead(EC_PIN) / 4096.0 * 3300.0; 
     
     // Konversi tegangan ke nilai EC
     ecValue = ec.readEC(voltage, temperature); 

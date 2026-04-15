@@ -86,7 +86,7 @@ void loop() {
     
     // 1. Baca Sensor pH
     int adcPH = analogRead(PH_PIN);
-    voltagePH = (float)adcPH / ESP_ADC_RES * ESP_ADC_VREF;
+    voltagePH = ((float)adcPH / ESP_ADC_RES * ESP_ADC_VREF) * 1.4545;
     phValue = ph.readPH(voltagePH, temperature);
     
     // 2. Baca Sensor EC
