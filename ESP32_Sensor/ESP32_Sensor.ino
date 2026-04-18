@@ -371,11 +371,11 @@ void loop() {
     int avgAdcPH = totalAdcPH / 40;
     int avgAdcEC = totalAdcEC / 40;
 
-    // Hitung Voltage dan konversi ke nilai pH & EC
+    // pH menggunakan pembacaan murni (Direct)
     voltagePH = (float)avgAdcPH / ESP_ADC_RES * ESP_ADC_VREF;
     phValue   = ph.readPH(voltagePH, temperature);
 
-    // Kalikan 1.4545 untuk mencairkan efek Voltage Divider 1K & 2.2K pada EC
+    // Kalikan 1.4545 untuk mencairkan efek Voltage Divider pada EC
     voltageEC = ((float)avgAdcEC / ESP_ADC_RES * ESP_ADC_VREF) * 1.4545f;
     ecValue   = ec.readEC(voltageEC, temperature) * 1000.0f; // mS/cm → uS/cm
   }

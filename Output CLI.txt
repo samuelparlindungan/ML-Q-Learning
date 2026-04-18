@@ -1,0 +1,999 @@
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.07 | EC: 212.0
+   [SUCCESS] Baris 5 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 6/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.04 | EC: 212.91
+   [Action] Memilih Aksi ACAK: 8
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.05 | EC: 238.09
+   [SUCCESS] Baris 6 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 7/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.05 | EC: 239.08
+   [Action] Memilih Aksi ACAK: 4
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.38 | EC: 235.18
+   [SUCCESS] Baris 7 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 8/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.36 | EC: 240.0
+   [Action] Memilih Aksi ACAK: 1
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.71 | EC: 263.55
+   [SUCCESS] Baris 8 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 9/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.7 | EC: 278.27
+   [Action] Memilih Aksi ACAK: 2
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.26 | EC: 310.5
+   [SUCCESS] Baris 9 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 10/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.26 | EC: 309.55
+   [Action] Memilih Aksi ACAK: 8
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.26 | EC: 338.55
+   [SUCCESS] Baris 10 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 11/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.28 | EC: 339.45
+   [Action] Memilih Aksi ACAK: 2
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.67 | EC: 372.0
+   [SUCCESS] Baris 11 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 12/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.68 | EC: 389.18
+   [Action] Memilih Aksi ACAK: 8
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.67 | EC: 387.82
+   [SUCCESS] Baris 12 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 13/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.67 | EC: 388.58
+   [Action] Memilih Aksi ACAK: 6
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.61 | EC: 514.82
+   [SUCCESS] Baris 13 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 14/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.62 | EC: 513.0
+   [Action] Memilih Aksi ACAK: 4
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.23 | EC: 512.25
+   [SUCCESS] Baris 14 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 15/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.21 | EC: 513.09
+   [Action] Memilih Aksi ACAK: 8
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.19 | EC: 511.09
+   [SUCCESS] Baris 15 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 16/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.22 | EC: 512.67
+   [Action] Memilih Aksi ACAK: 1
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.38 | EC: 512.09
+   [SUCCESS] Baris 16 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 17/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.38 | EC: 514.0
+   [Action] Memilih Aksi ACAK: 1
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.52 | EC: 537.18
+   [SUCCESS] Baris 17 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 18/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.51 | EC: 538.42
+   [Action] Memilih Aksi ACAK: 5
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.5 | EC: 628.5
+   [SUCCESS] Baris 18 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 19/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.49 | EC: 642.36
+   [Action] Memilih Aksi ACAK: 7
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.48 | EC: 712.18
+   [SUCCESS] Baris 19 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 20/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.48 | EC: 736.45
+   [Action] Memilih Aksi ACAK: 5
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.47 | EC: 785.73
+   [SUCCESS] Baris 20 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 21/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.47 | EC: 798.08
+   [Action] Memilih Aksi ACAK: 1
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.59 | EC: 811.91
+   [SUCCESS] Baris 21 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 22/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.59 | EC: 811.92
+   [Action] Memilih Aksi ACAK: 1
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.72 | EC: 836.55
+   [SUCCESS] Baris 22 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 23/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.71 | EC: 836.75
+   [Action] Memilih Aksi ACAK: 2
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.88 | EC: 865.18
+   [SUCCESS] Baris 23 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 24/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.87 | EC: 866.09
+   [Action] Memilih Aksi ACAK: 7
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.88 | EC: 867.25
+   [SUCCESS] Baris 24 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 25/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.88 | EC: 866.27
+   [Action] Memilih Aksi ACAK: 4
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.67 | EC: 892.73
+   [SUCCESS] Baris 25 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 26/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.66 | EC: 894.5
+   [Action] Memilih Aksi ACAK: 2
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.8 | EC: 914.73
+   [SUCCESS] Baris 26 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 27/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.8 | EC: 916.18
+   [Action] Memilih Aksi ACAK: 4
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.59 | EC: 943.42
+   [SUCCESS] Baris 27 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 28/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.57 | EC: 940.0
+   [Action] Memilih Aksi ACAK: 3
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.42 | EC: 966.17
+   [SUCCESS] Baris 28 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 29/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.42 | EC: 962.0
+   [Action] Memilih Aksi ACAK: 2
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.61 | EC: 995.27
+   [SUCCESS] Baris 29 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 30/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.58 | EC: 994.08
+   [Action] Memilih Aksi ACAK: 7
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.51 | EC: 990.73
+   [SUCCESS] Baris 30 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 31/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.49 | EC: 991.36
+   [Action] Memilih Aksi ACAK: 6
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.35 | EC: 1218.64
+   [SUCCESS] Baris 31 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 32/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.34 | EC: 1247.55
+   [Action] Memilih Aksi ACAK: 5
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.31 | EC: 1320.55
+   [SUCCESS] Baris 32 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 33/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.31 | EC: 1325.82
+   [Action] Memilih Aksi ACAK: 7
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.3 | EC: 1348.0
+   [SUCCESS] Baris 33 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 34/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.31 | EC: 1351.36
+   [Action] Memilih Aksi ACAK: 3
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.23 | EC: 1374.08
+   [SUCCESS] Baris 34 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 35/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.21 | EC: 1375.36
+   [Action] Memilih Aksi ACAK: 1
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.28 | EC: 1398.33
+   [SUCCESS] Baris 35 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 36/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.28 | EC: 1399.91
+   [Action] Memilih Aksi ACAK: 5
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.25 | EC: 1448.08
+   [SUCCESS] Baris 36 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 37/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.26 | EC: 1445.91
+   [Action] Memilih Aksi ACAK: 4
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.06 | EC: 1446.45
+   [SUCCESS] Baris 37 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 38/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.06 | EC: 1446.75
+   [Action] Memilih Aksi ACAK: 6
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.01 | EC: 1553.09
+   [SUCCESS] Baris 38 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 39/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.01 | EC: 1551.25
+   [Action] Memilih Aksi ACAK: 7
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.01 | EC: 1547.55
+   [SUCCESS] Baris 39 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 40/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.01 | EC: 1552.09
+   [Action] Memilih Aksi ACAK: 8
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.01 | EC: 1550.64
+   [SUCCESS] Baris 40 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 41/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.0 | EC: 1551.5
+   [Action] Memilih Aksi ACAK: 4
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.8 | EC: 1545.0
+   [SUCCESS] Baris 41 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 42/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.77 | EC: 1548.45
+   [Action] Memilih Aksi ACAK: 2
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.01 | EC: 1570.42
+   [SUCCESS] Baris 42 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 43/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.0 | EC: 1570.55
+   [Action] Memilih Aksi ACAK: 5
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.98 | EC: 1660.0
+   [SUCCESS] Baris 43 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 44/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.98 | EC: 1671.64
+   [Action] Memilih Aksi ACAK: 1
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 6.03 | EC: 1743.55
+   [SUCCESS] Baris 44 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 45/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 6.04 | EC: 1755.82
+   [Action] Memilih Aksi ACAK: 5
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.99 | EC: 1881.55
+   [SUCCESS] Baris 45 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 46/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.99 | EC: 1902.55
+   [Action] Memilih Aksi ACAK: 6
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.92 | EC: 2070.0
+   [SUCCESS] Baris 46 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 47/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.94 | EC: 2077.82
+   [Action] Memilih Aksi ACAK: 3
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.85 | EC: 2139.82
+   [SUCCESS] Baris 47 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 48/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.84 | EC: 2149.18
+   [Action] Memilih Aksi ACAK: 3
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.74 | EC: 2223.91
+   [SUCCESS] Baris 48 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 49/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.73 | EC: 2219.09
+   [Action] Memilih Aksi ACAK: 5
+   [Mixing] Menunggu pelarutan selama 180 detik...
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.7 | EC: 2295.09
+   [SUCCESS] Baris 49 tersimpan ke CSV.
+------------------------------
+
+>>> SIKLUS 50/50 DIMULAI <<<
+   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St] pH: 5.69 | EC: 2280.91
+   [Action] Memilih Aksi ACAK: 3
+   [TIMEOUT] Aktuator tidak merespon!
+   [Mixing] Menunggu pelarutan selama 180 detik...
+an   [Sampling] Mengambil data selama 60 detik...
+   Sisa waktu sampling: 60s
+   Sisa waktu sampling: 50s
+   Sisa waktu sampling: 40s
+   Sisa waktu sampling: 30s
+   Sisa waktu sampling: 20s
+   Sisa waktu sampling: 10s
+   [State St1] pH: 5.68 | EC: 2296.27
+   [SUCCESS] Baris 50 tersimpan ke CSV.
+------------------------------
+
+Target 50 siklus tercapai. Program selesai dengan aman.
+Koneksi ditutup. File CSV Anda siap diolah!

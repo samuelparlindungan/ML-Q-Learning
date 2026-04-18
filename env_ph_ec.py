@@ -99,7 +99,27 @@ class PhEcEnv(
 
     def step(self, action):  # Execute one step in the environment
         delta_ph, delta_ec = 0.0, 0.0  # Initialize changes in pH and EC
-        # Action effects: sesuai Tabel 3.4
+        
+        # --- LOGIKA BARU: BERDASARKAN DATA TANDON ASLI (HASIL ANALISIS CSV) ---
+        if action == 1:    # pH Up Short
+            delta_ph, delta_ec = 0.07, 25.0
+        elif action == 2:  # pH Up Long
+            delta_ph, delta_ec = 0.28, 28.0
+        elif action == 3:  # pH Down Short
+            delta_ph, delta_ec = -0.12, 36.0
+        elif action == 4:  # pH Down Long
+            delta_ph, delta_ec = -0.41, 10.0
+        elif action == 5:  # Nutrisi Short
+            delta_ph, delta_ec = -0.03, 79.0
+        elif action == 6:  # Nutrisi Long
+            delta_ph, delta_ec = -0.16, 115.0
+        elif action == 7:  # Air Baku Short
+            delta_ph, delta_ec = -0.02, 17.0
+        elif action == 8:  # Air Baku Long
+            delta_ph, delta_ec = -0.00, 13.0
+
+        """
+        # --- LOGIKA LAMA (SIMULASI TEORI) - DIKOMENTARI ---
         if action == 1:  # If action is pH Up Short
             delta_ph = 0.5  # pH Up Short
         elif action == 2:  # If action is pH Up Long
@@ -116,14 +136,17 @@ class PhEcEnv(
             delta_ec = -0.5  # Air Baku Short
         elif action == 8:  # If action is Air Baku Long
             delta_ec = -1.0  # Air Baku Long
-        # Natural drift
-        drift_ph = random.uniform(-0.1, 0.1)  # Generate random drift for pH
-        drift_ec = random.uniform(-0.1, 0.1)  # Generate random drift for EC
-        self.ph += delta_ph + drift_ph  # Update pH with action and drift
-        self.ec += delta_ec + drift_ec  # Update EC with action and drift
-        # Sensor noise
-        measured_ph = self.ph + random.uniform(-0.05, 0.05)  # Add noise to measured pH
-        measured_ec = self.ec + random.uniform(-0.05, 0.05)  # Add noise to measured EC
+        """
+        # Natural drift (Disesuaikan agar lebih realistis dengan tandon asli)
+        drift_ph = random.uniform(-0.02, 0.02)  # Perubahan pH alami kecil
+        drift_ec = random.uniform(-5.0, 5.0)    # Perubahan EC alami (noise arus/homogenisasi)
+        self.ph += delta_ph + drift_ph
+        self.ec += delta_ec + drift_ec
+
+        # Sensor noise (Akurasi pembacaan sensor)
+        measured_ph = self.ph + random.uniform(-0.01, 0.01)
+        measured_ec = self.ec + random.uniform(-2.0, 2.0)
+        
         # Discretization
         ph_d = int(np.clip(round(measured_ph), 0, 4))  # Discretize pH to 0-4
         ec_d = int(np.clip(round(measured_ec), 0, 4))  # Discretize EC to 0-4
