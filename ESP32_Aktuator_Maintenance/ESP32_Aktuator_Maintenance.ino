@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
 
 // ==========================================
 // 1. KONFIGURASI WIFI & MQTT
@@ -11,8 +12,9 @@ const int   mqtt_port   = 1883;
 
 const char* topic_action   = "hidroponik/action"; 
 const char* topic_status   = "hidroponik/status"; 
-const char* topic_mainten  = "hidroponik/maintenance"; // ✅ Topik Baru untuk CLI
+const char* topic_mainten  = "hidroponik/maintenance"; 
 const char* topic_aktuator = "hidroponik/aktuator";
+const char* topic_sensor   = "hidroponik/sensor";    // ✅ Unsur Safety
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
@@ -28,6 +30,12 @@ unsigned long stopTime[6] = {0, 0, 0, 0, 0, 0};
 int lastActionID = -1;
 bool isAwaitingDone = false;
 
+// Variabel Safety (Update dari MQTT Sensor)
+float level_box = 20.0; // Default aman (Liter)
+float level_tabung[6] = {0, 500, 500, 500, 500, 500}; // T1-T5 (mL)
+const float AMBANG_BOX = 5.0;   // Minimal 5L air
+const float AMBANG_TABUNG = 50.0; // Minimal 50mL nutrisi/pH
+
 // Durasi Fixed (Untuk Aksi 1-8)
 const unsigned long T_PH_S  = 2000;   
 const unsigned long T_PH_L  = 5000;   
@@ -41,24 +49,43 @@ const unsigned long T_AIR_L = 15000;
 // ==========================================
 
 void publishStatus() {
-  char payload[256];
-  int st[6];
-  for (int i=1; i<=5; i++) st[i] = (digitalRead(PUMP_PINS[i]) == LOW) ? 1 : 0;
+  StaticJsonDocument<256> doc;
+  doc["ph_up"] = (digitalRead(PUMP_PINS[1]) == LOW) ? 1 : 0;
+  doc["ph_down"] = (digitalRead(PUMP_PINS[2]) == LOW) ? 1 : 0;
+  doc["air_baku"] = (digitalRead(PUMP_PINS[3]) == LOW) ? 1 : 0;
+  doc["nutrisi_a"] = (digitalRead(PUMP_PINS[4]) == LOW) ? 1 : 0;
+  doc["nutrisi_b"] = (digitalRead(PUMP_PINS[5]) == LOW) ? 1 : 0;
+  doc["last_act"] = lastActionID;
+  doc["box"] = level_box;
 
-  snprintf(payload, sizeof(payload),
-    "{\"ph_up\":%d,\"ph_down\":%d,\"nutrisi_a\":%d,\"nutrisi_b\":%d,\"air_baku\":%d,\"last_act\":%d}",
-    st[1], st[2], st[3], st[4], st[5], lastActionID
-  );
+  char payload[256];
+  serializeJson(doc, payload);
   mqttClient.publish(topic_aktuator, payload);
 }
 
-void triggerPump(int pumpIdx, unsigned long ms) {
+void triggerPump(int pumpIdx, unsigned long ms, bool force = false) {
   if (pumpIdx < 1 || pumpIdx > 5) return;
+  
   if (ms == 0) { // Stop explicit
     digitalWrite(PUMP_PINS[pumpIdx], HIGH);
     stopTime[pumpIdx] = 0;
     return;
   }
+
+  // --- SAFETY INTERLOCK CHECK ---
+  if (!force) {
+    if (level_box < AMBANG_BOX) {
+      Serial.println("⚠️ SAFETY: Tandon Utama KRITIS! Pompa Dibatalkan.");
+      return;
+    }
+    if (level_tabung[pumpIdx] < AMBANG_TABUNG) {
+      Serial.printf("⚠️ SAFETY: Tabung %s KOSONG! Pompa Dibatalkan.\n", PUMP_NAMES[pumpIdx]);
+      return;
+    }
+  } else {
+    Serial.println("⚙️ MAINTENANCE: Safety di-BYPASS.");
+  }
+
   digitalWrite(PUMP_PINS[pumpIdx], LOW); // ON
   stopTime[pumpIdx] = millis() + ms;
   Serial.printf("[POMPA] %s ON selama %lu ms\n", PUMP_NAMES[pumpIdx], ms);
@@ -81,8 +108,23 @@ void callback(char* topic, byte* payload, unsigned int length) {
   String msg = "";
   for (int i = 0; i < length; i++) msg += (char)payload[i];
   
+  // A. UPDATE DATA SENSOR (SAFETY BASE)
+  if (String(topic) == topic_sensor) {
+    StaticJsonDocument<512> doc;
+    if (!deserializeJson(doc, payload, length)) {
+      level_box = doc["box"];
+      level_tabung[1] = doc["t1"]; // pH Up
+      level_tabung[2] = doc["t2"]; // pH Down
+      level_tabung[3] = doc["t3"]; // Air Baku
+      level_tabung[4] = doc["t4"]; // Nutrisi A
+      level_tabung[5] = doc["t5"]; // Nutrisi B
+    }
+    return; 
+  }
+
   Serial.printf("[MQTT] Topic: %s | Msg: %s\n", topic, msg.c_str());
 
+  // B. EKSEKUSI OTOMATIS (DENGAN SAFETY)
   if (String(topic) == topic_action) {
     int action = msg.toInt();
     lastActionID = action;
@@ -94,20 +136,20 @@ void callback(char* topic, byte* payload, unsigned int length) {
       case 2: triggerPump(1, T_PH_L); break;
       case 3: triggerPump(2, T_PH_S); break;
       case 4: triggerPump(2, T_PH_L); break;
-      case 5: triggerPump(4, T_NUT_S); triggerPump(5, T_NUT_S); break; // Nutrisi A & B
-      case 6: triggerPump(4, T_NUT_L); triggerPump(5, T_NUT_L); break; // Nutrisi A & B
-      case 7: triggerPump(3, T_AIR_S); break; // Air Baku
-      case 8: triggerPump(3, T_AIR_L); break; // Air Baku
+      case 5: triggerPump(4, T_NUT_S); triggerPump(5, T_NUT_S); break;
+      case 6: triggerPump(4, T_NUT_L); triggerPump(5, T_NUT_L); break;
+      case 7: triggerPump(3, T_AIR_S); break;
+      case 8: triggerPump(3, T_AIR_L); break;
     }
   } 
+  // C. EKSEKUSI MAINTENANCE (BYPASS SAFETY)
   else if (String(topic) == topic_mainten) {
-    // Format: "id duration_sec" e.g. "1 10"
     int spaceIdx = msg.indexOf(' ');
     if (spaceIdx != -1) {
       int id = msg.substring(0, spaceIdx).toInt();
       int dur = msg.substring(spaceIdx + 1).toInt();
       if (id == 0) stopAll();
-      else triggerPump(id, (unsigned long)dur * 1000);
+      else triggerPump(id, (unsigned long)dur * 1000, true); // true = force bypass
     }
   }
 }
@@ -132,6 +174,7 @@ void reconnect() {
       Serial.println("connected");
       mqttClient.subscribe(topic_action);
       mqttClient.subscribe(topic_mainten);
+      mqttClient.subscribe(topic_sensor); // ✅ Subscribe untuk safety
     } else {
       Serial.printf("failed, rc=%d try again in 5s\n", mqttClient.state());
       delay(5000);
@@ -150,9 +193,6 @@ void setup() {
   mqttClient.setCallback(callback);
 }
 
-// ==========================================
-// 6. LOOP (CORE)
-// ==========================================
 void loop() {
   if (!mqttClient.connected()) reconnect();
   mqttClient.loop();
@@ -160,7 +200,6 @@ void loop() {
   unsigned long now = millis();
   bool anyPumpRunning = false;
 
-  // 1. Check Non-Blocking Timers
   for (int i=1; i<=5; i++) {
     if (stopTime[i] > 0) {
       if (now >= stopTime[i]) {
@@ -173,26 +212,24 @@ void loop() {
     }
   }
 
-  // 2. Handle "DONE" signal for Automated Actions
   if (isAwaitingDone && !anyPumpRunning) {
     mqttClient.publish(topic_status, "DONE");
     Serial.println("[MQTT] All pumps idle, sending DONE.");
     isAwaitingDone = false;
   }
 
-  // 3. Serial Monitor Input (Maintenance)
+  // Serial Maintenance juga BYPASS Safety
   if (Serial.available() > 0) {
     int id = Serial.parseInt();
     int dur = Serial.parseInt();
-    while (Serial.available() > 0) Serial.read(); // Clear buffer
+    while (Serial.available() > 0) Serial.read(); 
 
     if (id == 0) stopAll();
     else if (id >= 1 && id <= 5 && dur > 0) {
-      triggerPump(id, (unsigned long)dur * 1000);
+      triggerPump(id, (unsigned long)dur * 1000, true); // true = force bypass
     }
   }
 
-  // 4. Status Heartbeat (2 Detik sekali)
   static unsigned long lastUpdate = 0;
   if (now - lastUpdate > 2000) {
     publishStatus();

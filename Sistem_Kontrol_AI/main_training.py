@@ -5,7 +5,7 @@ from env_ph_ec import PhEcEnv  # Import the custom PhEcEnv environment
 from qlearning_agent import QLearningAgent  # Import the QLearningAgent class
 
 # Buat folder output jika belum ada
-os.makedirs("output", exist_ok=True)  # Create output directory if it doesn't exist
+os.makedirs("../output", exist_ok=True)  # Create output directory if it doesn't exist
 
 env = PhEcEnv()  # Initialize the PhEc environment
 agent = QLearningAgent(n_states=25, n_actions=9)  # Initialize the Q-learning agent
@@ -66,14 +66,14 @@ for ep in range(episodes):  # Loop over episodes
         )
 
 # Save ke folder output/
-np.save("output/Q_table.npy", agent.Q)  # Save Q-table
-np.save("output/reward_log.npy", reward_log)  # Save reward log
-np.save("output/step_log.npy", step_log)  # Save step log
-np.save("output/qmax_log.npy", qmax_log)  # Save qmax log
-np.save("output/alpha_log.npy", alpha_log)  # Save alpha log
-np.save("output/state_visit.npy", state_visit)  # Save state visit counts
-np.save("output/action_count.npy", action_count)  # Save action counts
-np.save("output/trajectory.npy", trajectory)  # Save trajectory
+np.save("../output/Q_table.npy", agent.Q)  # Save Q-table
+np.save("../output/reward_log.npy", reward_log)  # Save reward log
+np.save("../output/step_log.npy", step_log)  # Save step log
+np.save("../output/qmax_log.npy", qmax_log)  # Save qmax log
+np.save("../output/alpha_log.npy", alpha_log)  # Save alpha log
+np.save("../output/state_visit.npy", state_visit)  # Save state visit counts
+np.save("../output/action_count.npy", action_count)  # Save action counts
+np.save("../output/trajectory.npy", trajectory)  # Save trajectory
 
 # Buat policy.json
 policy = {}  # Initialize policy dictionary
@@ -90,7 +90,7 @@ for state in range(25):  # Loop over all states
         "max_q": float(np.max(agent.Q[state])),
     }
 
-with open("output/policy.json", "w") as f:  # Open policy.json file
+with open("../output/policy.json", "w") as f:  # Open policy.json file
     json.dump(policy, f, indent=2)  # Dump policy to JSON
 
 print("\n✅ TRAINING SELESAI!")  # Print completion message

@@ -59,12 +59,15 @@ Dokumen ini berfungsi sebagai "Ingatan Permanen" dan "Single Source of Truth" un
 ├── Kalibrasi_pH/               # Tool Kalibrasi pH (DS18B20 Real-time)
 ├── Kalibrasi_EC/               # Tool Kalibrasi EC (Multiplier 1.4545 + DS18B20)
 ├── Kombinasi_pH_EC/            # Kode Gabungan (Filter Median + Suhu Real-time)
-├── ESP32_Aktuator_Bypass/      # Firmware Aktuator (Pompa + JSON Reporting)
-├── ESP_Sensor.ino              # Firmware Produksi (DSP Filter + Async Suhu)
+├── Sistem_Kontrol_AI/          # Folder Baru: Pusat Kendali AI
+│   ├── main_auto_control.py    # Controller Utama (Autonomous Mode)
+│   ├── qlearning_agent.py      # Implementasi Algoritma RL
+│   ├── env_ph_ec.py            # Environment Sensor Logic
+│   ├── main_training.py        # Script untuk melatih policy AI
+│   ├── random_explorer_v1.py   # Automated Data Collector
+│   └── kolektor_data_pro.py    # Manual Data Collector
 │
-├── main_auto_control.py        # Controller Utama (Autonomous Mode)
-├── qlearning_agent.py          # Implementasi Algoritma RL
-├── env_ph_ec.py                # Environment Sensor Logic
+├── ESP_Sensor.ino              # Firmware Produksi (DSP Filter + Async Suhu)
 ├── telegraf.conf               # Konfigurasi Jembatan Data (MQTT-InfluxDB)
 │
 ├── output/                     # Hasil AI: policy.json, CSV Logs
