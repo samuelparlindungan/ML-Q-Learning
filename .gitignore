@@ -11,9 +11,9 @@ env_rl/
 *.docx
 *.pdf
 
-# Abaikan file data & log cadangan
-*.csv
-*data*
+# Abaikan file data & log cadangan (Disesuaikan agar bisa dipush untuk analisis AI)
+# *.csv
+# *data*
 summary_all.txt
 pdf_text.txt
 
