@@ -2,20 +2,22 @@ import numpy as np  # Import numpy for numerical operations and arrays
 import matplotlib.pyplot as plt  # Import matplotlib for plotting
 import os  # Import os for file path operations
 
-# Pastikan kita di direktori yang benar
-script_dir = os.path.dirname(os.path.abspath(__file__))  # Get script directory
-output_dir = os.path.join(script_dir, "output")  # Set output directory path
+# ==========================================
+# 0. KONFIGURASI VERSI
+# ==========================================
+VERSION = "v1_teori"  # Ganti ke "v2_dataset" untuk melihat hasil training baru
+OUT_DIR = f"../output/{VERSION}"
 
-reward = np.load(os.path.join(output_dir, "reward_log.npy"))  # Load reward log
-steps = np.load(os.path.join(output_dir, "step_log.npy"))  # Load step log
-qmax = np.load(os.path.join(output_dir, "qmax_log.npy"))  # Load qmax log
-alpha = np.load(os.path.join(output_dir, "alpha_log.npy"))  # Load alpha log
-state_visit = np.load(
-    os.path.join(output_dir, "state_visit.npy")
-)  # Load state visit counts
-action_count = np.load(
-    os.path.join(output_dir, "action_count.npy")
-)  # Load action counts
+if not os.path.exists(OUT_DIR):
+    print(f"Error: Folder '{OUT_DIR}' tidak ditemukan.")
+    exit()
+
+reward = np.load(f"{OUT_DIR}/reward_log.npy")  # Load reward log
+steps = np.load(f"{OUT_DIR}/step_log.npy")  # Load step log
+qmax = np.load(f"{OUT_DIR}/qmax_log.npy")  # Load qmax log
+alpha = np.load(f"{OUT_DIR}/alpha_log.npy")  # Load alpha log
+state_visit = np.load(f"{OUT_DIR}/state_visit.npy")  # Load state visit counts
+action_count = np.load(f"{OUT_DIR}/action_count.npy")  # Load action counts
 
 # 1. Reward Convergence
 window = 50  # Set moving average window size

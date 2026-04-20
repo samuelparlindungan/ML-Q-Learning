@@ -4,8 +4,10 @@ import os
 
 
 def main():
-    # 1. Setup Folder
-    output_dir = "output"
+    # 1. Setup Folder & Versi
+    VERSION = "v1_teori"  # Ganti ke "v2_dataset" untuk hasil terbaru
+    output_dir = f"../output/{VERSION}"
+
     if not os.path.exists(output_dir):
         print(f"Error: Folder '{output_dir}' tidak ditemukan.")
         return

@@ -11,8 +11,9 @@ TOPICS = {
     "action": "hidroponik/action",
     "status": "hidroponik/status",
 }
+VERSION_LOAD = "v2_dataset"  # Pilih versi: "v1_teori" atau "v2_dataset"
 CSV_AUTO = "../output/data_transisi_otomatis.csv"
-POLICY_FILE = "../output/policy.json"
+POLICY_FILE = f"../output/{VERSION_LOAD}/policy.json"
 WAKTU_HOMO = 180  # 3 Menit
 
 # State Tracking
@@ -157,7 +158,7 @@ if __name__ == "__main__":
         + "=" * 45
     )
 
-    os.makedirs("../output", exist_ok=True)
+    os.makedirs(f"../output/{VERSION_LOAD}", exist_ok=True)
     if not os.path.exists(POLICY_FILE):
         print("[ERROR] Policy.json tidak ditemukan!")
         exit()

@@ -1,77 +1,57 @@
-# 📑 KONTEKS MASTER: SISTEM HIDROPONIK AI (SAMUEL & JOSH)
+# Model Konteks: Sistem Kontrol Hidroponik AI
+(Single Source of Truth untuk Integrasi Skripsi)
 
-Dokumen ini berfungsi sebagai "Ingatan Permanen" dan "Single Source of Truth" untuk seluruh kemajuan proyek, arsitektur, dan kebutuhan penelitian Tugas Akhir. **DILARANG MENGHAPUS BAGIAN PENELITIAN.**
+## 🎯 1. OBJEKTIF UTAMA
+Mengotomatisasi kontrol nutrisi (EC) dan keasaman (pH) pada sistem hidroponik menggunakan algoritma **Reinforcement Learning (Q-Learning)** untuk mencapai kondisi ideal (pH 6.0, EC 1200 uS/cm).
 
----
+## 🚀 2. ALUR KERJA (PIPELINE)
+1. **Sensor (ESP32)**: Membaca pH, EC, Suhu, dan Volume Tandon. Mengirim data JSON ke broker MQTT.
+2. **Logic Agent (RPi/PC)**: Python men-subscribe data sensor, mengubahnya menjadi **State (1-25)**.
+3. **Keputusan (Inference)**: AI memilih aksi terbaik (Idle, pH Up/Down, Nutrisi, Air) berdasarkan **Policy**.
+4. **Aktuator (ESP32)**: Menjalankan pompa peristaltik sesuai perintah AI selama durasi tertentu (Short/Long).
 
-## 1. 🎯 IDENTITAS PROYEK & KOLABORASI (B600)
-- **Tujuan**: Otomatisasi kendali pH dan EC pada sistem hidroponik menggunakan **Reinforcement Learning (Q-Learning)** dengan arsitektur **Edge Computing** (Raspberry Pi + ESP32).
-- **Kolaborasi Tim**:
-    - **Samuel (Penulis)**: Fokus pada Algoritma AI, Policy Training, dan Logic Controller (Raspberry Pi).
-    - **Josh (Partner)**: Fokus pada IoT Monitoring, Wiring Sensor, Data Visualization, dan Dashboard (Grafana).
+## 📊 3. PARAMETER TEKNIS
+- **Tandon Utama**: 15 Liter (Box Industri).
+- **Ph Up/Down & Nutrisi**: Tabung 1 Liter.
+- **Ambang Batas (Threshold)**: 
+  - pH: 5.8 - 6.2 (Optimal).
+  - EC: 1100 - 1300 uS/cm (Optimal).
+- **Training**: 1500 Episode, 40 Steps/Episode.
 
----
+## 🛡️ 4. DOUBLE SAFETY INTERLOCK
+- **Sensor-Side**: ESP Sensor mengirim peringatan jika level cairan kritis.
+- **Actuator-Side**: ESP Aktuator memblokir aksi pompa jika terdeteksi tandon/tabung kosong (proteksi dry-running).
 
-## 🏗️ 2. ARSITEKTUR TEKNIS & HARDWARE
-- **Pusat Komputasi (Agent)**: Raspberry Pi 4 (Python 3). IP Broker: `192.168.100.10`.
-- **Node Sensor (ESP32)**: `ESP_Sensor.ino`.
-    - **Power Setup**: pH (3.3V Direct), EC (5V via Analog Isolator DFR0504 + Voltage Divider 1k/2.2k).
-    - **Signal Logic**: EC menggunakan pengali `1.4545` (untuk netralisir resistor), pH tanpa pengali.
-- **Node Aktuator (ESP32)**: `ESP32_Aktuator_Bypass/ESP32_Aktuator_Bypass.ino`.
-    - **Pin Relay (Active LOW)**: pH Up (14), pH Down (27), Air Baku (26), Nutrisi A (25), Nutrisi B (33).
-    - **Fitur Kunci**: 
-        - `smartDelay()`: Menangani jeda pompa tanpa memutus koneksi MQTT.
-        - **Real-time Report**: Mengirim status kelima pompa sekaligus dalam format JSON ke `hidroponik/aktuator`.
-
----
-
-## 🧠 3. DESAIN Q-LEARNING (CORE AI)
-- **State Space (25 State)**: Diskritisasi pH (5 Level) x EC (5 Level).
-    - pH: `<5.5`, `<5.8`, `5.8-6.2`, `6.2-6.5`, `>6.5`.
-    - EC: `<800`, `<1100`, `1100-1300`, `1300-1600`, `>1600`.
-- **Action Space (9 Aksi)**: 0 (IDLE), 1-2 (pH Up S/L), 3-4 (pH Down S/L), 5-6 (Nutrisi S/L), 7-8 (Air S/L).
-- **Training Strategy**: 1500 episode dengan **Dual Decay** (Adaptive Alpha & Epsilon) untuk stabilitas Q-Value (Lihat: `STABILITAS_Q_VALUE.md`).
-- **Inference**: Menggunakan `policy.json` untuk pengambilan keputusan real-time.
-
----
-
-## 📊 4. STATUS TERAKHIR & FITUR KRITIS (CRITICAL)
-1. **Stabilisasi Sensor**: Implementasi `getSmoothADC` (Median Filter 30 sampel) pada pH dan EC untuk membuang noise Wi-Fi dan interferensi pulsa EC di air.
-2. **Kompensasi Suhu Real-time**: Seluruh modul kalibrasi (`Kalibrasi_EC`, `Kalibrasi_pH`, `Kombinasi_pH_EC`) sudah terintegrasi dengan DS18B20 (Non-Blocking).
-3. **Data Logging**: `output/data_transisi_otomatis.csv` mencatat `St`, `Action`, `St+1`, `Delta`, dan `Max_Q_Value`.
-4. **Monitoring Pipeline**:
-    - **Telegraf Config**: Mendukung multi-field JSON parsing untuk status aktuator serentak.
-    - **Grafana**: Dashboard dikonfigurasi untuk menampilkan tren pH/EC yang sudah difilter (mulus).
-
----
-
-## 📝 5. RENCANA PENGUJIAN & VALIDASI BAB 4
-- **Disturbance Test**: Uji pemulihan AI saat volume tandon (15L) dikurangi atau air diganti (simulasi gangguan nyata).
-- **Comparison Analysis**: Membandingkan efisiensi langkah antara `data_transisi_manual.csv` vs `data_transisi_otomatis.csv`.
-- **Bukti Ilmiah**: Penggunaan kolom `Max_Q_Value` untuk membuktikan kemantapan kebijakan (policy) AI dalam naskah skripsi.
-
----
+## ⚙️ 5. MODE OPERASI
+- **Mode Kontrol**: Otomatis (AI) vs Manual (Maintenance CLI).
+- **Versi Lingkungan**: 
+  - `v1_teori`: Berbasis simulasi matematika.
+  - `v2_dataset`: Berbasis data empiris dari tandon asli (Dataset Aktual).
 
 ## 📂 6. PETA WORKSPACE (FILE TREE)
 ```text
 / (Root)
 │
-├── Kalibrasi_pH/               # Tool Kalibrasi pH (DS18B20 Real-time)
-├── Kalibrasi_EC/               # Tool Kalibrasi EC (Multiplier 1.4545 + DS18B20)
-├── Kombinasi_pH_EC/            # Kode Gabungan (Filter Median + Suhu Real-time)
-├── Sistem_Kontrol_AI/          # Folder Baru: Pusat Kendali AI
-│   ├── main_auto_control.py    # Controller Utama (Autonomous Mode)
-│   ├── qlearning_agent.py      # Implementasi Algoritma RL
-│   ├── env_ph_ec.py            # Environment Sensor Logic
-│   ├── main_training.py        # Script untuk melatih policy AI
+├── Kalibrasi_pH/               # Tool Kalibrasi pH
+├── Kalibrasi_EC/               # Tool Kalibrasi EC
+├── Kombinasi_pH_EC/            # Kode Gabungan pH & EC
+├── Sistem_Kontrol_AI/          # Folder Pusat Skrip AI (Python)
+│   ├── env_ph_ec.py            # Environment Digital Twin
+│   ├── qlearning_agent.py      # Logika Algoritma Q-Learning
+│   ├── main_training.py        # Skrip Training Versi Terpilih
+│   ├── main_auto_control.py    # Skrip Kontrol Otomatis
+│   ├── visualize.py            # Visualisasi Progress Training
+│   ├── buat_grafik.py          # Generator Grafik PNG untuk Skripsi
+│   └── cek_nilai_q.py          # Export Q-Table ke Excel
 │   ├── random_explorer_v1.py   # Automated Data Collector
 │   └── kolektor_data_pro.py    # Manual Data Collector
 │
-├── ESP_Sensor.ino              # Firmware Produksi (DSP Filter + Async Suhu)
-├── telegraf.conf               # Konfigurasi Jembatan Data (MQTT-InfluxDB)
+├── output/                     # Hasil Training Berbasis Versi
+│   ├── v1_teori/               # Arsip Hasil Training Simulasi
+│   └── v2_dataset/             # Hasil Training berbasis Data Aktual
 │
-├── output/                     # Hasil AI: policy.json, CSV Logs
-└── Bimbingan/Dokumen/          # File Naskah Skripsi & Revisi (.docx, .pdf)
+├── ESP_Sensor.ino              # Firmware Sensor Produksi
+└── ESP32_Aktuator_Maintenance/ # Firmware Aktuator (Safety + Maintenance)
 ```
 
 ---

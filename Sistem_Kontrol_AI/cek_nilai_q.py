@@ -5,8 +5,9 @@ import os
 
 def main():
     # Lokasi file Q-Table hasil training
-    path = "output/Q_table.npy"
-    output_excel = "output/Laporan_Q_Table_Lengkap.xlsx"
+    VERSION = "v1_teori"  # Ganti ke "v2_dataset" untuk hasil terbaru
+    path = f"../output/{VERSION}/Q_table.npy"
+    output_excel = f"../output/{VERSION}/Laporan_Q_Table_Lengkap.xlsx"
 
     # 1. Cek apakah file Q-table ada
     if not os.path.exists(path):
