@@ -3,10 +3,22 @@ import matplotlib.pyplot as plt  # Import matplotlib for plotting
 import os  # Import os for file path operations
 
 # ==========================================
-# 0. KONFIGURASI VERSI
+# 0. KONFIGURASI VERSI (Otomatis dari env)
 # ==========================================
-VERSION = "v1_teori"  # Ganti ke "v2_dataset" untuk melihat hasil training baru
+from env_ph_ec import PhEcEnv
+
+env = PhEcEnv()
+# Kita coba cari folder dataset_asli dulu, kalau tidak ada pakai yang biasa
+VERSION = f"{env.ACTIVE_VERSION}_dataset_asli"
 OUT_DIR = f"../output/{VERSION}"
+
+if not os.path.exists(OUT_DIR):
+    # Fallback untuk folder lama tanpa suffix _asli
+    VERSION_OLD = f"{env.ACTIVE_VERSION}_dataset"
+    OUT_DIR_OLD = f"../output/{VERSION_OLD}"
+    if os.path.exists(OUT_DIR_OLD):
+        VERSION = VERSION_OLD
+        OUT_DIR = OUT_DIR_OLD
 
 if not os.path.exists(OUT_DIR):
     print(f"Error: Folder '{OUT_DIR}' tidak ditemukan.")
@@ -20,100 +32,91 @@ state_visit = np.load(f"{OUT_DIR}/state_visit.npy")  # Load state visit counts
 action_count = np.load(f"{OUT_DIR}/action_count.npy")  # Load action counts
 
 # 1. Reward Convergence
-window = 50  # Set moving average window size
-moving_avg = np.convolve(
-    reward, np.ones(window) / window, mode="valid"
-)  # Calculate moving average
-plt.figure(figsize=(10, 6))  # Create figure
-plt.plot(reward, alpha=0.3, label="Reward", color="blue")  # Plot raw rewards
-plt.plot(  # Plot moving average
+window = 50
+moving_avg = np.convolve(reward, np.ones(window) / window, mode="valid")
+plt.figure(figsize=(10, 6))
+plt.plot(reward, alpha=0.3, label="Reward", color="blue")
+plt.plot(
     range(window - 1, len(reward)),
     moving_avg,
     linewidth=2,
     label="Moving Avg (50)",
     color="red",
 )
-plt.xlabel("Episode")  # Set x label
-plt.ylabel("Total Reward")  # Set y label
-plt.title("Konvergensi Reward")  # Set title
-plt.legend()  # Show legend
-plt.grid(alpha=0.3)  # Add grid
-plt.tight_layout()  # Adjust layout
-plt.show()  # Display plot
+plt.xlabel("Episode")
+plt.ylabel("Total Reward")
+plt.title("Konvergensi Reward")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig(f"{OUT_DIR}/1_reward_convergence.png")  # SAVE
+plt.show()
 
-# 2. Q-max Convergence dengan Moving Average
-plt.figure(figsize=(10, 6))  # Create figure
-qmax_ma = np.convolve(
-    qmax, np.ones(window) / window, mode="valid"
-)  # Calculate moving average for qmax
-plt.plot(qmax, alpha=0.3, label="Q-max", color="green")  # Plot raw qmax
-plt.plot(  # Plot moving average
+# 2. Q-max Convergence
+plt.figure(figsize=(10, 6))
+qmax_ma = np.convolve(qmax, np.ones(window) / window, mode="valid")
+plt.plot(qmax, alpha=0.3, label="Q-max", color="green")
+plt.plot(
     range(window - 1, len(qmax)),
     qmax_ma,
     linewidth=2,
     label="Moving Avg (50)",
     color="darkgreen",
 )
-plt.xlabel("Episode")  # Set x label
-plt.ylabel("Max Q Value")  # Set y label
-plt.title("Konvergensi Nilai Q (dengan Adaptive Learning Rate)")  # Set title
-plt.legend()  # Show legend
-plt.grid(alpha=0.3)  # Add grid
-plt.tight_layout()  # Adjust layout
-plt.show()  # Display plot
+plt.xlabel("Episode")
+plt.ylabel("Max Q Value")
+plt.title("Konvergensi Nilai Q")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig(f"{OUT_DIR}/2_qmax_convergence.png")  # SAVE
+plt.show()
 
 # 3. Alpha Decay
-plt.figure(figsize=(10, 6))  # Create figure
-plt.plot(alpha, linewidth=2, color="orange")  # Plot alpha decay
-plt.xlabel("Episode")  # Set x label
-plt.ylabel("Learning Rate (Alpha)")  # Set y label
-plt.title("Decay Learning Rate")  # Set title
-plt.grid(alpha=0.3)  # Add grid
-plt.tight_layout()  # Adjust layout
-plt.show()  # Display plot
+plt.figure(figsize=(10, 6))
+plt.plot(alpha, linewidth=2, color="orange")
+plt.xlabel("Episode")
+plt.ylabel("Learning Rate (Alpha)")
+plt.title("Decay Learning Rate")
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig(f"{OUT_DIR}/3_alpha_decay.png")  # SAVE
+plt.show()
 
 # 4. Step Efficiency
-plt.figure(figsize=(10, 6))  # Create figure
-steps_ma = np.convolve(
-    steps, np.ones(window) / window, mode="valid"
-)  # Calculate moving average for steps
-plt.plot(steps, alpha=0.3, label="Steps", color="purple")  # Plot raw steps
-plt.plot(  # Plot moving average
+plt.figure(figsize=(10, 6))
+steps_ma = np.convolve(steps, np.ones(window) / window, mode="valid")
+plt.plot(steps, alpha=0.3, label="Steps", color="purple")
+plt.plot(
     range(window - 1, len(steps)),
     steps_ma,
     linewidth=2,
     label="Moving Avg (50)",
     color="darkviolet",
 )
-plt.xlabel("Episode")  # Set x label
-plt.ylabel("Jumlah Langkah")  # Set y label
-plt.title("Efisiensi Menuju State Optimal")  # Set title
-plt.legend()  # Show legend
-plt.grid(alpha=0.3)  # Add grid
-plt.tight_layout()  # Adjust layout
-plt.show()  # Display plot
+plt.xlabel("Episode")
+plt.ylabel("Jumlah Langkah")
+plt.title("Efisiensi Menuju State Optimal")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig(f"{OUT_DIR}/4_step_efficiency.png")  # SAVE
+plt.show()
 
 # 5. State Visitation Heatmap
-plt.figure(figsize=(8, 6))  # Create figure
-state_matrix = state_visit.reshape(5, 5)  # Reshape state visits to 5x5 matrix
-im = plt.imshow(state_matrix, cmap="YlOrRd", aspect="auto")  # Create heatmap
-plt.colorbar(im, label="Frekuensi Kunjungan")  # Add colorbar
-plt.xlabel("EC Index")  # Set x label
-plt.ylabel("pH Index")  # Set y label
-plt.title("Heatmap Kunjungan State")  # Set title
-for i in range(5):  # Loop over rows
-    for j in range(5):  # Loop over columns
-        text = plt.text(  # Add text annotation
-            j,
-            i,
-            int(state_matrix[i, j]),
-            ha="center",
-            va="center",
-            color="black",
-            fontsize=10,
-        )
-plt.tight_layout()  # Adjust layout
-plt.show()  # Display plot
+plt.figure(figsize=(8, 6))
+state_matrix = state_visit.reshape(5, 5)
+im = plt.imshow(state_matrix, cmap="YlOrRd", aspect="auto")
+plt.colorbar(im, label="Frekuensi Kunjungan")
+plt.xlabel("EC Index")
+plt.ylabel("pH Index")
+plt.title("Heatmap Kunjungan State")
+for i in range(5):
+    for j in range(5):
+        plt.text(j, i, int(state_matrix[i, j]), ha="center", va="center", color="black")
+plt.tight_layout()
+plt.savefig(f"{OUT_DIR}/5_state_heatmap.png")  # SAVE
+plt.show()
 
 # 6. Action Distribution
 plt.figure(figsize=(10, 6))  # Create figure
@@ -135,6 +138,7 @@ plt.title("Distribusi Aksi Agen")  # Set title
 plt.xticks(range(9), action_names, rotation=45, ha="right")  # Set x ticks
 plt.grid(alpha=0.3, axis="y")  # Add grid
 plt.tight_layout()  # Adjust layout
+plt.savefig(f"{OUT_DIR}/6_action_dist.png")  # SAVE PNG
 plt.show()  # Display plot
 
 print("\n📊 STATISTIK TRAINING:")  # Print statistics header

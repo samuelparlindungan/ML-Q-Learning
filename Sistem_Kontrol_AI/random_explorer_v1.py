@@ -16,7 +16,6 @@ TOPIC_ACTION = "hidroponik/action"
 TOPIC_STATUS = "hidroponik/status"
 
 CSV_FILENAME = "../dataset_acak_qlearning.csv"
-MAX_CYCLES = 50  # Batas aman stok cairan (500ml)
 WAKTU_MIXING = 180  # 3 Menit jeda pelarutan
 WAKTU_SAMP = 60  # 1 Menit pengambilan data per state (sesuai Skripsi)
 
@@ -80,7 +79,8 @@ def ambil_rata_rata(durasi_detik):
     return avg_ph, avg_ec
 
 
-def inisialisasi_csv():
+def inisialisasi_csv(session_name):
+    """Mengecek file CSV dan mengembalikan nomor siklus terakhir dalam sesi tertentu."""
     if not os.path.exists(CSV_FILENAME):
         df = pd.DataFrame(
             columns=[
@@ -97,15 +97,26 @@ def inisialisasi_csv():
             ]
         )
         df.to_csv(CSV_FILENAME, index=False)
-        print(f"File {CSV_FILENAME} berhasil dibuat.")
+        print(f"File {CSV_FILENAME} baru berhasil dibuat.")
+        return 0
+    else:
+        try:
+            df = pd.read_csv(CSV_FILENAME)
+            if df.empty:
+                return 0
+            # Filter berdasarkan Nama Sesi
+            session_data = df[df["Sesi_Eksperimen"] == session_name]
+            if session_data.empty:
+                return 0
+            return int(session_data["Cycle"].max())
+        except:
+            return 0
 
 
 # ==========================================
 # 5. PROGRAM UTAMA (RANDOM EXPLORER)
 # ==========================================
 if __name__ == "__main__":
-    inisialisasi_csv()
-
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
@@ -116,15 +127,25 @@ if __name__ == "__main__":
 
         print("\n" + "=" * 50)
         print("     ROBOT EKSPLORASI ACAK (DATA COLLECTOR)     ")
-        print("          Target: 50 Siklus Eksperimen          ")
+        print("          Target: 50 Siklus per Sesi            ")
         print("=" * 50)
 
-        sesi_eksperimen = input("Masukkan Nama Sesi (Misal: Eksplorasi_Acak_1): ")
+        sesi_eksperimen = input("Masukkan Nama Sesi (Misal: Eksplorasi_Sesi_2): ")
         if not sesi_eksperimen:
             sesi_eksperimen = "Default_Session"
 
-        for cycle in range(1, MAX_CYCLES + 1):
-            print(f"\n>>> SIKLUS {cycle}/{MAX_CYCLES} DIMULAI <<<")
+        CYCLES_TO_RUN = 50  # Target siklus per sesi
+        last_cycle_in_session = inisialisasi_csv(sesi_eksperimen)
+        start_cycle = last_cycle_in_session + 1
+
+        if last_cycle_in_session > 0:
+            print(f"   [RESUME] Menemukan data Sesi '{sesi_eksperimen}'.")
+            print(f"   Melanjutkan dari Siklus {start_cycle}...\n")
+        else:
+            print(f"   [NEW SESSION] Memulai Sesi '{sesi_eksperimen}' dari Siklus 1.\n")
+
+        for cycle in range(start_cycle, CYCLES_TO_RUN + 1):
+            print(f"\n>>> PROGRESS SESI: {cycle}/{CYCLES_TO_RUN} <<<")
 
             # --- LANGKAH 1: BACA STATE AWAL (St) ---
             ph_st, ec_st = ambil_rata_rata(WAKTU_SAMP)
@@ -133,27 +154,36 @@ if __name__ == "__main__":
                 break
             print(f"   [State St] pH: {ph_st} | EC: {ec_st}")
 
-            # --- LANGKAH 2: PILIH AKSI ACAK (1-8) ---
-            # Aksi 0 (Idle) ditiadakan agar eksplorasi lebih maksimal
+            # --- LANGKAH 2: PILIH AKSI ACAK (1-8) & KIRIM DENGAN RETRY ---
             aksi = random.randint(1, 8)
-            print(f"   [Action] Memilih Aksi ACAK: {aksi}")
 
-            pompa_selesai = False
-            client.publish(TOPIC_ACTION, str(aksi))
+            # LOGIKA RETRY (Maksimal 3 Kali)
+            success_sent = False
+            for attempt in range(1, 4):
+                print(f"   [Action] Percobaan {attempt}/3: Mengirim Aksi {aksi}...")
+                pompa_selesai = False
+                client.publish(TOPIC_ACTION, str(aksi))
 
-            # Tunggu sinyal DONE dari Aktuator
-            start_wait = time.time()
-            timeout_terjadi = False
-            while not pompa_selesai:
-                if time.time() - start_wait > 60:  # Naikkan ke 60 detik
-                    print("   [TIMEOUT] Aktuator tidak merespon balasan 'DONE'!")
-                    timeout_terjadi = True
+                # Tunggu sinyal DONE dari Aktuator
+                start_wait = time.time()
+                while not pompa_selesai:
+                    if time.time() - start_wait > 60:
+                        print(
+                            f"   [TIMEOUT] Aktuator tidak merespon (Percobaan {attempt})"
+                        )
+                        break
+                    time.sleep(0.5)
+
+                if pompa_selesai:
+                    success_sent = True
                     break
-                time.sleep(0.5)
 
-            if timeout_terjadi:
+                if attempt < 3:
+                    print("   [RETRY] Mengirim ulang perintah...")
+
+            if not success_sent:
                 print(
-                    "   [SKIP] Siklus ini dilewati karena gangguan aktuator. Mengulang siklus berikutnya..."
+                    f"   [SKIP] Siklus {cycle} dibatalkan setelah 3x percobaan gagal."
                 )
                 print("-" * 30)
                 continue

@@ -4,12 +4,23 @@ import os
 
 
 def main():
-    # Lokasi file Q-Table hasil training
-    VERSION = "v1_teori"  # Ganti ke "v2_dataset" untuk hasil terbaru
+    # Lokasi file Q-Table hasil training (Otomatis)
+    from env_ph_ec import PhEcEnv
+
+    env = PhEcEnv()
+    VERSION = f"{env.ACTIVE_VERSION}_dataset_asli"
     path = f"../output/{VERSION}/Q_table.npy"
     output_excel = f"../output/{VERSION}/Laporan_Q_Table_Lengkap.xlsx"
 
-    # 1. Cek apakah file Q-table ada
+    if not os.path.exists(path):
+        # Fallback untuk folder lama tanpa suffix _asli
+        VERSION_OLD = f"{env.ACTIVE_VERSION}_dataset"
+        path_old = f"../output/{VERSION_OLD}/Q_table.npy"
+        if os.path.exists(path_old):
+            VERSION = VERSION_OLD
+            path = path_old
+            output_excel = f"../output/{VERSION}/Laporan_Q_Table_Lengkap.xlsx"
+
     if not os.path.exists(path):
         print(f"❌ File {path} tidak ditemukan!")
         print("Jalankan 'main_training.py' terlebih dahulu.")

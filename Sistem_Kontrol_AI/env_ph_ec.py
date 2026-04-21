@@ -97,33 +97,72 @@ class PhEcEnv(
         )
         return state, {}  # Return initial state and empty info dict
 
+    # ======================================================================
+    # --- KONFIGURASI VERSI (PILIH v1, v2, atau v3) ---
+    # ======================================================================
+    ACTIVE_VERSION = "v3"  # <--- GANTI DI SINI (Ubah ke "v2" atau "v1" jika perlu)
+    # ======================================================================
+
     def step(self, action):  # Execute one step in the environment
         delta_ph, delta_ec = 0.0, 0.0  # Initialize changes in pH and EC
 
-        if action == 1:  # pH Up Short
-            # delta_ph, delta_ec = 0.5, 0.0    # v1 (Teori)
-            delta_ph, delta_ec = 0.15, 25.6  # v2 (Dataset Aktual - 19-04-2026)
-        elif action == 2:  # pH Up Long
-            # delta_ph, delta_ec = 1.0, 0.0    # v1 (Teori)
-            delta_ph, delta_ec = 0.28, 28.1  # v2 (Dataset Aktual - 19-04-2026)
-        elif action == 3:  # pH Down Short
-            # delta_ph, delta_ec = -0.5, 0.0   # v1 (Teori)
-            delta_ph, delta_ec = -0.10, 32.9  # v2 (Dataset Aktual - 19-04-2026)
-        elif action == 4:  # pH Down Long
-            # delta_ph, delta_ec = -1.0, 0.0   # v1 (Teori)
-            delta_ph, delta_ec = -0.41, 10.0  # v2 (Dataset Aktual - 19-04-2026)
-        elif action == 5:  # Nutrisi Short
-            # delta_ph, delta_ec = 0.0, 0.5    # v1 (Teori)
-            delta_ph, delta_ec = -0.03, 78.8  # v2 (Dataset Aktual - 19-04-2026)
-        elif action == 6:  # Nutrisi Long
-            # delta_ph, delta_ec = 0.0, 1.0    # v1 (Teori)
-            delta_ph, delta_ec = -0.15, 132.0  # v2 (Dataset Aktual - 19-04-2026)
-        elif action == 7:  # Air Baku Short
-            # delta_ph, delta_ec = 0.0, -0.5   # v1 (Teori)
-            delta_ph, delta_ec = -0.02, 17.2  # v2 (Dataset Aktual - 19-04-2026)
-        elif action == 8:  # Air Baku Long
-            # delta_ph, delta_ec = 0.0, -1.0   # v1 (Teori)
-            delta_ph, delta_ec = -0.00, 13.4  # v2 (Dataset Aktual - 19-04-2026)
+        if self.ACTIVE_VERSION == "v1":
+            # [v1: TEORI] - Desain Awal
+            if action == 1:
+                delta_ph, delta_ec = 0.50, 0.0
+            elif action == 2:
+                delta_ph, delta_ec = 1.00, 0.0
+            elif action == 3:
+                delta_ph, delta_ec = -0.50, 0.0
+            elif action == 4:
+                delta_ph, delta_ec = -1.00, 0.0
+            elif action == 5:
+                delta_ph, delta_ec = 0.00, 0.50
+            elif action == 6:
+                delta_ph, delta_ec = 0.00, 1.00
+            elif action == 7:
+                delta_ph, delta_ec = 0.00, -0.50
+            elif action == 8:
+                delta_ph, delta_ec = 0.00, -1.00
+
+        elif self.ACTIVE_VERSION == "v2":
+            # [v2: DATASET SESI 1 (16-04-2026)] - Kalibrasi Tahap 1
+            if action == 1:
+                delta_ph, delta_ec = 0.15, 25.6
+            elif action == 2:
+                delta_ph, delta_ec = 0.28, 28.1
+            elif action == 3:
+                delta_ph, delta_ec = -0.10, 32.9
+            elif action == 4:
+                delta_ph, delta_ec = -0.41, 10.0
+            elif action == 5:
+                delta_ph, delta_ec = -0.03, 78.8
+            elif action == 6:
+                delta_ph, delta_ec = -0.15, 132.0
+            elif action == 7:
+                delta_ph, delta_ec = -0.02, 17.2
+            elif action == 8:
+                delta_ph, delta_ec = -0.00, 13.4
+
+        elif self.ACTIVE_VERSION == "v3":
+            # [v3: DATASET SESI 2 (21-04-2026)] - Kalibrasi Tahap 2 (FINAL)
+            if action == 1:
+                delta_ph, delta_ec = 0.20, 0.0
+            elif action == 2:
+                delta_ph, delta_ec = 0.45, 10.0
+            elif action == 3:
+                delta_ph, delta_ec = -0.25, 30.0
+            elif action == 4:
+                delta_ph, delta_ec = -0.16, 40.0
+            elif action == 5:
+                delta_ph, delta_ec = -0.02, 75.0
+            elif action == 6:
+                delta_ph, delta_ec = -0.18, 276.0
+            elif action == 7:
+                delta_ph, delta_ec = -0.02, -290.0
+            elif action == 8:
+                delta_ph, delta_ec = -0.00, -400.0
+        # ======================================================================
 
         """
         # --- LOGIKA LAMA (SIMULASI TEORI) - DIKOMENTARI ---

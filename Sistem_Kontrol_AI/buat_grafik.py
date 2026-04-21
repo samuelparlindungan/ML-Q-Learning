@@ -4,9 +4,20 @@ import os
 
 
 def main():
-    # 1. Setup Folder & Versi
-    VERSION = "v1_teori"  # Ganti ke "v2_dataset" untuk hasil terbaru
+    # 1. Setup Folder & Versi (Otomatis)
+    from env_ph_ec import PhEcEnv
+
+    env = PhEcEnv()
+    VERSION = f"{env.ACTIVE_VERSION}_dataset_asli"
     output_dir = f"../output/{VERSION}"
+
+    if not os.path.exists(output_dir):
+        # Fallback untuk folder lama tanpa suffix _asli
+        VERSION_OLD = f"{env.ACTIVE_VERSION}_dataset"
+        output_dir_old = f"../output/{VERSION_OLD}"
+        if os.path.exists(output_dir_old):
+            VERSION = VERSION_OLD
+            output_dir = output_dir_old
 
     if not os.path.exists(output_dir):
         print(f"Error: Folder '{output_dir}' tidak ditemukan.")

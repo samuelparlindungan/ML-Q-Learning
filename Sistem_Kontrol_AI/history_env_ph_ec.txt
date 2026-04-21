@@ -1,0 +1,64 @@
+======================================================================
+HISTORY EVOLUSI PARAMETER LINGKUNGAN (env_ph_ec.py)
+Project: AI Q-Learning Hydroponic Control
+======================================================================
+
+Dokumen ini mencatat perubahan nilai Delta (perubahan nilai sensor)
+per aksi yang digunakan dalam simulator AI.
+
+----------------------------------------------------------------------
+1. v1: TEORI (Desain Awal)
+----------------------------------------------------------------------
+Deskripsi: Berdasarkan estimasi ideal tanpa data tandon asli.
+Aksi diasumsikan independen (satu parameter berubah, yang lain 0).
+
+Action | Deskripsi      | Delta pH | Delta EC
+-------|----------------|----------|----------
+A1     | pH Up Short    | +0.50    | 0
+A2     | pH Up Long     | +1.00    | 0
+A3     | pH Down Short  | -0.50    | 0
+A4     | pH Down Long   | -1.00    | 0
+A5     | Nutrisi Short  | 0        | +0.50
+A6     | Nutrisi Long   | 0        | +1.00
+A7     | Air Baku Short | 0        | -0.50
+A8     | Air Baku Long  | 0        | -1.00
+
+----------------------------------------------------------------------
+2. v2: DATASET SESI 1 (16 s/d 19 April 2026)
+----------------------------------------------------------------------
+Deskripsi: Data pertama dari tandon 15L.
+Akurasi EC rendah karena belum dikalibrasi dua titik dan filter digital
+masih dalam tahap pengujian awal.
+
+Action | Deskripsi      | Delta pH | Delta EC
+-------|----------------|----------|----------
+A1     | pH Up Short    | +0.15    | +25.6
+A2     | pH Up Long     | +0.28    | +28.1
+A3     | pH Down Short  | -0.10    | +32.9
+A4     | pH Down Long   | -0.41    | +10.0
+A5     | Nutrisi Short  | -0.03    | +78.8
+A6     | Nutrisi Long   | -0.15    | +132.0
+A7     | Air Baku Short | -0.02    | +17.2
+A8     | Air Baku Long  | -0.00    | +13.4
+
+----------------------------------------------------------------------
+3. v3: DATASET SESI 2 - FINAL (21 April 2026)
+----------------------------------------------------------------------
+Deskripsi: Data Faktual Pasca-Kalibrasi (K-Low 1.24, K-High 0.95).
+Tandon terdeteksi JAUH LEBIH RESPONSIF (2x lipat).
+Digunakan sebagai basis training AI Utama.
+
+Action | Deskripsi      | Delta pH | Delta EC
+-------|----------------|----------|----------
+A1     | pH Up Short    | +0.20    | 0
+A2     | pH Up Long     | +0.45    | +10.0
+A3     | pH Down Short  | -0.25    | +30.0
+A4     | pH Down Long   | -0.16    | +40.0
+A5     | Nutrisi Short  | -0.02    | +75.0
+A6     | Nutrisi Long   | -0.18    | +276.0
+A7     | Air Baku Short | -0.02    | -290.0
+A8     | Air Baku Long  | -0.00    | -400.0
+
+======================================================================
+STATUS: Aktif menggunakan v3 untuk Training v2_dataset_asli.
+======================================================================
