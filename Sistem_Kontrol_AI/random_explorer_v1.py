@@ -25,32 +25,35 @@ WAKTU_SAMP = 60  # 1 Menit pengambilan data per state (sesuai Skripsi)
 buffer_ph = []
 buffer_ec = []
 pompa_selesai = False
+current_tx_id = ""  # ID unik untuk mencegah double-dosing
 
 
 # ==========================================
 # 3. CALLBACK MQTT
 # ==========================================
 def on_connect(client, userdata, flags, rc):
-    print(f"Terhubung ke Broker dengan kode: {rc}")
+    print(f"✅ Terhubung ke Broker MQTT (RC: {rc})")
     client.subscribe(TOPIC_SENSOR)
     client.subscribe(TOPIC_STATUS)
 
 
 def on_message(client, userdata, msg):
     global pompa_selesai, buffer_ph, buffer_ec
-
     payload = msg.payload.decode("utf-8")
 
     if msg.topic == TOPIC_STATUS:
-        if payload == "DONE":
+        # Verifikasi apakah DONE ini milik perintah yang baru saja dikirim
+        if payload == f"DONE:{current_tx_id}":
             pompa_selesai = True
+            print(f"   [MQTT] Konfirmasi Diterima: {payload}")
+        elif payload.startswith("DONE:"):
+            print(f"   [MQTT] Abaikan konfirmasi lama: {payload}")
 
     elif msg.topic == TOPIC_SENSOR:
         try:
             data = json.loads(payload)
-            # Menangani variasi penamaan key json dari ESP32
-            ph = float(data.get("pH", data.get("ph", 0.0)))
-            ec = float(data.get("EC", data.get("ec", 0.0)))
+            ph = float(data.get("ph", data.get("pH", 0.0)))
+            ec = float(data.get("ec", data.get("EC", 0.0)))
             buffer_ph.append(ph)
             buffer_ec.append(ec)
         except:
@@ -67,7 +70,7 @@ def ambil_rata_rata(durasi_detik):
 
     print(f"   [Sampling] Mengambil data selama {durasi_detik} detik...")
     for i in range(durasi_detik, 0, -1):
-        if i % 10 == 0:
+        if i % 15 == 0:
             print(f"   Sisa waktu sampling: {i}s")
         time.sleep(1)
 
@@ -80,7 +83,6 @@ def ambil_rata_rata(durasi_detik):
 
 
 def inisialisasi_csv(session_name):
-    """Mengecek file CSV dan mengembalikan nomor siklus terakhir dalam sesi tertentu."""
     if not os.path.exists(CSV_FILENAME):
         df = pd.DataFrame(
             columns=[
@@ -97,20 +99,17 @@ def inisialisasi_csv(session_name):
             ]
         )
         df.to_csv(CSV_FILENAME, index=False)
-        print(f"File {CSV_FILENAME} baru berhasil dibuat.")
         return 0
-    else:
-        try:
-            df = pd.read_csv(CSV_FILENAME)
-            if df.empty:
-                return 0
-            # Filter berdasarkan Nama Sesi
-            session_data = df[df["Sesi_Eksperimen"] == session_name]
-            if session_data.empty:
-                return 0
-            return int(session_data["Cycle"].max())
-        except:
+    try:
+        df = pd.read_csv(CSV_FILENAME)
+        if df.empty:
             return 0
+        session_data = df[df["Sesi_Eksperimen"] == session_name]
+        if session_data.empty:
+            return 0
+        return int(session_data["Cycle"].max())
+    except:
+        return 0
 
 
 # ==========================================
@@ -118,59 +117,49 @@ def inisialisasi_csv(session_name):
 # ==========================================
 if __name__ == "__main__":
     client = mqtt.Client()
-    client.on_connect = on_connect
-    client.on_message = on_message
+    client.on_connect, client.on_message = on_connect, on_message
 
     try:
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_start()
 
-        print("\n" + "=" * 50)
-        print("     ROBOT EKSPLORASI ACAK (DATA COLLECTOR)     ")
-        print("          Target: 50 Siklus per Sesi            ")
-        print("=" * 50)
+        print("\n" + "=" * 55)
+        print("🤖   ROBOT EKSPLORASI ACAK (RELIABLE VERSION)   🤖")
+        print("=" * 55)
 
-        sesi_eksperimen = input("Masukkan Nama Sesi (Misal: Eksplorasi_Sesi_2): ")
-        if not sesi_eksperimen:
-            sesi_eksperimen = "Default_Session"
+        sesi_name = input("Masukkan Nama Sesi (Misal: Eksplorasi_Sesi_2): ")
+        if not sesi_name:
+            sesi_name = "Default_Session"
 
-        CYCLES_TO_RUN = 50  # Target siklus per sesi
-        last_cycle_in_session = inisialisasi_csv(sesi_eksperimen)
-        start_cycle = last_cycle_in_session + 1
-
-        if last_cycle_in_session > 0:
-            print(f"   [RESUME] Menemukan data Sesi '{sesi_eksperimen}'.")
-            print(f"   Melanjutkan dari Siklus {start_cycle}...\n")
-        else:
-            print(f"   [NEW SESSION] Memulai Sesi '{sesi_eksperimen}' dari Siklus 1.\n")
+        CYCLES_TO_RUN = 50
+        last_cycle = inisialisasi_csv(sesi_name)
+        start_cycle = last_cycle + 1
 
         for cycle in range(start_cycle, CYCLES_TO_RUN + 1):
-            print(f"\n>>> PROGRESS SESI: {cycle}/{CYCLES_TO_RUN} <<<")
+            print(f"\n🚀 >>> SIKLUS: {cycle}/{CYCLES_TO_RUN} <<<")
 
-            # --- LANGKAH 1: BACA STATE AWAL (St) ---
+            # --- LANGKAH 1: STATE AWAL ---
             ph_st, ec_st = ambil_rata_rata(WAKTU_SAMP)
             if ph_st is None:
-                print("[ERROR] Data sensor tidak masuk. Cek ESP32!")
+                print("❌ [ERROR] Sensor Offline! Berhenti.")
                 break
             print(f"   [State St] pH: {ph_st} | EC: {ec_st}")
 
-            # --- LANGKAH 2: PILIH AKSI ACAK (1-8) & KIRIM DENGAN RETRY ---
+            # --- LANGKAH 2: AKSI ACAK DENGAN TXID ---
             aksi = random.randint(1, 8)
+            current_tx_id = str(int(time.time()))[-6:]  # Unique ID
+            payload = f"{aksi}:{current_tx_id}"
 
-            # LOGIKA RETRY (Maksimal 3 Kali)
             success_sent = False
-            for attempt in range(1, 4):
-                print(f"   [Action] Percobaan {attempt}/3: Mengirim Aksi {aksi}...")
+            for attempt in range(1, 5):  # Maks 4 kali percobaan
+                print(f"   [Action] Percobaan {attempt}/4: Kirim {payload}")
                 pompa_selesai = False
-                client.publish(TOPIC_ACTION, str(aksi))
+                client.publish(TOPIC_ACTION, payload)
 
-                # Tunggu sinyal DONE dari Aktuator
                 start_wait = time.time()
                 while not pompa_selesai:
-                    if time.time() - start_wait > 60:
-                        print(
-                            f"   [TIMEOUT] Aktuator tidak merespon (Percobaan {attempt})"
-                        )
+                    if time.time() - start_wait > 20:  # Timeout 20 detik
+                        print(f"   ⚠️ [TIMEOUT] Percobaan {attempt} gagal.")
                         break
                     time.sleep(0.5)
 
@@ -178,57 +167,44 @@ if __name__ == "__main__":
                     success_sent = True
                     break
 
-                if attempt < 3:
-                    print("   [RETRY] Mengirim ulang perintah...")
-
             if not success_sent:
                 print(
-                    f"   [SKIP] Siklus {cycle} dibatalkan setelah 3x percobaan gagal."
+                    "❌ [FAILED] Gagal mendapatkan konfirmasi hardware. Lewati siklus."
                 )
-                print("-" * 30)
                 continue
 
-            # --- LANGKAH 3: JEDA PELARUTAN (HOMOGENISASI) ---
-            print(f"   [Mixing] Menunggu pelarutan selama {WAKTU_MIXING} detik...")
+            # --- LANGKAH 3: HOMOGENISASI ---
+            print(f"   [Mixing] Homogenisasi {WAKTU_MIXING} detik...")
             time.sleep(WAKTU_MIXING)
 
-            # --- LANGKAH 4: BACA STATE AKHIR (St+1) ---
+            # --- LANGKAH 4: STATE AKHIR ---
             ph_st1, ec_st1 = ambil_rata_rata(WAKTU_SAMP)
             if ph_st1 is None:
-                print("[ERROR] Data sensor St+1 hilang! Lewati.")
                 continue
             print(f"   [State St1] pH: {ph_st1} | EC: {ec_st1}")
 
-            # --- LANGKAH 5: HITUNG DELTA & SIMPAN ---
-            delta_ph = round(ph_st1 - ph_st, 2)
-            delta_ec = round(ec_st1 - ec_st, 2)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-            row = {
-                "Sesi_Eksperimen": sesi_eksperimen,
-                "Cycle": cycle,
-                "pH_St": ph_st,
-                "EC_St": ec_st,
-                "Action": aksi,
-                "pH_St1": ph_st1,
-                "EC_St1": ec_st1,
-                "Delta_pH": delta_ph,
-                "Delta_EC": delta_ec,
-                "Timestamp": timestamp,
-            }
+            # --- LANGKAH 5: SIMPAN ---
+            delta_ph, delta_ec = round(ph_st1 - ph_st, 2), round(ec_st1 - ec_st, 2)
+            row = [
+                sesi_name,
+                cycle,
+                ph_st,
+                ec_st,
+                aksi,
+                ph_st1,
+                ec_st1,
+                delta_ph,
+                delta_ec,
+                datetime.now(),
+            ]
 
             pd.DataFrame([row]).to_csv(
                 CSV_FILENAME, mode="a", header=False, index=False
             )
-            print(f"   [SUCCESS] Baris {cycle} tersimpan ke CSV.")
-            print("-" * 30)
-
-        print("\nTarget 50 siklus tercapai. Program selesai dengan aman.")
+            print(f"✅ [SUCCESS] Data Siklus {cycle} tersimpan.")
 
     except KeyboardInterrupt:
-        print("\n\nProgram dihentikan paksa oleh pengguna.")
-    except Exception as e:
-        print(f"\nTerjadi kesalahan fatal: {e}")
+        print("\n🛑 Dihentikan manual.")
     finally:
         client.loop_stop()
         client.disconnect()

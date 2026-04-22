@@ -24,7 +24,7 @@ A7     | Air Baku Short | 0        | -0.50
 A8     | Air Baku Long  | 0        | -1.00
 
 ----------------------------------------------------------------------
-2. v2: DATASET SESI 1 (16 s/d 19 April 2026)
+2. v2: DATASET SESI 1 (16 April 2026)
 ----------------------------------------------------------------------
 Deskripsi: Data pertama dari tandon 15L.
 Akurasi EC rendah karena belum dikalibrasi dua titik dan filter digital
@@ -42,7 +42,7 @@ A7     | Air Baku Short | -0.02    | +17.2
 A8     | Air Baku Long  | -0.00    | +13.4
 
 ----------------------------------------------------------------------
-3. v3: DATASET SESI 2 - FINAL (21 April 2026)
+3. v3: DATASET SESI 2 - FINAL (20-21 April 2026)
 ----------------------------------------------------------------------
 Deskripsi: Data Faktual Pasca-Kalibrasi (K-Low 1.24, K-High 0.95).
 Tandon terdeteksi JAUH LEBIH RESPONSIF (2x lipat).

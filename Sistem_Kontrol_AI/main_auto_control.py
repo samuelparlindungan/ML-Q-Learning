@@ -11,14 +11,28 @@ TOPICS = {
     "action": "hidroponik/action",
     "status": "hidroponik/status",
 }
-VERSION_LOAD = "v2_dataset"  # Pilih versi: "v1_teori" atau "v2_dataset"
+# ==========================================
+# 0. KONFIGURASI SISTEM
+# ==========================================
+MQTT_BROKER, MQTT_PORT = "192.168.100.10", 1883
+TOPICS = {
+    "sensor": "hidroponik/sensor",
+    "action": "hidroponik/action",
+    "status": "hidroponik/status",
+}
+# GUNAKAN v3 UNTUK DATA PALING AKURAT (SESI 2)
+VERSION_LOAD = "v3_dataset_asli"
 CSV_AUTO = "../output/data_transisi_otomatis.csv"
 POLICY_FILE = f"../output/{VERSION_LOAD}/policy.json"
 WAKTU_HOMO = 180  # 3 Menit
 
 # State Tracking
-status, waktu_homo_end = "STANDBY", 0
-policy_ai, tracking = {}, {
+status = "STANDBY"
+waktu_homo_end = 0
+waktu_resend_next = 0  # Untuk Retry Logic
+current_tx_id = ""  # ID unik untuk siklus ini
+policy_ai = {}
+tracking = {
     "wait_st1": False,
     "st_ph": 0.0,
     "st_ec": 0.0,
@@ -26,7 +40,7 @@ policy_ai, tracking = {}, {
     "q": 0.0,
 }
 
-# Mapping Aksi (Tabel 3.4 B600)
+# Mapping Aksi
 ACTIONS = {
     0: "IDLE",
     1: "pH Up S",
@@ -41,7 +55,7 @@ ACTIONS = {
 
 
 # ==========================================
-# 1. FUNGSI PEMBANTU (UTILITIES)
+# 1. FUNGSI PEMBANTU
 # ==========================================
 def get_ph_idx(v):
     return 0 if v < 5.5 else 1 if v < 5.8 else 2 if v <= 6.2 else 3 if v <= 6.5 else 4
@@ -57,7 +71,7 @@ def log_transition(ph_now, ec_now):
     if not tracking["wait_st1"]:
         return
     data = {
-        "Sesi": "AUTO_DEPLOY",
+        "Sesi": f"AUTO_{VERSION_LOAD}",
         "Aksi": tracking["act"],
         "pH_St": tracking["st_ph"],
         "EC_St": tracking["st_ec"],
@@ -66,27 +80,36 @@ def log_transition(ph_now, ec_now):
         "Delta_pH": round(ph_now - tracking["st_ph"], 2),
         "Delta_EC": round(ec_now - tracking["st_ec"], 2),
         "Max_Q": tracking["q"],
-        "Time": datetime.now().strftime("%H:%M:%S"),
+        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
     df = pd.DataFrame([data])
     df.to_csv(CSV_AUTO, mode="a", header=not os.path.exists(CSV_AUTO), index=False)
     print(
-        f"[LOG] Transisi Tercatat: {ACTIONS[tracking['act']]} -> pH:{ph_now} EC:{ec_now}"
+        f"📝 [LOG] DATA DISIMPAN: {ACTIONS[tracking['act']]} | D_pH:{data['Delta_pH']} | D_EC:{data['Delta_EC']}"
     )
     tracking["wait_st1"] = False
 
 
 def push_action(action_id):
-    client.publish(TOPICS["action"], str(action_id))
-    print(f"[ACTION] Eksekusi: {ACTIONS.get(action_id, 'UNK')} (ID:{action_id})")
+    global waktu_resend_next, current_tx_id
+
+    # Jika ini perintah baru (bukan retry), buat TXID baru
+    if time.time() > waktu_resend_next:
+        current_tx_id = str(int(time.time()))[-6:]  # 6 digit terakhir timestamp
+
+    payload = f"{action_id}:{current_tx_id}"
+    client.publish(TOPICS["action"], payload)
+
+    waktu_resend_next = time.time() + 15  # Set timeout 15 detik untuk retry
+    print(f"🚀 [ACTION] Perintah Terkirim: {ACTIONS.get(action_id)} (ID:{payload})")
     return True
 
 
 # ==========================================
-# 2. HANDLER MQTT (CORE LOGIC)
+# 2. HANDLER MQTT
 # ==========================================
 def on_connect(client, userdata, flags, reason_code, properties):
-    print("[MQTT] Terhubung! Menunggu data sensor...")
+    print(f"✅ [MQTT] Terhubung ke Broker! Model Aktif: {VERSION_LOAD}")
     for t in TOPICS.values():
         client.subscribe(t)
 
@@ -95,41 +118,54 @@ def on_message(client, userdata, msg):
     global status, waktu_homo_end
     payload = msg.payload.decode("utf-8")
 
-    # A. Feedback Selesai dari ESP32
-    if msg.topic == TOPICS["status"] and payload == "DONE" and status == "DOSING":
-        print("[INFO] Dosing selesai. Mulai Homogenisasi 3 Menit...")
-        status, waktu_homo_end = "HOMO", time.time() + WAKTU_HOMO
+    # A. Feedback Selesai dari ESP32 (Harus Cocok ID-nya)
+    if msg.topic == TOPICS["status"] and status == "DOSING":
+        if payload == f"DONE:{current_tx_id}":
+            print(f"📥 [STATUS] ESP32 mengonfirmasi: {payload} SELESAI.")
+            print(f"⏳ [HOMO] Memulai Masa Homogenisasi {WAKTU_HOMO} detik...")
+            status, waktu_homo_end = "HOMO", time.time() + WAKTU_HOMO
+        elif payload.startswith("DONE:"):
+            print(f"⚠️ [IGNORE] Menerima konfirmasi ID lama: {payload}")
 
-    # B. Input Sensor & Keputusan AI
+    # B. Monitoring Sensor & Keputusan AI
     elif msg.topic == TOPICS["sensor"]:
-        if status == "HOMO":
-            if time.time() >= waktu_homo_end:
-                print("[OK] Homogenisasi selesai. Sistem kembali STANDBY.")
-                status = "STANDBY"
-            return
+        try:
+            data = json.loads(payload)
+            ph, ec = float(data.get("ph", 0)), float(data.get("ec", 0))
 
-        if status == "STANDBY":
-            try:
-                data = json.loads(payload)
-                ph, ec = float(data.get("ph", 0)), float(data.get("ec", 0))
+            if status == "HOMO":
+                sisa = int(waktu_homo_end - time.time())
+                if sisa <= 0:
+                    print("✨ [OK] Homogenisasi Selesai. Sistem kembali STANDBY.")
+                    status = "STANDBY"
+                else:
+                    if sisa % 30 == 0:  # Print status tiap 30 detik
+                        print(f"🥣 [MIXING] Menunggu larutan merata... Sisa: {sisa}s")
+                return
 
-                # --- SAFETY INTERLOCK ---
-                if ph < 0 or ph > 14 or ec < 0 or ec > 5000:
-                    print(f"[BAHAYA] Anomali: pH:{ph} EC:{ec}. Aksi DIBLOKIR!")
+            if status == "STANDBY":
+                # Safety Filter
+                if ph < 3 or ph > 9 or ec < 100 or ec > 3000:
                     return
 
-                # Log St+1 jika ini observasi pertama setelah aksi sebelumnya
+                # Record transisi dari siklus sebelumnya jika ada
                 log_transition(ph, ec)
 
-                # Ambil Keputusan AI
+                # AMBIL KEPUTUSAN AI
                 s_idx = get_ph_idx(ph) * 5 + get_ec_idx(ec)
                 state_key = f"state_{s_idx + 1}"
 
                 if state_key in policy_ai:
                     best_act = policy_ai[state_key]["best_action"]
-                    print(f"[DATA] pH:{ph:.2f} EC:{ec:.2f} | Local State: {state_key}")
 
-                    # Update tracking untuk log masa depan
+                    if best_act == 0:  # IDLE (Sudah di zona aman)
+                        if time.time() % 60 < 2:  # Print sesekali saja
+                            print(
+                                f"🎯 [TARGET] Kondisi Optimal (pH:{ph:.2f}, EC:{ec:.0f}). Menjaga State..."
+                            )
+                        return
+
+                    print(f"\n🧠 [AI] State: {state_key} | pH:{ph:.2f} EC:{ec:.0f}")
                     tracking.update(
                         {
                             "wait_st1": True,
@@ -140,39 +176,51 @@ def on_message(client, userdata, msg):
                         }
                     )
 
+                    # Reset timer resend agar push_action membuat ID baru
+                    global waktu_resend_next
+                    waktu_resend_next = 0
+
                     if push_action(best_act):
                         status = "DOSING"
 
-            except Exception as e:
-                print(f"[ERROR] Logic Error: {e}")
+        except Exception as e:
+            pass
 
 
 # ==========================================
-# 3. MAIN
+# 3. MAIN RUN LOOP
 # ==========================================
 if __name__ == "__main__":
-    print(
-        "\n"
-        + "=" * 45
-        + "\n[SYSTEM] KENDALI HIDROPONIK AI (B600 ON-POINT)\n"
-        + "=" * 45
-    )
+    print("\n" + "=" * 55)
+    print("🤖   SISTEM KONTROL OTOMATIS: HYDRO-AI B600 v4   🤖")
+    print("=" * 55)
 
-    os.makedirs(f"../output/{VERSION_LOAD}", exist_ok=True)
     if not os.path.exists(POLICY_FILE):
-        print("[ERROR] Policy.json tidak ditemukan!")
+        print(f"❌ [ERROR] File {POLICY_FILE} tidak ditemukan!")
         exit()
 
     with open(POLICY_FILE, "r") as f:
         policy_ai = json.load(f)
-    print(f"[OK] {len(policy_ai)} Intelligence patterns loaded.")
+    print(f"📚 [DATA] Memuat {len(policy_ai)} skenario kecerdasan AI.")
 
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
     client.on_connect, client.on_message = on_connect, on_message
 
     try:
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
-        client.loop_forever()
+        client.loop_start()
+
+        while True:
+            # RETRY LOGIC: Jika sedang DOSING tapi tidak ada kabar 'DONE' dari ESP32
+            if status == "DOSING" and time.time() > waktu_resend_next:
+                print(
+                    f"⚠️ [RETRY] ESP32 tidak merespon. Mengirim ulang ID:{current_tx_id}..."
+                )
+                push_action(tracking["act"])
+
+            time.sleep(1)
+
     except KeyboardInterrupt:
-        print("\n[STOP] Offline.")
+        print("\n🛑 [STOP] Sistem dimatikan secara manual.")
+        client.loop_stop()
         client.disconnect()

@@ -37,7 +37,10 @@ const unsigned long t_air_short = 5000;
 const unsigned long t_air_long  = 15000;  
 
 int current_action = -1;
+String current_tx_id = "";
+String last_tx_id = "INIT";
 bool action_pending = false;
+unsigned long lastReconnectAttempt = 0; // Timer non-blocking MQTT
 
 // ==========================================
 // ✅ FUNGSI PUBLISH MONITORING AKTUATOR
@@ -94,21 +97,19 @@ void setup_wifi() {
 }
 
 void reconnect() {
-  while (!mqttClient.connected()) {
+  if (millis() - lastReconnectAttempt > 5000) {
+    lastReconnectAttempt = millis();
     Serial.print("Konek ke MQTT...");
-    // Buat Client ID unik
     String clientId = "ESP32_Aktuator_";
     clientId += String(random(0xffff), HEX);
     
     if (mqttClient.connect(clientId.c_str())) {
       Serial.println("OK!");
-      // Subscribe ke topik aksi
       mqttClient.subscribe(topic_action); 
     } else {
       Serial.print("Gagal, rc=");
       Serial.print(mqttClient.state());
-      Serial.println(" Coba lagi dalam 5 dtk");
-      delay(5000);
+      Serial.println(" Coba lagi nanti.");
     }
   }
 }
@@ -117,16 +118,27 @@ void reconnect() {
 // FUNGSI CALLBACK (Menangkap Perintah Python)
 // ==========================================
 void callback(char* topic, byte* payload, unsigned int length) {
-  String messageTemp;
-  for (int i = 0; i < length; i++) {
-    messageTemp += (char)payload[i];
-  }
+  String msg = "";
+  for (int i = 0; i < length; i++) msg += (char)payload[i];
   
-  Serial.print("Perintah Masuk: Aksi ");
-  Serial.println(messageTemp);
+  Serial.print("Pesan Masuk: "); Serial.println(msg);
 
-  current_action = messageTemp.toInt();
-  action_pending = true; 
+  int colonIdx = msg.indexOf(':');
+  if (colonIdx != -1) {
+    int action = msg.substring(0, colonIdx).toInt();
+    String tx_id = msg.substring(colonIdx + 1);
+
+    if (tx_id != last_tx_id) {
+      current_action = action;
+      current_tx_id = tx_id;
+      action_pending = true;
+      Serial.printf("[NEW] Aksi %d | ID:%s\n", action, tx_id.c_str());
+    } else {
+      // Jika ID sama (Retry), langsung lapor DONE tanpa gerak pompa
+      mqttClient.publish(topic_status, ("DONE:" + tx_id).c_str());
+      Serial.printf("[RETRY] Skip Aksi karena ID %s sudah pernah diproses.\n", tx_id.c_str());
+    }
+  }
 }
 
 // ==========================================
@@ -166,7 +178,11 @@ void smartDelay(unsigned long ms, const char* name, int action, float dur_sec, i
   unsigned long lastPing = 0;
   
   while (millis() - start < ms) {
-    mqttClient.loop();
+    if (!mqttClient.connected()) {
+        reconnect(); 
+    } else {
+        mqttClient.loop();
+    }
     
     // Heartbeat: Kirim ulang status setiap 1 detik agar terekam sebagai deret titik di InfluxDB
     if (millis() - lastPing > 1000) {
@@ -263,16 +279,18 @@ void eksekusiPompa(int aksi) {
 void loop() {
   if (!mqttClient.connected()) {
     reconnect();
+  } else {
+    mqttClient.loop();
   }
-  mqttClient.loop();
 
   if (action_pending) {
     // 1. Eksekusi Pompa (Di dalamnya sudah ada Heartbeat tiap 1 detik)
     eksekusiPompa(current_action);
 
-    // 2. Kirim sinyal DONE ke Python
-    mqttClient.publish(topic_status, "DONE");
-    Serial.println("[MQTT] Sinyal DONE dikirim ke RPi.");
+    // 2. Kirim sinyal DONE dengan ID Transaksi
+    last_tx_id = current_tx_id; // Simpan sebagai histori
+    mqttClient.publish(topic_status, ("DONE:" + current_tx_id).c_str());
+    Serial.printf("[MQTT] Sinyal DONE:%s dikirim ke RPi.\n", current_tx_id.c_str());
 
     action_pending = false;
     lastStandbyPing = millis(); // Reset waktu siaga setelah aksi

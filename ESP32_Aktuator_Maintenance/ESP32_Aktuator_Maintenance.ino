@@ -29,6 +29,9 @@ const char* PUMP_NAMES[6] = {"", "pH UP", "pH DOWN", "AIR BAKU", "NUTRISI A", "N
 unsigned long stopTime[6] = {0, 0, 0, 0, 0, 0};
 int lastActionID = -1;
 bool isAwaitingDone = false;
+String last_tx_id = "INIT";
+String current_tx_id = "";
+unsigned long lastReconnectAttempt = 0; // Timer non-blocking MQTT
 
 // Variabel Safety (Update dari MQTT Sensor)
 float level_box = 20.0; // Default aman (Liter)
@@ -126,20 +129,32 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
   // B. EKSEKUSI OTOMATIS (DENGAN SAFETY)
   if (String(topic) == topic_action) {
-    int action = msg.toInt();
-    lastActionID = action;
-    isAwaitingDone = true;
+    int colonIdx = msg.indexOf(':');
+    if (colonIdx != -1) {
+      int action = msg.substring(0, colonIdx).toInt();
+      String tx_id = msg.substring(colonIdx + 1);
 
-    switch(action) {
-      case 0: break;
-      case 1: triggerPump(1, T_PH_S); break;
-      case 2: triggerPump(1, T_PH_L); break;
-      case 3: triggerPump(2, T_PH_S); break;
-      case 4: triggerPump(2, T_PH_L); break;
-      case 5: triggerPump(4, T_NUT_S); triggerPump(5, T_NUT_S); break;
-      case 6: triggerPump(4, T_NUT_L); triggerPump(5, T_NUT_L); break;
-      case 7: triggerPump(3, T_AIR_S); break;
-      case 8: triggerPump(3, T_AIR_L); break;
+      if (tx_id != last_tx_id) {
+        current_tx_id = tx_id;
+        isAwaitingDone = true;
+        Serial.printf("[NEW] Aksi %d | ID:%s\n", action, tx_id.c_str());
+        
+        switch(action) {
+          case 0: break;
+          case 1: triggerPump(1, T_PH_S); break;
+          case 2: triggerPump(1, T_PH_L); break;
+          case 3: triggerPump(2, T_PH_S); break;
+          case 4: triggerPump(2, T_PH_L); break;
+          case 5: triggerPump(4, T_NUT_S); triggerPump(5, T_NUT_S); break;
+          case 6: triggerPump(4, T_NUT_L); triggerPump(5, T_NUT_L); break;
+          case 7: triggerPump(3, T_AIR_S); break;
+          case 8: triggerPump(3, T_AIR_L); break;
+        }
+      } else {
+        // Retry detected
+        mqttClient.publish(topic_status, ("DONE:" + tx_id).c_str());
+        Serial.printf("[RETRY] Skip Aksi karena ID %s sudah pernah diproses.\n", tx_id.c_str());
+      }
     }
   } 
   // C. EKSEKUSI MAINTENANCE (BYPASS SAFETY)
@@ -166,18 +181,20 @@ void setup_wifi() {
 }
 
 void reconnect() {
-  while (!mqttClient.connected()) {
+  // Hanya mencoba koneksi jika sudah lewat 5 detik dari percobaan terakhir
+  if (millis() - lastReconnectAttempt > 5000) {
+    lastReconnectAttempt = millis();
     Serial.print("Attempting MQTT connection...");
     String clientId = "ESP32_Aktuator_Mainten_";
     clientId += String(random(0xffff), HEX);
+    
     if (mqttClient.connect(clientId.c_str())) {
       Serial.println("connected");
       mqttClient.subscribe(topic_action);
       mqttClient.subscribe(topic_mainten);
-      mqttClient.subscribe(topic_sensor); // ✅ Subscribe untuk safety
+      mqttClient.subscribe(topic_sensor);
     } else {
-      Serial.printf("failed, rc=%d try again in 5s\n", mqttClient.state());
-      delay(5000);
+      Serial.printf("failed, rc=%d\n", mqttClient.state());
     }
   }
 }
@@ -194,8 +211,11 @@ void setup() {
 }
 
 void loop() {
-  if (!mqttClient.connected()) reconnect();
-  mqttClient.loop();
+  if (!mqttClient.connected()) {
+    reconnect(); // Sekarang non-blocking
+  } else {
+    mqttClient.loop();
+  }
 
   unsigned long now = millis();
   bool anyPumpRunning = false;
@@ -213,8 +233,9 @@ void loop() {
   }
 
   if (isAwaitingDone && !anyPumpRunning) {
-    mqttClient.publish(topic_status, "DONE");
-    Serial.println("[MQTT] All pumps idle, sending DONE.");
+    last_tx_id = current_tx_id;
+    mqttClient.publish(topic_status, ("DONE:" + current_tx_id).c_str());
+    Serial.printf("[MQTT] Sinyal DONE:%s dikirim ke RPi.\n", current_tx_id.c_str());
     isAwaitingDone = false;
   }
 
