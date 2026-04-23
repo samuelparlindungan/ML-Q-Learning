@@ -5,7 +5,7 @@ import os
 
 def main():
     # 1. Definisi Semua Versi Penelitian
-    ALL_VERSIONS = ["v1_teori", "v2_dataset", "v3_dataset_asli"]
+    ALL_VERSIONS = ["v1_teori", "v2_dataset_asli", "v3_dataset_asli"]
 
     print("=" * 60)
     print("🤖 BATCH REPORT GENERATOR: GRAFIK RISET AI")

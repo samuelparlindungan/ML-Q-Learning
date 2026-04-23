@@ -17,12 +17,14 @@ class QLearningAgent:  # Define the QLearningAgent class for Q-learning algorith
         epsilon_min=0.01,  # Minimum value for epsilon
     ):
         self.Q = np.zeros((n_states, n_actions))  # 25x9 sesuai Tabel 3.5
-        self.alpha = alpha  # Learning rate
+        self.alpha = 0.05  # [AI BOOSTER] Learning rate lebih stabil untuk reward besar
         self.alpha_decay = alpha_decay  # Decay untuk learning rate
         self.alpha_min = alpha_min  # Minimum learning rate
-        self.gamma = gamma  # Discount factor
-        self.epsilon = epsilon  # Exploration rate
-        self.epsilon_decay = epsilon_decay  # Decay rate for epsilon
+        self.gamma = (
+            0.999  # [AI BOOSTER] Visi jangka sangat panjang (untuk 200 langkah)
+        )
+        self.epsilon = epsilon  # Initial exploration rate
+        self.epsilon_decay = 0.9999  # [AI BOOSTER] Eksplorasi awet sampai 50rb episode
         self.epsilon_min = epsilon_min  # Minimum exploration rate
         self.n_actions = n_actions  # Number of actions
 

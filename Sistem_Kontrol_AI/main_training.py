@@ -5,17 +5,18 @@ from env_ph_ec import PhEcEnv  # Import the custom PhEcEnv environment
 from qlearning_agent import QLearningAgent  # Import the QLearningAgent class
 
 # ==========================================
-# 0. KONFIGURASI VERSI (Otomatis dari env)
+# 0. KONFIGURASI VERSI (Manual)
 # ==========================================
-# Script ini akan otomatis mengikuti settingan di env_ph_ec.py
-env = PhEcEnv()  # Initialize the PhEc environment
-VERSION = f"{env.ACTIVE_VERSION}_dataset_asli"  # Nama versi untuk folder output
+# Sesuaikan nama versi ini dengan yang Anda pilih di env_ph_ec.py
+VERSION = "v3_dataset_asli"  # <--- GANTI DI SINI (v1_teori, v2_dataset_asli, dll)
+
 OUT_DIR = f"../output/{VERSION}"
 os.makedirs(OUT_DIR, exist_ok=True)
+env = PhEcEnv()  # Initialize the PhEc environment
 agent = QLearningAgent(n_states=25, n_actions=9)  # Initialize the Q-learning agent
 
-episodes = 3000  # Number of training episodes
-max_steps = 50  # Maximum steps per episode
+episodes = 50000  # [AI BOOSTER] Ditambah agar AI punya waktu latihan yang cukup
+max_steps = 200  # [AI BOOSTER] Ditambah agar AI punya napas panjang mencapai target
 
 reward_log = []  # List to log total rewards per episode
 step_log = []  # List to log steps per episode
