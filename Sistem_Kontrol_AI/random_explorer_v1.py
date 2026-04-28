@@ -150,8 +150,21 @@ if __name__ == "__main__":
             current_tx_id = str(int(time.time()))[-6:]  # Unique ID
             payload = f"{aksi}:{current_tx_id}"
 
+            # Pastikan Koneksi MQTT Aktif sebelum kirim
+            if not client.is_connected():
+                print("   ⚠️ [MQTT] Terputus! Menunggu koneksi kembali...")
+                for _ in range(10):  # Tunggu max 10 detik
+                    time.sleep(1)
+                    if client.is_connected():
+                        break
+
             success_sent = False
             for attempt in range(1, 5):  # Maks 4 kali percobaan
+                if not client.is_connected():
+                    print(f"   ❌ [MQTT] Percobaan {attempt} gagal: Broker Offline.")
+                    time.sleep(2)
+                    continue
+
                 print(f"   [Action] Percobaan {attempt}/4: Kirim {payload}")
                 pompa_selesai = False
                 client.publish(TOPIC_ACTION, payload)

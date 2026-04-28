@@ -27,18 +27,17 @@ const int RELAY_NUT_A   = 25;
 const int RELAY_NUT_B   = 33; 
 
 // ==========================================
-// 3. DURASI POMPA (ms)
+// 3. DURASI POMPA FISIK (Kompensasi Hardware Baru)
+// Dihitung agar Volume tetap sama dengan Data Teori (2.4ml / 7.2ml)
 // ==========================================
-const unsigned long t_ph_short  = 2000;   
-const unsigned long t_ph_long   = 5000;   
-const unsigned long t_nut_short = 2000;   
-const unsigned long t_nut_long  = 6000;   
-const unsigned long t_air_short = 5000;   
-const unsigned long t_air_long  = 15000;  
-
-int current_action = -1;
-String current_tx_id = "";
-String last_tx_id = "INIT";
+const unsigned long t_ph_s      = 2000;   // pH Up/Down (Tetap 2s)
+const unsigned long t_ph_l      = 5000;   // pH Up/Down (Tetap 5s)
+const unsigned long t_air_s     = 5000;   // Air Baku (Tetap 5s)
+const unsigned long t_air_l     = 15000;  // Air Baku (Tetap 15s)
+const unsigned long t_nut_a_s   = 1400;   // Nutrisi A (1.75 ml/s -> 1.4s)
+const unsigned long t_nut_a_l   = 4110;   
+const unsigned long t_nut_b_s   = 1200;   // Nutrisi B (2.0 ml/s -> 1.2s)
+const unsigned long t_nut_b_l   = 3600;   
 bool action_pending = false;
 unsigned long lastReconnectAttempt = 0; // Timer non-blocking MQTT
 

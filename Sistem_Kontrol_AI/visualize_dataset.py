@@ -2,9 +2,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Konfigurasi Folder & File
-INPUT_FILE = "../dataset_acak_qlearning.csv"
-BASE_OUTPUT_DIR = "../output_data"
+INPUT_FILE = os.path.normpath(
+    os.path.join(SCRIPT_DIR, "..", "dataset_acak_qlearning.csv")
+)
+BASE_OUTPUT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "output_data"))
 
 
 def generate_plots():

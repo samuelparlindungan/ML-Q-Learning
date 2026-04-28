@@ -31,6 +31,7 @@ int lastActionID = -1;
 bool isAwaitingDone = false;
 String last_tx_id = "INIT";
 String current_tx_id = "";
+String tampilan = "STANDBY"; // Nilai default untuk InfluxDB
 unsigned long lastReconnectAttempt = 0; // Timer non-blocking MQTT
 
 // Variabel Safety (Update dari MQTT Sensor)
@@ -39,13 +40,15 @@ float level_tabung[6] = {0, 500, 500, 500, 500, 500}; // T1-T5 (mL)
 const float AMBANG_BOX = 5.0;   // Minimal 5L air
 const float AMBANG_TABUNG = 50.0; // Minimal 50mL nutrisi/pH
 
-// Durasi Fixed (Untuk Aksi 1-8)
-const unsigned long T_PH_S  = 2000;   
-const unsigned long T_PH_L  = 5000;   
-const unsigned long T_NUT_S = 2000;   
-const unsigned long T_NUT_L = 6000;   
-const unsigned long T_AIR_S = 5000;   
-const unsigned long T_AIR_L = 15000;  
+// Durasi Fisik Baru (Kompensasi Hardware Baru)
+const unsigned long T_PH_S    = 2000;   
+const unsigned long T_PH_L    = 5000;   
+const unsigned long T_NUT_A_S = 1400;   // Nutrisi A (1.75 ml/s -> 1.4s)
+const unsigned long T_NUT_A_L = 4110;   
+const unsigned long T_NUT_B_S = 1200;   // Nutrisi B (2.0 ml/s -> 1.2s)
+const unsigned long T_NUT_B_L = 3600;   
+const unsigned long T_AIR_S   = 5000;   
+const unsigned long T_AIR_L   = 15000;  
 
 // ==========================================
 // 3. FUNGSI LOGIKA AKTUATOR
@@ -60,6 +63,7 @@ void publishStatus() {
   doc["nutrisi_b"] = (digitalRead(PUMP_PINS[5]) == LOW) ? 1 : 0;
   doc["last_act"] = lastActionID;
   doc["box"] = level_box;
+  doc["tampilan"] = tampilan; // ✅ Agar Grafana tetap sinkron 2s/6s
 
   char payload[256];
   serializeJson(doc, payload);
@@ -140,15 +144,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
         Serial.printf("[NEW] Aksi %d | ID:%s\n", action, tx_id.c_str());
         
         switch(action) {
-          case 0: break;
-          case 1: triggerPump(1, T_PH_S); break;
-          case 2: triggerPump(1, T_PH_L); break;
-          case 3: triggerPump(2, T_PH_S); break;
-          case 4: triggerPump(2, T_PH_L); break;
-          case 5: triggerPump(4, T_NUT_S); triggerPump(5, T_NUT_S); break;
-          case 6: triggerPump(4, T_NUT_L); triggerPump(5, T_NUT_L); break;
-          case 7: triggerPump(3, T_AIR_S); break;
-          case 8: triggerPump(3, T_AIR_L); break;
+          case 0: tampilan = "IDLE"; break;
+          case 1: tampilan = "ON ph_up / 2.0s"; triggerPump(1, T_PH_S, true); break;
+          case 2: tampilan = "ON ph_up / 5.0s"; triggerPump(1, T_PH_L, true); break;
+          case 3: tampilan = "ON ph_down / 2.0s"; triggerPump(2, T_PH_S, true); break;
+          case 4: tampilan = "ON ph_down / 5.0s"; triggerPump(2, T_PH_L, true); break;
+          case 5: tampilan = "ON nutrisi_ab / 2.0s"; triggerPump(4, T_NUT_A_S, true); triggerPump(5, T_NUT_B_S, true); break;
+          case 6: tampilan = "ON nutrisi_ab / 6.0s"; triggerPump(4, T_NUT_A_L, true); triggerPump(5, T_NUT_B_L, true); break;
+          case 7: tampilan = "ON air_baku / 5.0s"; triggerPump(3, T_AIR_S, true); break;
+          case 8: tampilan = "ON air_baku / 15.0s"; triggerPump(3, T_AIR_L, true); break;
         }
       } else {
         // Retry detected
@@ -163,8 +167,11 @@ void callback(char* topic, byte* payload, unsigned int length) {
     if (spaceIdx != -1) {
       int id = msg.substring(0, spaceIdx).toInt();
       int dur = msg.substring(spaceIdx + 1).toInt();
-      if (id == 0) stopAll();
-      else triggerPump(id, (unsigned long)dur * 1000, true); // true = force bypass
+      if (id == 0) { stopAll(); tampilan = "STOPPED"; }
+      else {
+        tampilan = "ON Pump " + String(id) + " / " + String(dur) + "s";
+        triggerPump(id, (unsigned long)dur * 1000, true); // true = force bypass
+      }
     }
   }
 }
@@ -230,6 +237,10 @@ void loop() {
         anyPumpRunning = true;
       }
     }
+  }
+
+  if (!anyPumpRunning && tampilan != "STANDBY") {
+    tampilan = "STANDBY";
   }
 
   if (isAwaitingDone && !anyPumpRunning) {
