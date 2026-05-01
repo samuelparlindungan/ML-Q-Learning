@@ -1,0 +1,24 @@
+# Analisis Stabilitas & Delta Eksperimen (Final)
+
+## 1. Implementasi Randomized Deltas
+Berdasarkan diskusi dan analisis dataset v3, kita telah memperbarui `env_ph_ec.py` (dan `env_ph_ec.txt`) untuk menggunakan **distribusi seragam (random.uniform)**. Hal ini memberikan simulasi yang lebih realistis dibandingkan nilai rata-rata statis, karena mencakup rentang ketidakpastian fisik.
+
+Berikut adalah logika yang telah diterapkan:
+
+| Action | Logic (Delta Range) | Sesuai Dataset v3 |
+|:---:|:---|:---|
+| 1 | `random.uniform(0.10, 0.15)` | pH Up Short |
+| 2 | `random.uniform(0.30, 0.35)` | pH Up Long |
+| 3 | `random.uniform(-0.20, -0.15)` | pH Down Short |
+| 4 | `random.uniform(-0.45, -0.35)` | pH Down Long |
+| 5 | `random.uniform(65.0, 85.0)` | Nutrisi Short |
+| 6 | `random.uniform(150.0, 180.0)` | Nutrisi Long |
+| 7 | `random.uniform(-45.0, -35.0)` | Air Baku Short |
+| 8 | `random.uniform(-135.0, -105.0)` | Air Baku Long |
+
+## 2. Firmware Terbaru
+Folder ini sekarang berisi firmware yang benar-benar digunakan di lapangan:
+- `ESP32_Sensor.txt`: Untuk pembacaan sensor berkelanjutan.
+- `ESP32_Aktuator_Maintenance.txt`: Untuk kontrol pompa dengan fitur safety interlock.
+
+*Data telah disinkronkan untuk kebutuhan NotebookLM dan penulisan Bab 4.*

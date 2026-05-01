@@ -8,23 +8,31 @@ class QLearningAgent:  # Define the QLearningAgent class for Q-learning algorith
         n_states=25,  # Number of states in the environment
         n_actions=9,  # Number of actions available
         alpha=0.1,  # Ekploration 10%, Eksploitation 90%
-        alpha_decay=0.9995,  # Decay rate for alpha
+        #alpha_decay=0.9995,  # Decay rate for alpha
+        alpha_decay=0.9998,  # Decay rate for alpha
         alpha_min=0.01,  # Minimum value for alpha
-        gamma=0.95,  # Jika agent
+        #gamma=0.95,  # Jika agent
         # persamaan bellman equation notasi gamma adalah diskon faktor
+        #gamma=0.90,  # Diskon faktor (Bellman Equation)
+        gamma=0.95,  # Visi jangka panjang (Sesuai draf B600)
         epsilon=1.0,  # Initial exploration rate
-        epsilon_decay=0.995,  # Decay rate for epsilon
+        #epsilon_decay=0.995,  # Decay rate for epsilon
+        #epsilon_decay=0.9995,  # Decay rate for epsilon
+        epsilon_decay=0.9999,  # Eksplorasi awet sampai 50rb episode (Sesuai draf B600)
         epsilon_min=0.01,  # Minimum value for epsilon
     ):
         self.Q = np.zeros((n_states, n_actions))  # 25x9 sesuai Tabel 3.5
-        self.alpha = 0.05  # [AI BOOSTER] Learning rate lebih stabil untuk reward besar
+        #self.alpha = 0.05  # Learning rate lebih stabil untuk reward besar
+        self.alpha = alpha  # Menggunakan parameter (0.10)
         self.alpha_decay = alpha_decay  # Decay untuk learning rate
         self.alpha_min = alpha_min  # Minimum learning rate
-        self.gamma = (
-            0.999  # [AI BOOSTER] Visi jangka sangat panjang (untuk 200 langkah)
-        )
+        #self.gamma = 0.999  # Visi jangka sangat panjang
+        #self.gamma = 0.90  # Menggunakan parameter (0.90)
+        self.gamma = gamma  # Menggunakan parameter (0.95)
         self.epsilon = epsilon  # Initial exploration rate
-        self.epsilon_decay = 0.9999  # [AI BOOSTER] Eksplorasi awet sampai 50rb episode
+        #self.epsilon_decay = 0.9999  # Eksplorasi awet sampai 50rb episode
+        #self.epsilon_decay = 0.9995  # eps -> 0.01 di ~ep 9200
+        self.epsilon_decay = epsilon_decay  # Eksplorasi awet (0.9999)
         self.epsilon_min = epsilon_min  # Minimum exploration rate
         self.n_actions = n_actions  # Number of actions
 
@@ -47,9 +55,10 @@ class QLearningAgent:  # Define the QLearningAgent class for Q-learning algorith
         self.visit_count[
             state, action
         ] += 1  # Increment visit count for state-action pair
+        # adaptive_alpha = self.alpha / (1 + 0.001 * self.visit_count[state, action])  # v1
         adaptive_alpha = self.alpha / (
-            1 + 0.001 * self.visit_count[state, action]
-        )  # Calculate adaptive alpha
+            1 + 0.01 * self.visit_count[state, action]
+        )  # v2: Lebih responsif
 
         best_next = np.max(self.Q[next_state])  # Get maximum Q-value for next state
         td_target = reward + self.gamma * best_next  # Calculate TD target

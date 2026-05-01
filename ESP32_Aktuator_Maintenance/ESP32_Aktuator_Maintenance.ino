@@ -138,13 +138,21 @@ void callback(char* topic, byte* payload, unsigned int length) {
       int action = msg.substring(0, colonIdx).toInt();
       String tx_id = msg.substring(colonIdx + 1);
 
-      if (tx_id != last_tx_id) {
+        if (action == 0) {
+          Serial.printf("[SYSTEM] Aksi 0 (IDLE) diterima. Mengirim DONE:%s\n", tx_id.c_str());
+          last_tx_id = tx_id; // Simpan agar tidak diproses ulang jika ada retry
+          mqttClient.publish(topic_status, ("DONE:" + tx_id).c_str());
+          tampilan = "IDLE";
+          return;
+        }
+
+        if (tx_id != last_tx_id) {
         current_tx_id = tx_id;
         isAwaitingDone = true;
         Serial.printf("[NEW] Aksi %d | ID:%s\n", action, tx_id.c_str());
         
         switch(action) {
-          case 0: tampilan = "IDLE"; break;
+          // case 0 ditangani oleh interceptor di atas (baris 141-147)
           case 1: tampilan = "ON ph_up / 2.0s"; triggerPump(1, T_PH_S, true); break;
           case 2: tampilan = "ON ph_up / 5.0s"; triggerPump(1, T_PH_L, true); break;
           case 3: tampilan = "ON ph_down / 2.0s"; triggerPump(2, T_PH_S, true); break;

@@ -8,14 +8,18 @@ from qlearning_agent import QLearningAgent  # Import the QLearningAgent class
 # 0. KONFIGURASI VERSI (Manual)
 # ==========================================
 # Sesuaikan nama versi ini dengan yang Anda pilih di env_ph_ec.py
-VERSION = "v3_dataset_asli"  # <--- GANTI DI SINI (v1_teori, v2_dataset_asli, dll)
+VERSION = "v6_lama"  # Hasil Akhir: Sesi 1-4 Cleaned + Anti-Hacking + New Reward
+# VERSION = "v5_normal_sesi3"
 
-OUT_DIR = f"../output/{VERSION}"
+
+# Gunakan path absolut agar folder output selalu berada di dalam project
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "output", VERSION))
 os.makedirs(OUT_DIR, exist_ok=True)
 env = PhEcEnv()  # Initialize the PhEc environment
 agent = QLearningAgent(n_states=25, n_actions=9)  # Initialize the Q-learning agent
 
-episodes = 50000  # [AI BOOSTER] Ditambah agar AI punya waktu latihan yang cukup
+episodes = 10000  # [AI BOOSTER] Ditambah agar AI punya waktu latihan yang cukup
 max_steps = 200  # [AI BOOSTER] Ditambah agar AI punya napas panjang mencapai target
 
 reward_log = []  # List to log total rewards per episode
@@ -98,7 +102,7 @@ for state in range(25):  # Loop over all states
 with open(f"{OUT_DIR}/policy.json", "w") as f:  # Open policy.json file
     json.dump(policy, f, indent=2)  # Dump policy to JSON
 
-print("\n✅ TRAINING SELESAI!")  # Print completion message
+print("\n[OK] TRAINING SELESAI!")  # Print completion message
 print(
     f"Final: Alpha={agent.alpha:.4f}, Epsilon={agent.epsilon:.3f}"
 )  # Print final parameters

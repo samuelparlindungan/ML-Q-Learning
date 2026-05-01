@@ -5,20 +5,33 @@ import os
 
 def main():
     # 1. Definisi Semua Versi Penelitian
-    ALL_VERSIONS = ["v1_teori", "v2_dataset_asli", "v3_dataset_asli"]
+    ALL_VERSIONS = [
+        "v1_teori",
+        "v2_dataset_asli",
+        "v3_dataset_asli",
+        "v4_dataset_asli",
+        "v5_normal_sesi3",
+        "v6_lama",
+        "v6_final",  # Hasil Akhir (Bab 4)
+    ]
+
+    # Ambil lokasi folder project secara absolut
+    SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+    PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 
     print("=" * 60)
-    print("🤖 BATCH REPORT GENERATOR: GRAFIK RISET AI")
+    print("[AI] BATCH REPORT GENERATOR: GRAFIK RISET AI")
     print("=" * 60)
 
     for version in ALL_VERSIONS:
-        output_dir = f"../output/{version}"
+        # Arahkan ke folder output di dalam project root
+        output_dir = os.path.normpath(os.path.join(PROJECT_ROOT, "output", version))
 
         if not os.path.exists(output_dir):
-            print(f"⏩ Menyilang {version}: Folder tidak ditemukan.")
+            print(f"[SKIP] {version}: Folder tidak ditemukan di {output_dir}")
             continue
 
-        print(f"\n📂 MEMPROSES VERSI: {version.upper()}")
+        print(f"\n[PROCESS] MEMPROSES VERSI: {version.upper()}")
         print("-" * 30)
 
         # 2. Load Data .npy
@@ -30,7 +43,7 @@ def main():
             state_visit = np.load(f"{output_dir}/state_visit.npy")
             action_count = np.load(f"{output_dir}/action_count.npy")
         except Exception as e:
-            print(f"❌ Error saat memuat data {version}: {e}")
+            print(f"[ERROR] saat memuat data {version}: {e}")
             continue
 
         # Konfigurasi visual
@@ -124,7 +137,7 @@ def main():
         plt.savefig(f"{output_dir}/Grafik_5_Distribusi_Aksi.png", dpi=200)
         plt.close()
 
-        print(f"✅ Versi {version} SELESAI.")
+        print(f"[DONE] Versi {version} SELESAI.")
 
     print("\n" + "=" * 60)
     print("SELESAI! Semua grafik riset telah diperbarui.")

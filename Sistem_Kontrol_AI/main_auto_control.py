@@ -1,37 +1,38 @@
 import paho.mqtt.client as mqtt
 import time, json, os, pandas as pd
+import csv
 from datetime import datetime
 
 # ==========================================
 # 0. KONFIGURASI SISTEM
 # ==========================================
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MQTT_BROKER, MQTT_PORT = "192.168.100.10", 1883
 TOPICS = {
     "sensor": "hidroponik/sensor",
     "action": "hidroponik/action",
     "status": "hidroponik/status",
 }
-# ==========================================
-# 0. KONFIGURASI SISTEM
-# ==========================================
-MQTT_BROKER, MQTT_PORT = "192.168.100.10", 1883
-TOPICS = {
-    "sensor": "hidroponik/sensor",
-    "action": "hidroponik/action",
-    "status": "hidroponik/status",
-}
-# GUNAKAN v3 UNTUK DATA PALING AKURAT (SESI 2)
-VERSION_LOAD = "v3_dataset_asli"
-CSV_AUTO = "../output/data_transisi_otomatis.csv"
-POLICY_FILE = f"../output/{VERSION_LOAD}/policy.json"
+# GUNAKAN v6_final UNTUK HASIL OPTIMAL (ANTI-HACKING)
+VERSION_LOAD = "v6_final"
+CSV_AUTO = os.path.normpath(
+    os.path.join(SCRIPT_DIR, "..", "output", "data_transisi_otomatis.csv")
+)
+POLICY_FILE = os.path.normpath(
+    os.path.join(SCRIPT_DIR, "..", "output", VERSION_LOAD, "policy.json")
+)
+LOG_FILE = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "output", "system_log.csv"))
 WAKTU_HOMO = 180  # 3 Menit
+WAKTU_SAMPLING = 60  # 1 Menit Averaging Window
 
 # State Tracking
-status = "STANDBY"
+status = "SAMPLING"  # Mulai dengan sampling data awal
 waktu_homo_end = 0
+waktu_sampling_end = time.time() + WAKTU_SAMPLING
 waktu_resend_next = 0  # Untuk Retry Logic
 current_tx_id = ""  # ID unik untuk siklus ini
 policy_ai = {}
+sampling_buffer = {"ph": [], "ec": []}
 tracking = {
     "wait_st1": False,
     "st_ph": 0.0,
@@ -57,6 +58,18 @@ ACTIONS = {
 # ==========================================
 # 1. FUNGSI PEMBANTU
 # ==========================================
+def write_log(event_type, topic, detail=""):
+    """Tulis satu baris log ke file CSV."""
+    file_exists = os.path.isfile(LOG_FILE)
+    # Pastikan direktori output ada
+    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    with open(LOG_FILE, mode="a", newline="") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["timestamp", "event_type", "topic", "detail"])
+        writer.writerow([datetime.now().isoformat(), event_type, topic, detail])
+
+
 def get_ph_idx(v):
     return 0 if v < 5.5 else 1 if v < 5.8 else 2 if v <= 6.2 else 3 if v <= 6.5 else 4
 
@@ -99,6 +112,7 @@ def push_action(action_id):
 
     payload = f"{action_id}:{current_tx_id}"
     client.publish(TOPICS["action"], payload)
+    write_log("SEND_ACTION", TOPICS["action"], payload)
 
     waktu_resend_next = time.time() + 15  # Set timeout 15 detik untuk retry
     print(f"🚀 [ACTION] Perintah Terkirim: {ACTIONS.get(action_id)} (ID:{payload})")
@@ -121,6 +135,7 @@ def on_message(client, userdata, msg):
     # A. Feedback Selesai dari ESP32 (Harus Cocok ID-nya)
     if msg.topic == TOPICS["status"] and status == "DOSING":
         if payload == f"DONE:{current_tx_id}":
+            write_log("RECV_STATUS", msg.topic, payload)
             print(f"📥 [STATUS] ESP32 mengonfirmasi: {payload} SELESAI.")
             print(f"⏳ [HOMO] Memulai Masa Homogenisasi {WAKTU_HOMO} detik...")
             status, waktu_homo_end = "HOMO", time.time() + WAKTU_HOMO
@@ -129,62 +144,88 @@ def on_message(client, userdata, msg):
 
     # B. Monitoring Sensor & Keputusan AI
     elif msg.topic == TOPICS["sensor"]:
+        write_log("RECV_SENSOR", msg.topic, payload)
         try:
             data = json.loads(payload)
             ph, ec = float(data.get("ph", 0)), float(data.get("ec", 0))
 
+            # Filter Safety Dasar
+            if ph < 3 or ph > 9 or ec < 100 or ec > 3000:
+                return
+
             if status == "HOMO":
                 sisa = int(waktu_homo_end - time.time())
                 if sisa <= 0:
-                    print("✨ [OK] Homogenisasi Selesai. Sistem kembali STANDBY.")
-                    status = "STANDBY"
-                else:
-                    if sisa % 30 == 0:  # Print status tiap 30 detik
-                        print(f"🥣 [MIXING] Menunggu larutan merata... Sisa: {sisa}s")
+                    print("✨ [OK] Homogenisasi Selesai. Masuk masa Sampling (60s)...")
+                    status, waktu_sampling_end = (
+                        "SAMPLING",
+                        time.time() + WAKTU_SAMPLING,
+                    )
+                    sampling_buffer["ph"], sampling_buffer["ec"] = [], []
                 return
 
-            if status == "STANDBY":
-                # Safety Filter
-                if ph < 3 or ph > 9 or ec < 100 or ec > 3000:
+            if status == "SAMPLING":
+                sampling_buffer["ph"].append(ph)
+                sampling_buffer["ec"].append(ec)
+
+                sisa = int(waktu_sampling_end - time.time())
+                if sisa > 0:
+                    if sisa % 15 == 0:
+                        print(
+                            f"📊 [SAMPLING] Mengumpulkan data... ({len(sampling_buffer['ph'])} data, sisa {sisa}s)"
+                        )
                     return
 
-                # Record transisi dari siklus sebelumnya jika ada
-                log_transition(ph, ec)
+                # JIKA WAKTU SAMPLING HABIS, HITUNG RATA-RATA
+                avg_ph = sum(sampling_buffer["ph"]) / len(sampling_buffer["ph"])
+                avg_ec = sum(sampling_buffer["ec"]) / len(sampling_buffer["ec"])
+                print(
+                    f"📈 [AVG] Hasil Rata-rata 1 Menit: pH:{avg_ph:.2f}, EC:{avg_ec:.0f}"
+                )
+
+                # RESET BUFFER INSTAN (Bug 3 Fix)
+                sampling_buffer["ph"], sampling_buffer["ec"] = [], []
+
+                # Record transisi dari siklus sebelumnya
+                log_transition(avg_ph, avg_ec)
 
                 # AMBIL KEPUTUSAN AI
-                s_idx = get_ph_idx(ph) * 5 + get_ec_idx(ec)
+                s_idx = get_ph_idx(avg_ph) * 5 + get_ec_idx(avg_ec)
                 state_key = f"state_{s_idx + 1}"
 
                 if state_key in policy_ai:
                     best_act = policy_ai[state_key]["best_action"]
 
-                    if best_act == 0:  # IDLE (Sudah di zona aman)
-                        if time.time() % 60 < 2:  # Print sesekali saja
-                            print(
-                                f"🎯 [TARGET] Kondisi Optimal (pH:{ph:.2f}, EC:{ec:.0f}). Menjaga State..."
-                            )
+                    if best_act == 0:  # IDLE
+                        print(f"🎯 [TARGET] Kondisi Optimal. Menunggu 1 menit untuk sampling berikutnya...")
+                        tracking.update({
+                            "wait_st1": True,
+                            "st_ph": avg_ph,
+                            "st_ec": avg_ec,
+                            "act": 0,
+                            "q": policy_ai[state_key]["max_q"],
+                        })
+                        status, waktu_sampling_end = "SAMPLING", time.time() + WAKTU_SAMPLING
                         return
 
-                    print(f"\n🧠 [AI] State: {state_key} | pH:{ph:.2f} EC:{ec:.0f}")
+                    print(f"\n🧠 [AI] State: {state_key} | Action: {ACTIONS[best_act]}")
                     tracking.update(
                         {
                             "wait_st1": True,
-                            "st_ph": ph,
-                            "st_ec": ec,
+                            "st_ph": avg_ph,
+                            "st_ec": avg_ec,
                             "act": best_act,
                             "q": policy_ai[state_key]["max_q"],
                         }
                     )
 
-                    # Reset timer resend agar push_action membuat ID baru
-                    global waktu_resend_next
                     waktu_resend_next = 0
-
                     if push_action(best_act):
                         status = "DOSING"
 
         except Exception as e:
-            pass
+            # Bug 2 Fix: Jangan telan error diam-diam
+            print(f"⚠️ [ERROR] on_message exception: {e}")
 
 
 # ==========================================
@@ -216,6 +257,7 @@ if __name__ == "__main__":
                 print(
                     f"⚠️ [RETRY] ESP32 tidak merespon. Mengirim ulang ID:{current_tx_id}..."
                 )
+                write_log("RETRY_ACTION", TOPICS["action"], f"resend {current_tx_id}")
                 push_action(tracking["act"])
 
             time.sleep(1)
