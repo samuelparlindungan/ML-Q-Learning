@@ -9,25 +9,27 @@ def main():
     # 0. KONFIGURASI VERSI (Otomatis dari env)
     # ==========================================
     env = PhEcEnv()
-    VERSION = f"{env.ACTIVE_VERSION}_dataset_asli"
-    path = f"../output/{VERSION}/Q_table.npy"
+    VERSION = env.ACTIVE_VERSION
+    # Mendapatkan path absolut folder output (satu level di atas script)
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(base_dir, "output", VERSION, "Q_table.npy")
 
     if not os.path.exists(path):
-        # Fallback untuk folder lama tanpa suffix _asli
-        VERSION_OLD = f"{env.ACTIVE_VERSION}_dataset"
-        path_old = f"../output/{VERSION_OLD}/Q_table.npy"
-        if os.path.exists(path_old):
-            VERSION = VERSION_OLD
-            path = path_old
+        # Fallback untuk folder dengan suffix
+        VERSION_ALT = f"{env.ACTIVE_VERSION}_dataset_asli"
+        path_alt = os.path.join(base_dir, "output", VERSION_ALT, "Q_table.npy")
+        if os.path.exists(path_alt):
+            VERSION = VERSION_ALT
+            path = path_alt
 
     if not os.path.exists(path):
-        print(f"❌ File Q-Table tidak ditemukan di: {path}")
+        print(f"[ERROR] File Q-Table tidak ditemukan di: {path}")
         print("Pastikan Anda sudah menjalankan training untuk versi ini.")
         return
 
     # 1. Load Q-Table
     Q = np.load(path)
-    print(f"✅ Berhasil memuat Q-Table: {VERSION}")
+    print(f"[OK] Berhasil memuat Q-Table: {VERSION}")
     print("=" * 50)
 
     # 2. Inisialisasi Simulasi
@@ -77,9 +79,9 @@ def main():
     print(f"TOTAL REWARD: {total_reward:.2f}")
 
     if done:
-        print("🎯 TARGET TERCAPAI (Optimal State)!")
+        print("TARGET TERCAPAI (Optimal State)!")
     else:
-        print("⌛ BATAS LANGKAH TERCAPAI.")
+        print("BATAS LANGKAH TERCAPAI.")
 
 
 if __name__ == "__main__":

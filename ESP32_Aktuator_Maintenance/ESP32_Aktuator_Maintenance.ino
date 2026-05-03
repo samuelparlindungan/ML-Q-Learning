@@ -1,6 +1,8 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include <NTPClient.h>      // Tambahan Latensi
+#include <WiFiUdp.h>        // Tambahan Latensi
 
 // ==========================================
 // 1. KONFIGURASI WIFI & MQTT
@@ -12,6 +14,10 @@ const int   mqtt_port   = 1883;
 
 const char* topic_action   = "hidroponik/action"; 
 const char* topic_status   = "hidroponik/status"; 
+
+// NTP Client (GMT+7 = 0 offset karena kita hitung Epoch)
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "id.pool.ntp.org", 0); 
 const char* topic_mainten  = "hidroponik/maintenance"; 
 const char* topic_aktuator = "hidroponik/aktuator";
 const char* topic_sensor   = "hidroponik/sensor";    // ✅ Unsur Safety
@@ -23,7 +29,11 @@ PubSubClient mqttClient(espClient);
 // 2. PIN & POMPA (Indeks 1-5)
 // ==========================================
 const int PUMP_PINS[6] = {0, 14, 27, 26, 25, 33}; 
-const char* PUMP_NAMES[6] = {"", "pH UP", "pH DOWN", "AIR BAKU", "NUTRISI A", "NUTRISI B"};
+const char* PUMP_NAMES[] = {"", "PH_UP", "PH_DOWN", "AIR_BAKU", "NUT_A", "NUT_B"};
+
+// --- SAKLAR SAFETY FISIK (true = Aktif, false = Bypass) ---
+// Index 0 = BOX, Index 1-5 = Tabung
+bool safety_enabled[] = {true, false, true, true, true, true}; // Default: T1 dibypass
 
 // Variabel Kontrol Non-Blocking
 unsigned long stopTime[6] = {0, 0, 0, 0, 0, 0};
@@ -38,7 +48,7 @@ unsigned long lastReconnectAttempt = 0; // Timer non-blocking MQTT
 float level_box = 20.0; // Default aman (Liter)
 float level_tabung[6] = {0, 500, 500, 500, 500, 500}; // T1-T5 (mL)
 const float AMBANG_BOX = 5.0;   // Minimal 5L air
-const float AMBANG_TABUNG = 50.0; // Minimal 50mL nutrisi/pH
+const float AMBANG_TABUNG = 100.0; // Minimal 100mL nutrisi/pH
 
 // Durasi Fisik Baru (Kompensasi Hardware Baru)
 const unsigned long T_PH_S    = 2000;   
@@ -47,8 +57,8 @@ const unsigned long T_NUT_A_S = 1400;   // Nutrisi A (1.75 ml/s -> 1.4s)
 const unsigned long T_NUT_A_L = 4110;   
 const unsigned long T_NUT_B_S = 1200;   // Nutrisi B (2.0 ml/s -> 1.2s)
 const unsigned long T_NUT_B_L = 3600;   
-const unsigned long T_AIR_S   = 5000;   
-const unsigned long T_AIR_L   = 15000;  
+const unsigned long T_AIR_S   = 60000;   // 60 detik (Kompensasi tandon besar)
+const unsigned long T_AIR_L   = 180000;  // 180 detik (3 Menit)
 
 // ==========================================
 // 3. FUNGSI LOGIKA AKTUATOR
@@ -81,16 +91,18 @@ void triggerPump(int pumpIdx, unsigned long ms, bool force = false) {
 
   // --- SAFETY INTERLOCK CHECK ---
   if (!force) {
-    if (level_box < AMBANG_BOX) {
-      Serial.println("⚠️ SAFETY: Tandon Utama KRITIS! Pompa Dibatalkan.");
+    // Hanya cek BOX jika saklar 0 TRUE
+    if (safety_enabled[0] && level_box < AMBANG_BOX) {
+      Serial.println("[SAFETY] Tandon Utama KRITIS! Pompa Dibatalkan.");
       return;
     }
-    if (level_tabung[pumpIdx] < AMBANG_TABUNG) {
-      Serial.printf("⚠️ SAFETY: Tabung %s KOSONG! Pompa Dibatalkan.\n", PUMP_NAMES[pumpIdx]);
+    // Hanya cek tabung jika saklarnya TRUE
+    if (safety_enabled[pumpIdx] && level_tabung[pumpIdx] < AMBANG_TABUNG) {
+      Serial.printf("[SAFETY] Tabung %s KOSONG! Pompa Dibatalkan.\n", PUMP_NAMES[pumpIdx]);
       return;
     }
   } else {
-    Serial.println("⚙️ MAINTENANCE: Safety di-BYPASS.");
+    Serial.println("[MAINTENANCE] Safety di-BYPASS.");
   }
 
   digitalWrite(PUMP_PINS[pumpIdx], LOW); // ON
@@ -153,14 +165,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
         
         switch(action) {
           // case 0 ditangani oleh interceptor di atas (baris 141-147)
-          case 1: tampilan = "ON ph_up / 2.0s"; triggerPump(1, T_PH_S, true); break;
-          case 2: tampilan = "ON ph_up / 5.0s"; triggerPump(1, T_PH_L, true); break;
-          case 3: tampilan = "ON ph_down / 2.0s"; triggerPump(2, T_PH_S, true); break;
-          case 4: tampilan = "ON ph_down / 5.0s"; triggerPump(2, T_PH_L, true); break;
-          case 5: tampilan = "ON nutrisi_ab / 2.0s"; triggerPump(4, T_NUT_A_S, true); triggerPump(5, T_NUT_B_S, true); break;
-          case 6: tampilan = "ON nutrisi_ab / 6.0s"; triggerPump(4, T_NUT_A_L, true); triggerPump(5, T_NUT_B_L, true); break;
-          case 7: tampilan = "ON air_baku / 5.0s"; triggerPump(3, T_AIR_S, true); break;
-          case 8: tampilan = "ON air_baku / 15.0s"; triggerPump(3, T_AIR_L, true); break;
+          case 1: tampilan = "ON ph_up / 2.0s"; triggerPump(1, T_PH_S); break;
+          case 2: tampilan = "ON ph_up / 5.0s"; triggerPump(1, T_PH_L); break;
+          case 3: tampilan = "ON ph_down / 2.0s"; triggerPump(2, T_PH_S); break;
+          case 4: tampilan = "ON ph_down / 5.0s"; triggerPump(2, T_PH_L); break;
+          case 5: tampilan = "ON nutrisi_ab / 2.0s"; triggerPump(4, T_NUT_A_S); triggerPump(5, T_NUT_B_S); break;
+          case 6: tampilan = "ON nutrisi_ab / 6.0s"; triggerPump(4, T_NUT_A_L); triggerPump(5, T_NUT_B_L); break;
+          case 7: tampilan = "ON air_baku / 60.0s"; triggerPump(3, T_AIR_S); break;
+          case 8: tampilan = "ON air_baku / 180.0s"; triggerPump(3, T_AIR_L); break;
         }
       } else {
         // Retry detected
@@ -171,14 +183,23 @@ void callback(char* topic, byte* payload, unsigned int length) {
   } 
   // C. EKSEKUSI MAINTENANCE (BYPASS SAFETY)
   else if (String(topic) == topic_mainten) {
-    int spaceIdx = msg.indexOf(' ');
-    if (spaceIdx != -1) {
-      int id = msg.substring(0, spaceIdx).toInt();
-      int dur = msg.substring(spaceIdx + 1).toInt();
-      if (id == 0) { stopAll(); tampilan = "STOPPED"; }
-      else {
-        tampilan = "ON Pump " + String(id) + " / " + String(dur) + "s";
-        triggerPump(id, (unsigned long)dur * 1000, true); // true = force bypass
+    // A. Perintah Pompa (Format: "P DUR" -> "1 10")
+    if (isdigit(msg[0])) {
+      int p = msg.substring(0, 1).toInt();
+      int dur = msg.substring(2).toInt();
+      if (p >= 1 && p <= 5) {
+        triggerPump(p, dur * 1000UL, true); // Force ON (Maintenance Mode)
+      }
+    }
+    // B. Perintah Safety Toggle (Format: "S P 1/0" -> "S 1 0")
+    else if (msg.startsWith("S")) {
+      int p = msg.substring(2, 3).toInt();
+      int val = msg.substring(4, 5).toInt();
+      
+      if (p >= 0 && p <= 5) { // Individu (BOX 0, Tabung 1-5)
+        safety_enabled[p] = (val == 1);
+        const char* target = (p == 0) ? "BOX/TANDON" : PUMP_NAMES[p];
+        Serial.printf("[MAINTENANCE] Safety %s sekarang: %s\n", target, safety_enabled[p] ? "AKTIF" : "BYPASS");
       }
     }
   }
@@ -223,6 +244,7 @@ void setup() {
   setup_wifi();
   mqttClient.setServer(mqtt_server, mqtt_port);
   mqttClient.setCallback(callback);
+  timeClient.begin(); // Mulai NTP Client
 }
 
 void loop() {
@@ -236,15 +258,22 @@ void loop() {
   bool anyPumpRunning = false;
 
   for (int i=1; i<=5; i++) {
-    if (stopTime[i] > 0) {
-      if (now >= stopTime[i]) {
-        digitalWrite(PUMP_PINS[i], HIGH);
-        stopTime[i] = 0;
-        Serial.printf("[POMPA] %s OFF (Auto)\n", PUMP_NAMES[i]);
-      } else {
-        anyPumpRunning = true;
-      }
+    if (stopTime[i] > 0 && millis() > stopTime[i]) {
+      digitalWrite(PUMP_PINS[i], HIGH);
+      stopTime[i] = 0;
+      isAwaitingDone = false;
+      
+      // Kirim konfirmasi DONE dengan JSON + Timestamp
+      timeClient.update();
+      unsigned long long timestamp = ((unsigned long long)timeClient.getEpochTime() * 1000ULL) + (millis() % 1000ULL);
+      
+      char resp[128];
+      snprintf(resp, sizeof(resp), "{\"status\":\"DONE\",\"tx\":\"%s\",\"ts\":%llu}", current_tx_id.c_str(), timestamp);
+      mqttClient.publish(topic_status, resp);
+      
+      Serial.printf("[SYSTEM] %s Selesai. Sent: %s\n", PUMP_NAMES[i], resp);
     }
+    if (stopTime[i] > 0) anyPumpRunning = true;
   }
 
   if (!anyPumpRunning && tampilan != "STANDBY") {

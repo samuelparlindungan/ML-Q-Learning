@@ -213,7 +213,7 @@ void DFRobot_PH::phCalibration(byte mode)
     case 0:
         if (enterCalibrationFlag)
         {
-            Serial.println(F(">>>Command Error<<<"));
+            Serial.println("--- Command Error ---");
         }
         break;
 
@@ -221,8 +221,8 @@ void DFRobot_PH::phCalibration(byte mode)
         enterCalibrationFlag = 1;
         phCalibrationFinish = 0;
         Serial.println();
-        Serial.println(F(">>>Enter PH Calibration Mode<<<"));
-        Serial.println(F(">>>Please put the probe into the 4.0 or 7.0 standard buffer solution<<<"));
+        Serial.println("--- Enter PH Calibration Mode ---");
+        Serial.println("--- Please put the probe into the 4.0 or 7.0 standard buffer solution ---");
         Serial.println();
         break;
 
