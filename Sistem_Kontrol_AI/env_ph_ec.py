@@ -239,22 +239,30 @@ class PhEcEnv(
 # FUNGSI PEMBANTU GLOBAL (Untuk Deploy)
 # ==========================================
 def get_ph_idx(ph):
-    """Konversi nilai pH ke index 0-4 sesuai mapping training bapak"""
-    # Berdasarkan pengamatan kode training: menggunakan pembulatan ke index terdekat
-    # Jika pH asli 0-14 dikonversi ke index 0-4
-    if ph < 4.0: return 0
-    if ph < 5.5: return 1
-    if ph <= 6.5: return 2
-    if ph <= 8.0: return 3
+    """Konversi nilai pH ke index 0-4 sesuai Tabel 3.3 TA"""
+    if ph < 5.5:
+        return 0
+    if ph < 5.8:
+        return 1
+    if ph <= 6.2:
+        return 2  # Optimal
+    if ph <= 6.5:
+        return 3
     return 4
 
+
 def get_ec_idx(ec):
-    """Konversi nilai EC ke index 0-4 sesuai mapping training bapak"""
-    if ec < 300: return 0
-    if ec < 800: return 1
-    if ec <= 1500: return 2
-    if ec <= 2000: return 3
+    """Konversi nilai EC ke index 0-4 sesuai Tabel 3.3 TA"""
+    if ec < 800:
+        return 0
+    if ec < 1100:
+        return 1
+    if ec <= 1300:
+        return 2  # Optimal
+    if ec <= 1600:
+        return 3
     return 4
+
 
 def get_reward(ph, ec):
     """Hitung reward menggunakan reward_table dari env yang sudah diinisialisasi"""

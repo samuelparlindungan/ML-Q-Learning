@@ -112,7 +112,7 @@ print(f"\n\n{'#'*60}")
 print(f"  KHUSUS SESI 3 (Golden Dataset)")
 print(f"{'#'*60}")
 
-df_s3 = df[df["Sesi_Eksperimen"] == "Eksplorasi_Sesi_3"]
+df_s3 = df[df["Sesi_Eksperimen"] == "Sesi_3"]
 if len(df_s3) > 0:
     for action_id in range(1, 9):
         subset = df_s3[df_s3["Action"] == action_id]

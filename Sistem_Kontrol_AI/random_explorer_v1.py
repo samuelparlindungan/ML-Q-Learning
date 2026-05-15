@@ -127,7 +127,7 @@ if __name__ == "__main__":
         print("🤖   ROBOT EKSPLORASI ACAK (RELIABLE VERSION)   🤖")
         print("=" * 55)
 
-        sesi_name = input("Masukkan Nama Sesi (Misal: Eksplorasi_Sesi_2): ")
+        sesi_name = input("Masukkan Nama Sesi (Misal: Sesi_2): ")
         if not sesi_name:
             sesi_name = "Default_Session"
 

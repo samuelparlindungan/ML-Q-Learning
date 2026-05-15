@@ -95,8 +95,9 @@ def generate_plots():
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "1_tren_diagnostic_ph_ec.png"))
-    print(f"Saved: {output_dir}/1_tren_diagnostic_ph_ec.png")
+    file_1 = f"{session_name}_1_tren_diagnostic_ph_ec.png"
+    plt.savefig(os.path.join(output_dir, file_1))
+    print(f"Saved: {output_dir}/{file_1}")
 
     # 2. Grafik Distribusi Aksi (Bar Chart)
     plt.figure(figsize=(10, 5))
@@ -107,8 +108,9 @@ def generate_plots():
     plt.ylabel("Jumlah Kemunculan")
     plt.xticks(rotation=0)
     plt.grid(axis="y", linestyle="--", alpha=0.7)
-    plt.savefig(os.path.join(output_dir, "2_distribusi_aksi.png"))
-    print(f"Saved: {output_dir}/2_distribusi_aksi.png")
+    file_2 = f"{session_name}_2_distribusi_aksi.png"
+    plt.savefig(os.path.join(output_dir, file_2))
+    print(f"Saved: {output_dir}/{file_2}")
 
     # 3. Grafik Efek Aksi (Delta pH vs Delta EC per Aksi)
     plt.figure(figsize=(12, 6))
@@ -127,8 +129,9 @@ def generate_plots():
 
     plt.suptitle(f"Analisis Delta - Sesi: {session_name}")
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "3_efek_aksi_boxplot.png"))
-    print(f"Saved: {output_dir}/3_efek_aksi_boxplot.png")
+    file_3 = f"{session_name}_3_efek_aksi_boxplot.png"
+    plt.savefig(os.path.join(output_dir, file_3))
+    print(f"Saved: {output_dir}/{file_3}")
 
     # 4. Grafik Perbandingan Antar Sesi (Overlaid)
     plt.figure(figsize=(15, 10))
